@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Resultados búsqueda: {{ query }}{% endblock %}
+
+{% block content %}
+<h2>Resultados para: <strong>"{{ query }}"</strong></h2>
+
+{% if alimentos %}
+  <table role="grid">
+    <thead>
+      <tr>
+        <th>Alimento</th>
+        <th>Calorías (100g)</th>
+        <th>Proteínas (100g)</th>
+        <th>Grasas (100g)</th>
+        <th>Carbohidratos (100g)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in alimentos %}
+      <tr>
+        <td>{{ a.nombre }}</td>
+        <td>{{ a.calorias }}</td>
+        <td>{{ a.proteinas }}</td>
+        <td>{{ a.grasas }}</td>
+        <td>{{ a.carbohidratos }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No se encontraron alimentos para la búsqueda.</p>
+{% endif %}
+
+<a href="{{ url_for('dashboard') }}" class="secondary">← Volver al dashboard</a>
+{% endblock %}

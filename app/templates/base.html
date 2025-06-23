@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Mi Proyecto Nutrición{% endblock %}</title>
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css" />
+  <style>
+    body {
+      display: grid;
+      grid-template-areas:
+        "header"
+        "content";
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    header {
+      grid-area: header;
+      background-color: #2563eb;
+      color: white;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .container {
+      grid-area: content;
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+    }
+
+    nav.sidebar {
+      width: 220px;
+      background-color: #f1f5f9;
+      padding: 1rem;
+      border-right: 1px solid #d1d5db;
+      height: calc(100vh - 64px); /* ajusta altura según header */
+    }
+
+    nav.sidebar a {
+      display: block;
+      margin: 0.5rem 0;
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem;
+      background: white;
+      overflow-y: auto;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    .flash-message {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    Proyecto Nutrición
+  </header>
+
+  <div class="container">
+    
+
+    <main>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <article class="flash-message contrast">
+              {{ message }}
+            </article>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% block section %}{% endblock %}
+    </main>
+  </div>
+
+  <footer>
+    &copy; 2025 Mi Proyecto Nutrición
+  </footer>
+</body>
+</html>
