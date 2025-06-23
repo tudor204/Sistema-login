@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Resultados búsqueda: {{ query }}{% endblock %}
-
-{% block content %}
-<h2>Resultados para: <strong>"{{ query }}"</strong></h2>
-
+{% block section %}
+<h2>🔎 Resultados para: <strong>{{ query }}</strong></h2>
 {% if alimentos %}
-  <table role="grid">
+  <table>
     <thead>
       <tr>
         <th>Alimento</th>
@@ -17,19 +15,18 @@
     </thead>
     <tbody>
       {% for a in alimentos %}
-      <tr>
-        <td>{{ a.nombre }}</td>
-        <td>{{ a.calorias }}</td>
-        <td>{{ a.proteinas }}</td>
-        <td>{{ a.grasas }}</td>
-        <td>{{ a.carbohidratos }}</td>
-      </tr>
+        <tr>
+          <td>{{ a.nombre }}</td>
+          <td>{{ a.calorias }}</td>
+          <td>{{ a.proteinas }}</td>
+          <td>{{ a.grasas }}</td>
+          <td>{{ a.carbohidratos }}</td>
+        </tr>
       {% endfor %}
     </tbody>
   </table>
 {% else %}
   <p>No se encontraron alimentos para la búsqueda.</p>
 {% endif %}
-
-<a href="{{ url_for('dashboard') }}" class="secondary">← Volver al dashboard</a>
+<a href="{{ url_for('dashboard') }}" class="secondary">← Volver al panel principal</a>
 {% endblock %}

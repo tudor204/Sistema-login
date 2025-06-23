@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Inicio</title>
-  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
-</head>
-<body>
-  <main class="container">
-    <h1>Bienvenido a la App de Login</h1>
-    <a href="{{ url_for('login') }}">Iniciar Sesión</a>
-    <a href="{{ url_for('register') }}">Registrarse</a>
-  </main>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+{% block section %}
+<h2>Bienvenido a la Plataforma de Nutrición</h2>
+<p>Tu herramienta para gestionar y mejorar tu alimentación.</p>
+{% if session.username %}
+  <p>Hola, <strong>{{ session.username }}</strong>, estás conectado.</p>
+{% else %}
+  <p>
+    Por favor, <a href="{{ url_for('login') }}">inicia sesión</a> o
+    <a href="{{ url_for('register') }}">regístrate</a> para comenzar a usar la plataforma.
+  </p>
+{% endif %}
+{% endblock %}
