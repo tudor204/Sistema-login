@@ -1,35 +1,47 @@
 from flask_login import UserMixin
-from app.conexion import Conexion
+from app.conexion import get_db_cursor
 
 class User(UserMixin):
-    def __init__(self, id, username, email):
+    def __init__(self, id, username, email=None, google_id=None):
         self.id = id
         self.username = username
         self.email = email
+        self.google_id = google_id
 
     @staticmethod
     def get_by_id(user_id):
-        query = "SELECT id, username, email FROM loggin WHERE id = ?"
-        con = Conexion(query, (user_id,))
-        row = con.res.fetchone()
-        con.close()
-        if row:
-            return User(id=row[0], username=row[1], email=row[2])
+        with get_db_cursor() as cur:
+            cur.execute("SELECT * FROM loggin WHERE id = ?", (user_id,))
+            user = cur.fetchone()
+            if user:
+                # Accede a los campos directamente como un diccionario
+                return User(
+                    id=user['id'],
+                    username=user['username'],
+                    email=user['email'] if 'email' in user.keys() else None,
+                    google_id=user['google_id'] if 'google_id' in user.keys() else None
+                )
         return None
 
     @staticmethod
     def get_by_email(email):
-        query = "SELECT id, username, email FROM loggin WHERE email = ?"
-        con = Conexion(query, (email,))
-        row = con.res.fetchone()
-        con.close()
-        if row:
-            return User(id=row[0], username=row[1], email=row[2])
+        with get_db_cursor() as cur:
+            cur.execute("SELECT * FROM loggin WHERE email = ?", (email,))
+            user = cur.fetchone()
+            if user:
+                return User(
+                    id=user['id'],
+                    username=user['username'],
+                    email=user['email'],
+                    google_id=user['google_id'] if 'google_id' in user.keys() else None
+                )
         return None
 
     @staticmethod
-    def create(username, email):
-        # Si no tienes la columna email en la tabla loggin, deberás añadirla o adaptar
-        insert_query = "INSERT INTO loggin (username, email) VALUES (?, ?)"
-        con = Conexion(insert_query, (username, email))
-        con.close()
+    def create(username, email=None, password=None, google_id=None):
+        with get_db_cursor() as cur:
+            cur.execute(
+                "INSERT INTO loggin (username, email, password, google_id) VALUES (?, ?, ?, ?)",
+                (username, email, password, google_id)
+            )
+            return cur.lastrowid

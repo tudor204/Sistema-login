@@ -25,6 +25,7 @@
             <th><i class="fas fa-dumbbell me-2"></i>Proteínas</th>
             <th><i class="fas fa-oil-can me-2"></i>Grasas</th>
             <th><i class="fas fa-bread-slice me-2"></i>Carbohidratos</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -35,6 +36,16 @@
             <td>{{ a.proteinas }}g</td>
             <td>{{ a.grasas }}g</td>
             <td>{{ a.carbohidratos }}g</td>
+            <td>
+              <form method="POST" action="{{ url_for('save_food') }}">
+                <input type="hidden" name="food_name" value="{{ a.nombre }}">
+                <input type="hidden" name="calories" value="{{ a.calorias if a.calorias != 'N/D' else 0 }}">
+                <input type="hidden" name="proteins" value="{{ a.proteinas if a.proteinas != 'N/D' else 0 }}">
+                <button type="submit" class="btn btn-sm btn-success">
+                  <i class="fas fa-plus me-1"></i>Añadir
+                </button>
+              </form>
+            </td>
           </tr>
           {% endfor %}
         </tbody>

@@ -1,20 +1,24 @@
 import sqlite3
-ORIGIN_DATA = "data/loggin.sqlite"
+from contextlib import contextmanager
 
-class Conexion:
-    def __init__(self, query_sql, params=()):
-        self.con = sqlite3.connect(ORIGIN_DATA)
-        self.cur = self.con.cursor()
+DATABASE = "data/loggin.sqlite"
+
+@contextmanager
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row  # Esto permite acceso como diccionario
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+@contextmanager
+def get_db_cursor():
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
         try:
-            self.res = self.cur.execute(query_sql, params)
-            self.con.commit()
-        except sqlite3.Error as e:
-            self.con.rollback()
-            raise e
-
-    def fetch_all(self):
-        columns = [desc[0] for desc in self.res.description]
-        return [dict(zip(columns, row)) for row in self.res.fetchall()]
-
-    def close(self):
-        self.con.close()
+            yield cursor
+            conn.commit()
+        except:
+            conn.rollback()
+            raise

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Configuración | NutriTrack Pro{% endblock %}
+
+{% block section %}
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-cog me-2"></i>Configuración
+  </h1>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white border-0">
+    <h5 class="mb-0">
+      <i class="fas fa-bullseye me-2"></i>Metas Diarias
+    </h5>
+  </div>
+  <div class="card-body">
+    <form method="POST">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Calorías (kcal)</label>
+          <input type="number" name="daily_calories" class="form-control" 
+                 value="{{ goals.daily_calories }}" min="1000" max="5000" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Proteínas (g)</label>
+          <input type="number" name="daily_proteins" class="form-control" 
+                 value="{{ goals.daily_proteins }}" min="10" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Agua (L)</label>
+          <input type="number" name="daily_water" class="form-control" 
+                 value="{{ goals.daily_water }}" min="1" max="10" step="0.5" required>
+        </div>
+      </div>
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save me-2"></i>Guardar Cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
