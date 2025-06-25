@@ -51,12 +51,21 @@
               <i class="fas fa-arrow-right-to-bracket me-2"></i>Acceder
             </button>
           </div>
-          
-          <div class="text-center small mt-4">
-            ¿No tienes cuenta? 
-            <a href="{{ url_for('register') }}" class="text-primary fw-medium">Regístrate aquí</a>
-          </div>
         </form>
+
+        <div class="text-center my-3">
+          <span>— o —</span>
+        </div>
+
+        <a href="{{ url_for('login_google') }}" class="btn btn-danger py-2 fw-medium">
+          <i class="fab fa-google me-2"></i> Iniciar sesión con Google
+        </a>
+        
+
+        <div class="text-center small mt-4">
+          ¿No tienes cuenta? 
+          <a href="{{ url_for('register') }}" class="text-primary fw-medium">Regístrate aquí</a>
+        </div>
       </div>
     </div>
   </div>

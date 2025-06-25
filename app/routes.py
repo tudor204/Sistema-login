@@ -1,10 +1,13 @@
 from flask import render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import app
+from app import app, google
 from app.conexion import Conexion
+from flask_login import login_user, logout_user, login_required, current_user
+from app.models import User
 import requests
+from app import google
 
-@app.route ('/')
+@app.route('/')
 def index():
     return render_template('index.html')
 
@@ -40,22 +43,23 @@ def register():
     return render_template('register.html')
 
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        # Login tradicional
         username = request.form['username']
         password_input = request.form['password']
 
         query = "SELECT * FROM loggin WHERE username = ?"
         try:
             con = Conexion(query, (username,))
-            user = con.res.fetchone()
+            user_row = con.res.fetchone()
             con.close()
 
-            if user and check_password_hash(user[2], password_input):
-                session['user_id'] = user[0]
-                session['username'] = user[1]
+            if user_row and check_password_hash(user_row[2], password_input):
+                # Asumiendo user_row = (id, username, password, email?)
+                user = User(id=user_row[0], username=user_row[1], email=user_row[3] if len(user_row) > 3 else None)
+                login_user(user)
                 return redirect(url_for('dashboard'))
             else:
                 flash('Credenciales inválidas.', 'danger')
@@ -65,23 +69,58 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/login/google')
+def login_google():
+    redirect_uri = url_for('authorize_google', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@app.route('/authorize/google')
+def authorize_google():
+    claims_options = {
+        "iss": {
+            "values": ["https://accounts.google.com", "accounts.google.com"]
+        }
+    }
+    token = google.authorize_access_token(claims_options=claims_options)
+    resp = google.get('userinfo')
+    user_info = resp.json()
+    
+    # Extraemos email y nombre
+    email = user_info['email']
+    username = user_info.get('name', email.split('@')[0])  # nombre o parte del email
+
+    # Buscar usuario en BD por email
+    user = User.get_by_email(email)
+    
+    if not user:
+        # Crear usuario nuevo si no existe
+        User.create(username, email)
+        user = User.get_by_email(email)
+
+    # Loguear usuario
+    login_user(user)
+    flash(f'Has iniciado sesión como {user.username} con Google', 'success')
+    return redirect(url_for('dashboard'))
+
+
+
 @app.route('/dashboard')
+@login_required
 def dashboard():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    return render_template('dashboard.html', username=session['username'])
+    return render_template('dashboard.html', username=current_user.username)
 
 
 @app.route('/logout')
+@login_required
 def logout():
-    session.clear()
+    logout_user()
     flash('Sesión cerrada.', 'info')
     return redirect(url_for('login'))
 
 
-
-
 @app.route('/search_food')
+@login_required
 def search_food():
     query = request.args.get('query')
 
