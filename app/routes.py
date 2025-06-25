@@ -72,43 +72,31 @@ def login_google():
 
 @app.route('/authorize/google')
 def authorize_google():
-    try:
-        token = google.authorize_access_token()
-        if not token:
-            flash('Error en autenticación con Google', 'danger')
-            return redirect(url_for('login'))
-        
-        user_info = google.get('userinfo').json()
-        email = user_info.get('email')
-        google_id = user_info.get('sub')
-
-        if not email:
-            flash('No se pudo obtener email de Google', 'danger')
-            return redirect(url_for('login'))
-
-        with get_db_cursor() as cur:
-            # Buscar usuario existente
-            cur.execute("SELECT * FROM loggin WHERE email = ? OR google_id = ?", 
-                       (email, google_id))
-            user_data = cur.fetchone()
-
-            if not user_data:
-                # Crear nuevo usuario
-                username = user_info.get('name', email.split('@')[0])
-                user_id = User.create(username, email, google_id=google_id)
-                cur.execute("SELECT * FROM loggin WHERE id = ?", (user_id,))
-                user_data = cur.fetchone()
-
-            user = User(id=user_data['id'], username=user_data['username'], 
-                       email=user_data['email'])
-            login_user(user)
-            
-            flash(f'Bienvenido {user.username}!', 'success')
-            return redirect(url_for('dashboard'))
+    claims_options = {
+        "iss": {
+            "values": ["https://accounts.google.com", "accounts.google.com"]
+        }
+    }
+    token = google.authorize_access_token(claims_options=claims_options)
+    resp = google.get('userinfo')
+    user_info = resp.json()
     
-    except Exception as e:
-        flash('Error al iniciar sesión con Google', 'danger')
-        return redirect(url_for('login'))
+    # Extraemos email y nombre
+    email = user_info['email']
+    username = user_info.get('name', email.split('@')[0])  # nombre o parte del email
+
+    # Buscar usuario en BD por email
+    user = User.get_by_email(email)
+    
+    if not user:
+        # Crear usuario nuevo si no existe
+        User.create(username, email)
+        user = User.get_by_email(email)
+
+    # Loguear usuario
+    login_user(user)
+    flash(f'Has iniciado sesión como {user.username} con Google', 'success')
+    return redirect(url_for('dashboard'))
 
 @app.route('/dashboard')
 @login_required
@@ -246,3 +234,58 @@ def logout():
     logout_user()
     flash('Sesión cerrada', 'info')
     return redirect(url_for('index'))
+
+
+
+@app.route('/mis-comidas')
+@login_required
+def mis_comidas():
+    # Obtener todas las comidas del usuario ordenadas por fecha
+    with get_db_cursor() as cur:
+        cur.execute("""
+            SELECT id, food_name, calories, proteins, date
+            FROM food_entries
+            WHERE user_id = ?
+            ORDER BY date DESC
+        """, (current_user.id,))
+        comidas = cur.fetchall()
+    
+    return render_template('mis_comidas.html', comidas=comidas)
+
+@app.route('/eliminar-comida/<int:comida_id>', methods=['POST'])
+@login_required
+def eliminar_comida(comida_id):
+    with get_db_cursor() as cur:
+        cur.execute("DELETE FROM food_entries WHERE id = ? AND user_id = ?", 
+                   (comida_id, current_user.id))
+    flash('Comida eliminada correctamente', 'success')
+    return redirect(url_for('mis_comidas'))
+
+@app.route('/progreso')
+@login_required
+def progreso():
+    # Obtener datos para gráficos (últimos 7 días)
+    with get_db_cursor() as cur:
+        # Datos de calorías diarias - convertimos a lista de diccionarios
+        cur.execute("""
+            SELECT date(date) as dia, SUM(calories) as total_calorias
+            FROM food_entries
+            WHERE user_id = ? AND date >= date('now', '-7 days')
+            GROUP BY dia
+            ORDER BY dia
+        """, (current_user.id,))
+        datos_calorias = [dict(row) for row in cur.fetchall()]
+        
+        # Datos de macronutrientes - convertimos a diccionario
+        cur.execute("""
+            SELECT SUM(proteins) as proteinas, 
+                   SUM(fats) as grasas, 
+                   SUM(carbs) as carbohidratos
+            FROM food_entries
+            WHERE user_id = ? AND date >= date('now', '-7 days')
+        """, (current_user.id,))
+        macros = dict(cur.fetchone()) or {'proteinas': 0, 'grasas': 0, 'carbohidratos': 0}
+    
+    return render_template('progreso.html', 
+                         datos_calorias=datos_calorias,
+                         macros=macros)

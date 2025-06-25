@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Mis Comidas | NutriTrack Pro{% endblock %}
+
+{% block section %}
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-utensils me-2"></i>Mis Comidas
+  </h1>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    {% if comidas %}
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Alimento</th>
+            <th>Calorías</th>
+            <th>Proteínas</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for comida in comidas %}
+          <tr>
+            <td>{{ comida['food_name'] }}</td>
+            <td>{{ comida['calories'] }} kcal</td>
+            <td>{{ comida['proteins'] }}g</td>
+            <td>{{ comida['date'] }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('eliminar_comida', comida_id=comida['id']) }}">
+                <button type="submit" class="btn btn-sm btn-danger">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+      <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+      <h5 class="fw-medium">No hay comidas registradas</h5>
+      <p class="text-muted">Busca y añade alimentos para verlos aquí.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

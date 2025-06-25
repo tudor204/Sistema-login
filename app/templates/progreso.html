@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Mi Progreso | NutriTrack Pro{% endblock %}
+
+{% block section %}
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-chart-line me-2"></i>Mi Progreso
+  </h1>
+</div>
+
+<div class="row">
+  <!-- Gráfico de Calorías -->
+  <div class="col-lg-8 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-0">
+        <h5 class="mb-0">Calorías Consumidas (últimos 7 días)</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="caloriasChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Macronutrientes -->
+  <div class="col-lg-4 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-0">
+        <h5 class="mb-0">Distribución de Macronutrientes</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="macrosChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Incluir Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Calorías
+    const ctxCalorias = document.getElementById('caloriasChart').getContext('2d');
+    new Chart(ctxCalorias, {
+      type: 'bar',
+      data: {
+        labels: {{ datos_calorias|map(attribute='dia')|list|tojson }},
+        datasets: [{
+          label: 'Calorías',
+          data: {{ datos_calorias|map(attribute='total_calorias')|list|tojson }},
+          backgroundColor: '#4361ee',
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  
+    // Gráfico de Macronutrientes
+    const ctxMacros = document.getElementById('macrosChart').getContext('2d');
+    new Chart(ctxMacros, {
+      type: 'doughnut',
+      data: {
+        labels: ['Proteínas', 'Grasas', 'Carbohidratos'],
+        datasets: [{
+          data: [
+            {{ macros.proteinas|default(0) }},
+            {{ macros.grasas|default(0) }},
+            {{ macros.carbohidratos|default(0) }}
+          ],
+          backgroundColor: [
+            '#4bb543',
+            '#f72585',
+            '#4895ef'
+          ],
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+          }
+        }
+      }
+    });
+  </script>
+{% endblock %}

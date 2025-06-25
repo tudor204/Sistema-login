@@ -227,12 +227,12 @@
             </a>
           </li>
           <li>
-            <a href="#" class="nav-link">
+            <a href="{{ url_for('mis_comidas') }}" class="nav-link {% if request.path == url_for('mis_comidas') %}active{% endif %}">
               <i class="fas fa-utensils"></i> Mis Comidas
             </a>
           </li>
           <li>
-            <a href="#" class="nav-link">
+            <a href="{{ url_for('progreso') }}" class="nav-link {% if request.path == url_for('progreso') %}active{% endif %}">
               <i class="fas fa-chart-line"></i> Progreso
             </a>
           </li>
