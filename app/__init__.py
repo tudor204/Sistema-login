@@ -28,10 +28,11 @@ google = oauth.register(
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
 )
 
-from app.models import User
+from app.models.LoginGoogleModel import User
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.get_by_id(user_id)
 
-from app import routes
+from app.controllers import LoginGoogleController, DashboardController, IndexController, LoginGoogleController,MyfoodsController,ProgressController,SearchFoodController,UsersController
