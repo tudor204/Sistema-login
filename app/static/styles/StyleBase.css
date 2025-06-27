@@ -1,0 +1,181 @@
+
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --accent-color: #4cc9f0;
+      --dark-color: #1a1a2e;
+      --light-color: #f8f9fa;
+      --success-color: #4bb543;
+    }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: #f5f7ff;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.5px;
+    }
+    
+    .navbar {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      background: white !important;
+    }
+    
+    .sidebar {
+      width: 280px;
+      background: white;
+      height: calc(100vh - 72px);
+      position: sticky;
+      top: 72px;
+      border-right: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 1px 0 10px rgba(0, 0, 0, 0.02);
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+    
+    .sidebar .nav-link {
+      font-weight: 500;
+      color: #5a6a85;
+      border-radius: 8px;
+      margin: 2px 12px;
+      padding: 10px 16px;
+      transition: all 0.2s ease;
+    }
+    
+    .sidebar .nav-link:hover, 
+    .sidebar .nav-link.active {
+      background-color: #f0f4ff;
+      color: var(--primary-color);
+      transform: translateX(3px);
+    }
+    
+    .sidebar .nav-link i {
+      width: 24px;
+      text-align: center;
+      margin-right: 10px;
+      font-size: 1.1rem;
+    }
+    
+    .main-content {
+      flex: 1;
+      padding: 2rem 2.5rem;
+      background-color: #f5f7ff;
+    }
+    
+    .card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+      background-color: white;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      font-weight: 600;
+      border-radius: 12px 12px 0 0 !important;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      font-weight: 500;
+      padding: 8px 20px;
+      border-radius: 8px;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+    }
+    
+    .table {
+      --bs-table-bg: transparent;
+    }
+    
+    .table > thead {
+      background-color: rgba(67, 97, 238, 0.1);
+      color: var(--primary-color);
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    
+    .flash-message {
+      position: fixed;
+      top: 85px;
+      right: 25px;
+      z-index: 1100;
+      min-width: 300px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border: none;
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .page-title {
+      font-weight: 700;
+      color: var(--dark-color);
+      margin: 0;
+    }
+    
+    @media (max-width: 992px) {
+      .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 72px;
+        height: calc(100vh - 72px);
+      }
+      
+      .sidebar.show {
+        left: 0;
+      }
+      
+      .main-content {
+        padding: 1.5rem;
+      }
+    }
+
+      /* Estilos personalizados para SweetAlert */
+    .swal2-styled.swal2-confirm {
+      background-color: var(--primary-color) !important;
+    }
+    .swal2-styled.swal2-confirm:hover {
+      background-color: var(--secondary-color) !important;
+    }
+    .swal2-styled.swal2-cancel {
+      background-color: #6c757d !important;
+    }
+    .swal2-styled.swal2-cancel:hover {
+      background-color: #5a6268 !important;
+    }
+ 
