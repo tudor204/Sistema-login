@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app import app
 import requests
-from app.models.SearchFoodModel import save_food_entry 
+from app.models.SearchFoodModel import save_food_entry, calculate_macros_for_quantity
 
 
 @app.route('/search_food')
@@ -66,16 +66,24 @@ def food_detail():
 @login_required
 def save_food():
     food_name = request.form.get('food_name')
-    calories = request.form.get('calories', type=float)
-    proteins = request.form.get('proteins', type=float)
+    calories_100g = request.form.get('calories_per_100g', type=float)
+    proteins_100g = request.form.get('proteins_per_100g', type=float)
+    fats_100g = request.form.get('fats_per_100g', type=float, default=0)
+    carbs_100g = request.form.get('carbs_per_100g', type=float, default=0)
+    quantity = request.form.get('quantity', type=float) or 100
 
-    if not food_name or calories is None:
+    if not food_name or calories_100g is None or proteins_100g is None:
         flash('Datos incompletos', 'warning')
         return redirect(url_for('search_food'))
 
+    calories = round(calories_100g * quantity / 100, 2)
+    proteins = round(proteins_100g * quantity / 100, 2)
+    fats = round(fats_100g * quantity / 100, 2)
+    carbs = round(carbs_100g * quantity / 100, 2)
+
     try:
-        save_food_entry(food_name, calories, proteins)
-        flash(f'"{food_name}" registrado correctamente', 'success')
+        save_food_entry(food_name, calories, proteins, fats, carbs)
+        flash(f'"{food_name}" ({quantity} g) registrado correctamente', 'success')
     except Exception as e:
         flash(f'Error al guardar: {str(e)}', 'danger')
 

@@ -52,15 +52,7 @@
             <td>{{ a.carbohidratos }}g</td>
             <td>
               <div class="d-flex gap-1">
-                <!-- Botón Añadir -->
-                <form method="POST" action="{{ url_for('save_food') }}">
-                  <input type="hidden" name="food_name" value="{{ a.nombre }}">
-                  <input type="hidden" name="calories" value="{{ a.calorias if a.calorias != 'N/D' else 0 }}">
-                  <input type="hidden" name="proteins" value="{{ a.proteinas if a.proteinas != 'N/D' else 0 }}">
-                  <button type="submit" class="btn btn-sm btn-success">
-                    <i class="fas fa-plus me-1"></i>Añadir
-                  </button>
-                </form>
+                
 
                 <!-- Botón Ver detalle con todos los datos -->
                 <a href="{{ url_for('food_detail',

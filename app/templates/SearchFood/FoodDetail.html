@@ -1,38 +1,44 @@
 {% extends "base.html" %}
-{% block title %}Detalle de {{ nombre }} | NutriTrack Pro{% endblock %}
+{% block title %}Detalle: {{ nombre }} | NutriTrack Pro{% endblock %}
 
 {% block section %}
-<div class="container mt-4">
-  <div class="card shadow-sm border-0">
-    <div class="card-body row">
-      <!-- Imagen -->
-      <div class="col-md-4 text-center mb-4 mb-md-0">
-        <img src="{{ imagen }}" alt="Imagen de {{ nombre }}" class="img-fluid rounded shadow-sm" style="max-height: 250px;">
+<div class="container py-4">
+  <a href="{{ url_for('search_food') }}" class="btn btn-outline-secondary mb-4">
+    <i class="fas fa-arrow-left me-2"></i>Volver a resultados
+  </a>
+
+  <div class="card shadow-sm">
+    <div class="row g-0">
+      <div class="col-md-4 text-center p-3">
+        <img src="{{ imagen or '/static/default-food.jpg' }}" alt="Imagen de {{ nombre }}" class="img-fluid rounded">
       </div>
-
-      <!-- Datos del alimento -->
       <div class="col-md-8">
-        <h3 class="mb-3"><i class="fas fa-utensils me-2"></i>{{ nombre }}</h3>
+        <div class="card-body">
+          <h2 class="card-title">{{ nombre }}</h2>
+          <p class="card-text"><strong>Calorías por 100g:</strong> {{ calorias }} kcal</p>
+          <p class="card-text"><strong>Proteínas por 100g:</strong> {{ proteinas }} g</p>
+          <p class="card-text"><strong>Grasas por 100g:</strong> {{ grasas }} g</p>
+          <p class="card-text"><strong>Carbohidratos por 100g:</strong> {{ carbohidratos }} g</p>
 
-        <ul class="list-group list-group-flush mb-4">
-          <li class="list-group-item"><strong>Calorías:</strong> {{ calorias }} kcal</li>
-          <li class="list-group-item"><strong>Proteínas:</strong> {{ proteinas }} g</li>
-          <li class="list-group-item"><strong>Grasas:</strong> {{ grasas }} g</li>
-          <li class="list-group-item"><strong>Carbohidratos:</strong> {{ carbohidratos }} g</li>
-        </ul>
-
-        <!-- Botón Añadir -->
-        <form method="POST" action="{{ url_for('save_food') }}">
-          <input type="hidden" name="food_name" value="{{ nombre }}">
-          <input type="hidden" name="calories" value="{{ calorias if calorias != 'N/D' else 0 }}">
-          <input type="hidden" name="proteins" value="{{ proteinas if proteinas != 'N/D' else 0 }}">
-          <button type="submit" class="btn btn-success">
-            <i class="fas fa-plus me-1"></i>Añadir alimento a mi dieta
-          </button>
-          <a href="{{ url_for('search_food', query=nombre) }}" class="btn btn-outline-secondary ms-2">
-            <i class="fas fa-arrow-left me-1"></i>Volver a resultados
-          </a>
-        </form>
+          <!-- Formulario para añadir el alimento con cantidad personalizada -->
+          <form method="POST" action="{{ url_for('save_food') }}">
+            <input type="hidden" name="food_name" value="{{ nombre }}">
+            <input type="hidden" name="calories_per_100g" value="{{ calorias if calorias != 'N/D' else 0 }}">
+            <input type="hidden" name="proteins_per_100g" value="{{ proteinas if proteinas != 'N/D' else 0 }}">
+            <input type="hidden" name="fats_per_100g" value="{{ grasas if grasas != 'N/D' else 0 }}">
+            <input type="hidden" name="carbs_per_100g" value="{{ carbohidratos if carbohidratos != 'N/D' else 0 }}">
+            
+            <div class="mb-3">
+              <label for="quantity" class="form-label">Cantidad (gramos)</label>
+              <input type="number" min="1" step="1" id="quantity" name="quantity" class="form-control" value="100" required>
+              <div class="form-text">Introduce la cantidad en gramos para calcular los macros.</div>
+            </div>
+            
+            <button type="submit" class="btn btn-success mt-3">
+              <i class="fas fa-plus me-1"></i>Añadir alimento
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
