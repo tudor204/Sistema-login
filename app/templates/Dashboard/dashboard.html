@@ -98,34 +98,7 @@
   </div>
 </div>
 
-<!-- Buscador de Alimentos -->
-<div class="card border-0 shadow-sm mb-4">
-  <div class="card-header bg-white border-0">
-    <h5 class="mb-0">
-      <i class="fas fa-search me-2"></i>Buscar Alimento
-    </h5>
-  </div>
-  <div class="card-body">
-    <form method="GET" action="{{ url_for('search_food') }}" class="row g-3">
-      <div class="col-md-9">
-        <label for="query" class="form-label fw-medium">Nombre del alimento</label>
-        <input 
-          type="text" 
-          class="form-control" 
-          name="query" 
-          id="query" 
-          placeholder="Ej: pollo, manzana, arroz integral..." 
-          required
-        >
-      </div>
-      <div class="col-md-3 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary w-100">
-          <i class="fas fa-search me-2"></i>Buscar
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+
 
 <!-- Últimos alimentos registrados -->
 <div class="card border-0 shadow-sm">

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Detalle de {{ nombre }} | NutriTrack Pro{% endblock %}
+
+{% block section %}
+<div class="container mt-4">
+  <div class="card shadow-sm border-0">
+    <div class="card-body row">
+      <!-- Imagen -->
+      <div class="col-md-4 text-center mb-4 mb-md-0">
+        <img src="{{ imagen }}" alt="Imagen de {{ nombre }}" class="img-fluid rounded shadow-sm" style="max-height: 250px;">
+      </div>
+
+      <!-- Datos del alimento -->
+      <div class="col-md-8">
+        <h3 class="mb-3"><i class="fas fa-utensils me-2"></i>{{ nombre }}</h3>
+
+        <ul class="list-group list-group-flush mb-4">
+          <li class="list-group-item"><strong>Calorías:</strong> {{ calorias }} kcal</li>
+          <li class="list-group-item"><strong>Proteínas:</strong> {{ proteinas }} g</li>
+          <li class="list-group-item"><strong>Grasas:</strong> {{ grasas }} g</li>
+          <li class="list-group-item"><strong>Carbohidratos:</strong> {{ carbohidratos }} g</li>
+        </ul>
+
+        <!-- Botón Añadir -->
+        <form method="POST" action="{{ url_for('save_food') }}">
+          <input type="hidden" name="food_name" value="{{ nombre }}">
+          <input type="hidden" name="calories" value="{{ calorias if calorias != 'N/D' else 0 }}">
+          <input type="hidden" name="proteins" value="{{ proteinas if proteinas != 'N/D' else 0 }}">
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i>Añadir alimento a mi dieta
+          </button>
+          <a href="{{ url_for('search_food', query=nombre) }}" class="btn btn-outline-secondary ms-2">
+            <i class="fas fa-arrow-left me-1"></i>Volver a resultados
+          </a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

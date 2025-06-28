@@ -16,8 +16,7 @@ body {
   flex-direction: column;
   margin: 0;
   background: 
-    linear-gradient(rgba(245, 247, 255, 0.85), rgba(245, 247, 255, 0.9)),
-    url('../images/ImagenIndex.jpg') no-repeat center center fixed;
+    url('../images/ImagenIndex2.webp') no-repeat center center fixed;
   image-rendering: crisp-edges;
   image-rendering: -webkit-optimize-contrast;
   backface-visibility: hidden;

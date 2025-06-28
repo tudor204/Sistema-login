@@ -11,7 +11,7 @@ def search_food():
     query = request.args.get('query', '').strip()
     if not query:
         flash("Ingresa un alimento para buscar", "warning")
-        return redirect(url_for('dashboard'))
+        return render_template("SearchFood/FoodResults.html", alimentos=[], query="")
 
     try:
         response = requests.get(
@@ -32,14 +32,35 @@ def search_food():
                 'calorias': prod.get('nutriments', {}).get('energy-kcal_100g', 'N/D'),
                 'proteinas': prod.get('nutriments', {}).get('proteins_100g', 'N/D'),
                 'grasas': prod.get('nutriments', {}).get('fat_100g', 'N/D'),
-                'carbohidratos': prod.get('nutriments', {}).get('carbohydrates_100g', 'N/D')
+                'carbohidratos': prod.get('nutriments', {}).get('carbohydrates_100g', 'N/D'),
+                'imagen': prod.get('image_front_small_url') or '/static/default-food.jpg'
             })
 
-        return render_template('SearchFood/food_results.html', alimentos=alimentos, query=query)
+        return render_template('SearchFood/FoodResults.html', alimentos=alimentos, query=query)
 
     except Exception as e:
         flash(f"Error al buscar alimentos: {str(e)}", "danger")
         return redirect(url_for('dashboard'))
+
+
+@app.route('/food_detail')
+@login_required
+def food_detail():
+    nombre = request.args.get('nombre')
+    calorias = request.args.get('calorias')
+    proteinas = request.args.get('proteinas')
+    grasas = request.args.get('grasas')
+    carbohidratos = request.args.get('carbohidratos')
+    imagen = request.args.get('imagen', '/static/default-food.jpg')
+
+    return render_template('SearchFood/FoodDetail.html',
+                        nombre=nombre,
+                        calorias=calorias,
+                        proteinas=proteinas,
+                        grasas=grasas,
+                        carbohidratos=carbohidratos,
+                        imagen=imagen)
+
 
 @app.route('/save_food', methods=['POST'])
 @login_required
