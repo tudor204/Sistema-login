@@ -1,181 +1,268 @@
+:root {
+  --primary-color: #4361ee;
+  --secondary-color: #3f37c9;
+  --accent-color: #4cc9f0;
+  --dark-color: #1a1a2e;
+  --light-color: #f8f9fa;
+  --success-color: #4bb543;
+}
 
-    :root {
-      --primary-color: #4361ee;
-      --secondary-color: #3f37c9;
-      --accent-color: #4cc9f0;
-      --dark-color: #1a1a2e;
-      --light-color: #f8f9fa;
-      --success-color: #4bb543;
-    }
-    
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background-color: #f5f7ff;
-      color: #333;
-      min-height: 100vh;
-      display: flex;
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: #f5f7ff;
+  color: #333;
+  min-height: 100vh;
+  display: flex; /* Body como flex container para el sticky footer */
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: -0.5px;
+}
+
+.navbar {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  background: white !important;
+  position: relative;
+  z-index: 1100;
+}
+
+/* --- Layout Principal: Sidebar y Contenido --- */
+/* El .container-fluid que envuelve el .row */
+.container-fluid.flex-grow-1 {
+    display: flex; 
+    flex-direction: column;
+    min-height: calc(100vh - 72px - 70px); /* Ajusta 70px a la altura de tu footer */
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.row.h-100 { /* El row que contiene sidebar y main-content */
+    display: flex; /* CRUCIAL: hace que sidebar y main-content sean flex items */
+    flex-grow: 1; 
+    flex-wrap: nowrap; /* Evita que los items se envuelvan */
+    margin-left: 0; 
+    margin-right: 0;
+    width: 100%; 
+}
+
+
+/* --- Sidebar Styles --- */
+.sidebar {
+  width: 280px; /* Ancho fijo cuando está abierto */
+  background: white;
+  position: sticky;
+  top: 72px; 
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 1px 0 10px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0; /* Evita que el sidebar se encoja */
+  height: calc(100vh - 72px); /* Ocupa la altura restante del viewport */
+  padding: 1rem; /* Mantener el padding siempre para que el contenido del sidebar se vea bien */
+}
+
+.sidebar.collapsed {
+  width: 0; /* Se colapsa a 0 ancho */
+  padding-left: 0; 
+  padding-right: 0; 
+  transform: translateX(-100%); /* Lo mueve fuera de la vista */
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease, width 0s 0.3s, opacity 0.3s ease, padding 0.3s ease;
+}
+
+/* Botones para el Sidebar */
+#toggleSidebarDesktop { 
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#toggleSidebarDesktop:hover {
+  background: var(--secondary-color);
+}
+
+.show-sidebar-btn {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1050;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  padding: 12px 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+.show-sidebar-btn:hover {
+  background: var(--secondary-color);
+  padding: 12px 12px 12px 8px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-50%) translateX(-10px); }
+  to { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+/* --- Main Content Styles --- */
+.main-content {
+  flex-grow: 1;   /* Ocupa todo el espacio horizontal restante */
+  flex-basis: 0;  /* Permite que flex-grow: 1 funcione de manera óptima */
+  padding: 2rem 2.5rem; /* Padding base */
+  background-color: #f5f7ff;
+  overflow-y: auto; 
+}
+
+
+/* --- Responsive Styles --- */
+@media (max-width: 992px) {
+  .sidebar {
+    position: fixed;
+    left: -280px; 
+    top: 72px;
+    height: calc(100vh - 72px);
+    z-index: 1000;
+    width: 280px;
+    transform: none; 
+    opacity: 1;
+    visibility: visible;
+    padding: 1rem; 
+  }
+  
+  .sidebar.show { 
+    left: 0; 
+  }
+  
+  .sidebar.collapsed { 
+    left: -280px;
+    transform: none; 
+    opacity: 1; 
+    visibility: visible;
+    padding: 1rem; 
+  }
+  
+  .main-content {
+    padding: 1.5rem; 
+    flex-grow: 1; 
+    flex-basis: auto; /* Restablecer para móvil si el sidebar es superpuesto */
+  }
+  
+  .show-sidebar-btn {
+    display: none !important; 
+  }
+
+  /* Para que el row y el container-fluid no interfieran con el layout de sidebar en móvil */
+  .container-fluid.flex-grow-1, .row.h-100 {
       flex-direction: column;
-    }
-    
-    .navbar-brand {
-      font-weight: 700;
-      font-size: 1.5rem;
-      letter-spacing: -0.5px;
-    }
-    
-    .navbar {
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-      background: white !important;
-    }
-    
-    .sidebar {
-      width: 280px;
-      background: white;
-      height: calc(100vh - 72px);
-      position: sticky;
-      top: 72px;
-      border-right: 1px solid rgba(0, 0, 0, 0.05);
-      box-shadow: 1px 0 10px rgba(0, 0, 0, 0.02);
-      transition: all 0.3s ease;
-      z-index: 100;
-    }
-    
-    .sidebar .nav-link {
-      font-weight: 500;
-      color: #5a6a85;
-      border-radius: 8px;
-      margin: 2px 12px;
-      padding: 10px 16px;
-      transition: all 0.2s ease;
-    }
-    
-    .sidebar .nav-link:hover, 
-    .sidebar .nav-link.active {
-      background-color: #f0f4ff;
-      color: var(--primary-color);
-      transform: translateX(3px);
-    }
-    
-    .sidebar .nav-link i {
-      width: 24px;
-      text-align: center;
-      margin-right: 10px;
-      font-size: 1.1rem;
-    }
-    
-    .main-content {
-      flex: 1;
-      padding: 2rem 2.5rem;
-      background-color: #f5f7ff;
-    }
-    
-    .card {
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-    }
-    
-    .card-header {
-      background-color: white;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      font-weight: 600;
-      border-radius: 12px 12px 0 0 !important;
-    }
-    
-    .btn-primary {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-      font-weight: 500;
-      padding: 8px 20px;
-      border-radius: 8px;
-    }
-    
-    .btn-primary:hover {
-      background-color: var(--secondary-color);
-      border-color: var(--secondary-color);
-    }
-    
-    .table {
-      --bs-table-bg: transparent;
-    }
-    
-    .table > thead {
-      background-color: rgba(67, 97, 238, 0.1);
-      color: var(--primary-color);
-    }
-    
-    .user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: var(--primary-color);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-    }
-    
-    .flash-message {
-      position: fixed;
-      top: 85px;
-      right: 25px;
-      z-index: 1100;
-      min-width: 300px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      border: none;
-    }
-    
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-    
-    .page-title {
-      font-weight: 700;
-      color: var(--dark-color);
-      margin: 0;
-    }
-    
-    @media (max-width: 992px) {
-      .sidebar {
-        position: fixed;
-        left: -280px;
-        top: 72px;
-        height: calc(100vh - 72px);
-      }
-      
-      .sidebar.show {
-        left: 0;
-      }
-      
-      .main-content {
-        padding: 1.5rem;
-      }
-    }
+      flex-wrap: wrap; 
+  }
+}
 
-      /* Estilos personalizados para SweetAlert */
-    .swal2-styled.swal2-confirm {
-      background-color: var(--primary-color) !important;
-    }
-    .swal2-styled.swal2-confirm:hover {
-      background-color: var(--secondary-color) !important;
-    }
-    .swal2-styled.swal2-cancel {
-      background-color: #6c757d !important;
-    }
-    .swal2-styled.swal2-cancel:hover {
-      background-color: #5a6268 !important;
-    }
- 
+/* Resto de estilos (cards, tables, etc.) */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  font-weight: 500;
+  padding: 8px 20px;
+  border-radius: 8px;
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.table {
+  --bs-table-bg: transparent;
+}
+
+.table > thead {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: var(--primary-color);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.flash-message {
+  position: fixed;
+  top: 85px;
+  right: 25px;
+  z-index: 1100;
+  min-width: 300px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: none;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.page-title {
+  font-weight: 700;
+  color: var(--dark-color);
+  margin: 0;
+}
+
+/* Estilos personalizados para SweetAlert */
+.swal2-styled.swal2-confirm {
+  background-color: var(--primary-color) !important;
+}
+.swal2-styled.swal2-confirm:hover {
+  background-color: var(--secondary-color) !important;
+}
+.swal2-styled.swal2-cancel {
+  background-color: #6c757d !important;
+}
+.swal2-styled.swal2-cancel:hover {
+  background-color: #5a6268 !important;
+}
