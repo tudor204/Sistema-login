@@ -173,6 +173,67 @@ body {
   }
 }
 
+/* --- Estilos para las tarjetas de alimentos --- */
+.card-img-top-container {
+    height: 180px; /* Altura fija para el contenedor de la imagen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Oculta cualquier parte de la imagen que se desborde */
+    background-color: #f0f0f0; /* Fondo gris claro si la imagen es pequeña o transparente */
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.card-img-custom {
+    max-width: 100%; /* Asegura que la imagen no se salga del contenedor */
+    max-height: 100%; /* Asegura que la imagen no se salga del contenedor */
+    object-fit: contain; /* Redimensiona la imagen para que encaje en el contenedor sin recortarse, manteniendo su aspecto */
+    display: block; /* Elimina cualquier espacio extra debajo de la imagen */
+}
+
+/* Si quieres que las imágenes cubran el área completamente y se recorten si es necesario, usa 'cover': */
+/*
+.card-img-custom-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+*/
+
+/* Ajustes para el cuerpo de la tarjeta */
+.card-body {
+    padding: 1.25rem; /* Espaciado interno estándar de Bootstrap */
+}
+
+.card-title {
+    font-size: 1.1rem; /* Tamaño de fuente para el título */
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    height: 3rem; /* Altura fija para el título si quieres asegurar que todas las tarjetas tengan la misma altura visual en el título */
+    overflow: hidden; /* Oculta el texto que se desborde */
+    text-overflow: ellipsis; /* Añade puntos suspensivos si el texto se corta */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limita el título a 2 líneas */
+    -webkit-box-orient: vertical;
+}
+
+.card-text {
+    font-size: 0.875rem; /* Tamaño de fuente para el texto nutricional */
+    line-height: 1.4;
+    margin-bottom: 1rem;
+}
+
+/* Asegura que los botones al final de la tarjeta se alineen */
+.card.h-100 {
+    display: flex;
+    flex-direction: column;
+}
+.card-body {
+    flex-grow: 1; /* Permite que el cuerpo de la tarjeta crezca y empuje el botón hacia abajo */
+}
+
 /* Resto de estilos (cards, tables, etc.) */
 .card {
   border: none;

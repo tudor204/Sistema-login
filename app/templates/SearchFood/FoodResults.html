@@ -1,84 +1,63 @@
 {% extends "base.html" %}
-{% block title %}Resultados: {{ query }} | NutriTrack Pro{% endblock %}
+{% block title %}Buscar alimentos: {{ query }} | NutriTrack Pro{% endblock %}
 
 {% block section %}
-<div class="page-header">
-  <div class="d-flex justify-content-between align-items-center">
-    <h1 class="page-title">
-      <i class="fas fa-search me-2"></i>Resultados para: <span class="text-primary">{{ query }}</span>
-    </h1>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-arrow-left me-2"></i>Volver
-    </a>
-  </div>
-</div>
-
-<!-- 🔍 Formulario de búsqueda -->
-<form method="GET" action="{{ url_for('search_food') }}" class="mb-4">
-  <div class="input-group">
-    <input type="text" class="form-control" name="query" placeholder="Buscar otro alimento..." required>
-    <button type="submit" class="btn btn-primary">
-      <i class="fas fa-search me-1"></i>Buscar
-    </button>
-  </div>
-</form>
-
-<div class="card border-0 shadow-sm">
-  <div class="card-body">
-    {% if alimentos %}
-    <div class="table-responsive">
-      <table class="table table-hover align-middle">
-        <thead class="table-light">
-          <tr>
-            <th><i class="fas fa-image me-2"></i>Imagen</th>
-            <th><i class="fas fa-utensils me-2"></i>Alimento</th>
-            <th><i class="fas fa-fire me-2"></i>Calorías</th>
-            <th><i class="fas fa-dumbbell me-2"></i>Proteínas</th>
-            <th><i class="fas fa-oil-can me-2"></i>Grasas</th>
-            <th><i class="fas fa-bread-slice me-2"></i>Carbohidratos</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for a in alimentos %}
-          <tr>
-            <td>
-              <img src="{{ a.imagen or '/static/default-food.jpg' }}" alt="Imagen de {{ a.nombre }}" class="img-thumbnail" style="max-width: 60px;">
-            </td>
-            <td class="fw-medium">{{ a.nombre }}</td>
-            <td><span class="badge bg-primary-subtle text-primary">{{ a.calorias }} kcal</span></td>
-            <td>{{ a.proteinas }}g</td>
-            <td>{{ a.grasas }}g</td>
-            <td>{{ a.carbohidratos }}g</td>
-            <td>
-              <div class="d-flex gap-1">
-                
-
-                <!-- Botón Ver detalle con todos los datos -->
-                <a href="{{ url_for('food_detail',
-                                    nombre=a.nombre,
-                                    calorias=a.calorias,
-                                    proteinas=a.proteinas,
-                                    grasas=a.grasas,
-                                    carbohidratos=a.carbohidratos,
-                                    imagen=a.imagen or '/static/default-food.jpg') }}"
-                   class="btn btn-sm btn-outline-info">
-                  <i class="fas fa-info-circle me-1"></i>Ver detalle
-                </a>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0">
+      <h5 class="mb-0">
+        <i class="fas fa-search me-2"></i>Buscar Alimento
+      </h5>
     </div>
-    {% else %}
-    <div class="text-center py-5">
-      <i class="fas fa-search fa-3x text-muted mb-3"></i>
-      <h5 class="fw-medium">No se encontraron resultados</h5>
-      <p class="text-muted">Intenta con otro término de búsqueda.</p>
+    <div class="card-body">
+      <form method="GET" action="{{ url_for('search_food') }}" class="row g-3">
+        <div class="col-md-9">
+          <label for="query" class="form-label fw-medium">Nombre del alimento</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            name="query" 
+            id="query" 
+            placeholder="Ej: pollo, manzana, arroz integral..." 
+            required
+          >
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-search me-2"></i>Buscar
+          </button>
+        </div>
+      </form>
     </div>
-    {% endif %}
   </div>
-</div>
+
+  {% if query %}
+    <h5 class="mb-4">Resultados para: <strong>{{ query }}</strong></h5>
+  {% endif %}
+
+  {% if alimentos %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"> {# Añadido row-cols-lg-3 para 3 columnas en pantallas grandes #}
+      {% for alimento in alimentos %}
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            {# Contenedor para controlar el tamaño de la imagen #}
+            <div class="card-img-top-container text-center"> 
+              <img src="{{ alimento.imagen or url_for('static', filename='img/no-image.png') }}" class="card-img-custom" alt="Imagen de {{ alimento.nombre }}">
+            </div>
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">{{ alimento.nombre }}</h5>
+              <p class="card-text small text-muted"> {# Texto más pequeño y tenue para la información nutricional #}
+                Calorías: <strong>{{ alimento.calorias }} kcal</strong><br>
+                Proteínas: <strong>{{ alimento.proteinas }} g</strong><br>
+                Grasas: <strong>{{ alimento.grasas }} g</strong><br>
+                Carbohidratos: <strong>{{ alimento.carbohidratos }} g</strong>
+              </p>
+              <a href="{{ url_for('food_detail', nombre=alimento.nombre, calorias=alimento.calorias, proteinas=alimento.proteinas) }}" class="btn btn-outline-primary btn-sm mt-auto">Ver más</a> {# Botón más pequeño #}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% elif query %}
+    <div class="alert alert-warning">No se encontraron resultados.</div>
+  {% endif %}
 {% endblock %}
