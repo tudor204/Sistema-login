@@ -2,7 +2,8 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app import app
 import requests
-from app.models.SearchFoodModel import save_food_entry, calculate_macros_for_quantity
+# Asegúrate de que estas funciones existan y estén correctamente definidas en SearchFoodModel.py
+from app.models.SearchFoodModel import save_food_entry, calculate_macros_for_quantity 
 
 
 @app.route('/search_food')
@@ -22,44 +23,77 @@ def search_food():
                 'page_size': 10
             }
         )
+        response.raise_for_status() # Lanza una excepción para códigos de estado HTTP erróneos (4xx o 5xx)
         data = response.json()
         productos = data.get("products", [])
 
         alimentos = []
         for prod in productos:
-            alimentos.append({
-                'nombre': prod.get('product_name', 'Sin nombre'),
-                'calorias': prod.get('nutriments', {}).get('energy-kcal_100g', 'N/D'),
-                'proteinas': prod.get('nutriments', {}).get('proteins_100g', 'N/D'),
-                'grasas': prod.get('nutriments', {}).get('fat_100g', 'N/D'),
-                'carbohidratos': prod.get('nutriments', {}).get('carbohydrates_100g', 'N/D'),
-                'imagen': prod.get('image_front_small_url') or '/static/default-food.jpg'
-            })
+            product_code = prod.get('code')
+            if product_code:
+                alimentos.append({
+                    'nombre': prod.get('product_name', 'Sin nombre'),
+                    'calorias': prod.get('nutriments', {}).get('energy-kcal_100g', 'N/D'),
+                    'proteinas': prod.get('nutriments', {}).get('proteins_100g', 'N/D'),
+                    'grasas': prod.get('nutriments', {}).get('fat_100g', 'N/D'),
+                    'carbohidratos': prod.get('nutriments', {}).get('carbohydrates_100g', 'N/D'),
+                    'imagen': prod.get('image_front_small_url') or url_for('static', filename='default-food.jpg'),
+                    'code': product_code
+                })
 
         return render_template('SearchFood/FoodResults.html', alimentos=alimentos, query=query)
 
+    except requests.exceptions.RequestException as e:
+        flash(f"Error de conexión al buscar alimentos: {str(e)}", "danger")
+        return redirect(url_for('dashboard'))
     except Exception as e:
-        flash(f"Error al buscar alimentos: {str(e)}", "danger")
+        flash(f"Error inesperado al buscar alimentos: {str(e)}", "danger")
         return redirect(url_for('dashboard'))
 
 
 @app.route('/food_detail')
 @login_required
 def food_detail():
-    nombre = request.args.get('nombre')
-    calorias = request.args.get('calorias')
-    proteinas = request.args.get('proteinas')
-    grasas = request.args.get('grasas')
-    carbohidratos = request.args.get('carbohidratos')
-    imagen = request.args.get('imagen', '/static/default-food.jpg')
+    product_code = request.args.get('code') 
 
-    return render_template('SearchFood/FoodDetail.html',
-                        nombre=nombre,
-                        calorias=calorias,
-                        proteinas=proteinas,
-                        grasas=grasas,
-                        carbohidratos=carbohidratos,
-                        imagen=imagen)
+    if not product_code:
+        flash("Código de producto no proporcionado para el detalle.", "danger")
+        return redirect(url_for('search_food'))
+
+    try:
+        response = requests.get(
+            f"https://world.openfoodfacts.org/api/v0/product/{product_code}.json"
+        )
+        response.raise_for_status()
+        data = response.json()
+        product = data.get('product')
+
+        if not product:
+            flash("Producto no encontrado o datos incompletos.", "danger")
+            return redirect(url_for('search_food'))
+
+        nombre = product.get('product_name', 'Sin nombre')
+        nutriments = product.get('nutriments', {})
+        calorias = nutriments.get('energy-kcal_100g', 'N/D')
+        proteinas = nutriments.get('proteins_100g', 'N/D')
+        grasas = nutriments.get('fat_100g', 'N/D')
+        carbohidratos = nutriments.get('carbohydrates_100g', 'N/D')
+        imagen = product.get('image_front_small_url') or url_for('static', filename='default-food.jpg')
+
+        return render_template('SearchFood/FoodDetail.html',
+                               nombre=nombre,
+                               calorias=calorias,
+                               proteinas=proteinas,
+                               grasas=grasas,
+                               carbohidratos=carbohidratos,
+                               imagen=imagen)
+
+    except requests.exceptions.RequestException as e:
+        flash(f"Error de conexión al obtener detalles del alimento: {str(e)}", "danger")
+        return redirect(url_for('search_food'))
+    except Exception as e:
+        flash(f"Error inesperado al obtener detalles del alimento: {str(e)}", "danger")
+        return redirect(url_for('search_food'))
 
 
 @app.route('/save_food', methods=['POST'])
@@ -76,15 +110,16 @@ def save_food():
         flash('Datos incompletos', 'warning')
         return redirect(url_for('search_food'))
 
-    calories = round(calories_100g * quantity / 100, 2)
-    proteins = round(proteins_100g * quantity / 100, 2)
-    fats = round(fats_100g * quantity / 100, 2)
-    carbs = round(carbs_100g * quantity / 100, 2)
+    # ¡Aquí es donde usamos calculate_macros_for_quantity!
+    calories, proteins, fats, carbs = calculate_macros_for_quantity(
+        calories_100g, proteins_100g, fats_100g, carbs_100g, quantity
+    )
 
     try:
-        save_food_entry(food_name, calories, proteins, fats, carbs)
+        save_food_entry(current_user.id, food_name, calories, proteins, fats, carbs)
         flash(f'"{food_name}" ({quantity} g) registrado correctamente', 'success')
     except Exception as e:
         flash(f'Error al guardar: {str(e)}', 'danger')
 
     return redirect(url_for('dashboard'))
+

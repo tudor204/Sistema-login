@@ -10,7 +10,11 @@
   <div class="card shadow-sm">
     <div class="row g-0">
       <div class="col-md-4 text-center p-3">
-        <img src="{{ imagen or '/static/default-food.jpg' }}" alt="Imagen de {{ nombre }}" class="img-fluid rounded">
+        {# Usamos url_for para el fallback y el onerror para depuración #}
+        <img src="{{ imagen or url_for('static', filename='default-food.jpg') }}" 
+             alt="Imagen de {{ nombre }}" 
+             class="img-fluid rounded"
+             onerror="this.onerror=null;this.src='{{ url_for('static', filename='default-food.jpg') }}'; console.error('Error al cargar la imagen: ' + this.src);">
       </div>
       <div class="col-md-8">
         <div class="card-body">

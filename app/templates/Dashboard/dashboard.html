@@ -98,6 +98,42 @@
   </div>
 </div>
 
+<!-- Registro de consumo de agua -->
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white border-0">
+    <h5 class="mb-0 fw-semibold">
+      <i class="fas fa-tint me-2 text-primary"></i>Registro de Agua
+    </h5>
+  </div>
+  <div class="card-body">
+    <form id="water-form">
+      <div class="mb-3">
+        <label for="water-quantity" class="form-label fw-medium">Cantidad (ml)</label>
+        <div class="input-group">
+          <input 
+            type="number" 
+            min="50" 
+            max="1000" 
+            step="50" 
+            id="water-quantity" 
+            name="water-quantity" 
+            class="form-control form-control-lg" 
+            value="250"
+            aria-describedby="water-addon"
+            required
+          >
+          <button class="btn btn-primary" type="submit" id="water-addon">
+            <i class="fas fa-plus me-1"></i> Añadir
+          </button>
+        </div>
+        <div class="form-text text-muted mt-1">
+          Cantidad recomendada: 250-500 ml por toma
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 
 
 <!-- Últimos alimentos registrados -->
