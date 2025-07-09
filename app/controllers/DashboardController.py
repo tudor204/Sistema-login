@@ -1,8 +1,8 @@
-from flask import render_template, request,flash
+from flask import render_template, request, flash, redirect, url_for 
 from flask_login import login_required, current_user
 from app import app
 from app.conexion import get_db_cursor
-
+import datetime
 
 @app.route('/dashboard')
 @login_required
@@ -10,62 +10,102 @@ def dashboard():
     with get_db_cursor() as cur:
         # Obtener metas del usuario
         cur.execute("SELECT * FROM user_goals WHERE user_id = ?", (current_user.id,))
-        goals = cur.fetchone() or {'daily_calories': 2000, 'daily_proteins': 50, 'daily_water': 2}
+        goals = cur.fetchone() or {
+            'daily_calories': 2000, 
+            'daily_proteins': 50, 
+            'daily_water': 2,
+            'daily_fats': 60,
+            'daily_carbs': 250,
+            'daily_activity': 30,
+            'water_consumed': 0 
+        }
+        if not isinstance(goals, dict):
+            goals = dict(goals)
 
-        # Estadísticas de hoy
+        # Estadísticas de hoy (calorías, proteínas, grasas, carbohidratos)
         cur.execute("""
-            SELECT SUM(calories) as calories, SUM(proteins) as proteins
+            SELECT SUM(calories) as calories, 
+                   SUM(proteins) as proteins,
+                   SUM(fats) as fats,
+                   SUM(carbs) as carbs
             FROM food_entries
             WHERE user_id = ? AND date(date) = date('now')
         """, (current_user.id,))
-        today_stats = cur.fetchone() or {'calories': 0, 'proteins': 0}
+        today_stats = cur.fetchone() or {'calories': 0, 'proteins': 0, 'fats': 0, 'carbs': 0}
+        if not isinstance(today_stats, dict):
+            today_stats = dict(today_stats)
+        
+        today_calories = today_stats.get('calories') or 0
+        today_proteins = today_stats.get('proteins') or 0
+        today_fats = today_stats.get('fats') or 0
+        today_carbs = today_stats.get('carbs') or 0
 
         # Alimentos recientes
         cur.execute("""
-            SELECT food_name, calories, proteins, date
+            SELECT food_name, calories, proteins, fats, carbs, date
             FROM food_entries
             WHERE user_id = ?
-            ORDER BY date DESC
+            ORDER BY date DESC, created_at DESC 
             LIMIT 5
         """, (current_user.id,))
         recent_foods = cur.fetchall()
 
 
-    # Calcular porcentajes
-    calories_percentage = min(100, (today_stats['calories'] or 0) / goals['daily_calories'] * 100)
-    proteins_percentage = min(100, (today_stats['proteins'] or 0) / goals['daily_proteins'] * 100)
+    # Calcular porcentajes para todos los macros
+    daily_calories = goals.get('daily_calories', 2000) or 2000
+    daily_proteins = goals.get('daily_proteins', 50) or 50
+    daily_fats = goals.get('daily_fats', 60) or 60
+    daily_carbs = goals.get('daily_carbs', 250) or 250
+    daily_water_ml = (goals.get('daily_water', 2) or 2) * 1000 # Convertir litros a ml para el cálculo
+    water_consumed_ml = goals.get('water_consumed', 0) or 0 # Obtener el agua consumida
+
+    calories_percentage = min(100, (today_calories / daily_calories) * 100)
+    proteins_percentage = min(100, (today_proteins / daily_proteins) * 100)
+    fats_percentage = min(100, (today_fats / daily_fats) * 100)
+    carbs_percentage = min(100, (today_carbs / daily_carbs) * 100)
+    
+    # Calcular porcentaje de agua
+    water_percentage = min(100, (water_consumed_ml / daily_water_ml) * 100) if daily_water_ml > 0 else 0
+
 
     return render_template('Dashboard/dashboard.html',
         goals=goals,
         today_stats=today_stats,
         recent_foods=recent_foods,
         calories_percentage=round(calories_percentage, 1),
-        proteins_percentage=round(proteins_percentage, 1)
+        proteins_percentage=round(proteins_percentage, 1),
+        fats_percentage=round(fats_percentage, 1),
+        carbs_percentage=round(carbs_percentage, 1),
+        water_percentage=round(water_percentage, 1),
+        water_consumed_ml=water_consumed_ml
     )
 
-@app.route('/settings', methods=['GET', 'POST'])
+
+
+
+@app.route('/add_water_intake', methods=['POST'])
 @login_required
-def settings():
-    if request.method == 'POST':
-        daily_calories = request.form.get('daily_calories', type=int)
-        daily_proteins = request.form.get('daily_proteins', type=int)
-        daily_water = request.form.get('daily_water', type=int)
+def add_water_intake():
+    water_quantity_ml = request.form.get('water-quantity', type=float)
 
-        if not all([1000 <= daily_calories <= 5000, 
-                   daily_proteins > 0, 
-                   daily_water > 0]):
-            flash('Valores inválidos', 'danger')
-        else:
-            with get_db_cursor() as cur:
-                cur.execute("""
-                    INSERT OR REPLACE INTO user_goals 
-                    (user_id, daily_calories, daily_proteins, daily_water)
-                    VALUES (?, ?, ?, ?)
-                """, (current_user.id, daily_calories, daily_proteins, daily_water))
-                flash('Configuración guardada', 'success')
-    
-    with get_db_cursor() as cur:
-        cur.execute("SELECT * FROM user_goals WHERE user_id = ?", (current_user.id,))
-        goals = cur.fetchone() or {'daily_calories': 2000, 'daily_proteins': 50, 'daily_water': 2}
+    if water_quantity_ml is None or water_quantity_ml <= 0:
+        flash('Cantidad de agua inválida.', 'danger')
+        return redirect(url_for('dashboard'))
 
-    return render_template('Dashboard/settings.html', goals=goals)
+    try:
+        with get_db_cursor() as cur:
+            # Actualizar la columna water_consumed para el usuario actual
+            cur.execute("""
+                UPDATE user_goals 
+                SET water_consumed = IFNULL(water_consumed, 0) + ?,
+                    updated_at = ?
+                WHERE user_id = ?
+            """, (water_quantity_ml, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), current_user.id))
+            
+            flash(f'{water_quantity_ml} ml de agua registrados.', 'success')
+    except Exception as e:
+        flash(f'Error al registrar el agua: {str(e)}', 'danger')
+        print(f"Error al registrar el agua: {e}") # Para depuración en la consola
+
+    return redirect(url_for('dashboard'))
+

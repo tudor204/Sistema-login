@@ -15,16 +15,18 @@ def save_food_entry(user_id, food_name, calories, proteins, fats, carbs):
         carbs (float): Carbohidratos consumidos.
     """
     current_date = datetime.date.today().strftime('%Y-%m-%d')
+    current_timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') # Obtener timestamp actual
     try:
         with get_db_cursor() as cursor:
             # 1. Insertar el registro de comida en food_entries
+            # ¡Ahora incluyendo 'created_at' en la lista de columnas y valores!
             cursor.execute('''
                 INSERT INTO food_entries 
-                (user_id, food_name, calories, proteins, fats, carbs, date)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (user_id, food_name, calories, proteins, fats, carbs, current_date))
+                (user_id, food_name, calories, proteins, fats, carbs, date, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (user_id, food_name, calories, proteins, fats, carbs, current_date, current_timestamp))
 
-            # 2. Actualizar los valores consumidos en user_goals (¡nombre de tabla corregido!)
+            # 2. Actualizar los valores consumidos en user_goals
             cursor.execute('''
                 UPDATE user_goals 
                 SET calories_consumed = IFNULL(calories_consumed, 0) + ?,

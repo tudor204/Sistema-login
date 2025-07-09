@@ -19,7 +19,7 @@ def register():
         try:
             with get_db_cursor() as cur:
                 cur.execute("SELECT id FROM loggin WHERE username = ? OR email = ?", 
-                          (username, email))
+                            (username, email))
                 if cur.fetchone():
                     flash('Usuario o email ya registrado', 'warning')
                     return redirect(url_for('register'))
@@ -48,9 +48,9 @@ def login():
 
                 if user_data and check_password_hash(user_data['password'], password):
                     user = User(id=user_data['id'], username=user_data['username'], 
-                               email=user_data['email'])
-                    login_user(user)
-                    return redirect(url_for('dashboard'))
+                                 email=user_data['email'])
+                    login_user(user)                    
+                    return redirect(url_for('settings'))
                 
             flash('Credenciales inválidas', 'danger')
         
@@ -77,17 +77,19 @@ def authorize_google():
     
     # Extraemos email y nombre
     email = user_info['email']
-    username = user_info.get('name', email.split('@')[0])  # nombre o parte del email
+    username = user_info.get('name', email.split('@')[0])
 
     # Buscar usuario en BD por email
     user = User.get_by_email(email)
     
     if not user:
         # Crear usuario nuevo si no existe
-        User.create(username, email)
+        # Asegúrate de que User.create pueda manejar la creación sin contraseña si es necesario para Google
+        User.create(username, email) 
         user = User.get_by_email(email)
 
     # Loguear usuario
     login_user(user)
-    flash(f'Has iniciado sesión como {user.username} con Google', 'success')
-    return redirect(url_for('dashboard'))
+    flash(f'Has iniciado sesión como {user.username} con Google', 'success')    
+    return redirect(url_for('settings'))
+

@@ -35,4 +35,4 @@ from app.models.LoginGoogleModel import User
 def load_user(user_id):
     return User.get_by_id(user_id)
 
-from app.controllers import LoginGoogleController, DashboardController, IndexController, LoginGoogleController,MyfoodsController,ProgressController,SearchFoodController,UsersController
+from app.controllers import LoginGoogleController, DashboardController, IndexController, LoginGoogleController,MyfoodsController,ProgressController,SearchFoodController,UsersController,SettingsController
