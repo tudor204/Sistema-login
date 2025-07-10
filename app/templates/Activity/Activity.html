@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Actividad | NutriTrack Pro{% endblock %}
+
+{% block section %}
+<div class="page-header">
+    <h1 class="page-title">
+      <i class="fas fa-dumbbell me-2"></i>Actividad diaria
+    </h1>
+  </div>
+<div class="container mt-5">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0">
+            <h5 class="mb-0">
+                <i class="fas fa-search me-2"></i>Selecciona actividad a realizar
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label for="activity_select" class="form-label fw-medium">Actividad</label>
+                    <select
+                        class="form-select"
+                        name="sport_name"
+                        id="activity_select"
+                        aria-label="Selecciona una actividad"
+                    >
+                        <option selected disabled value="">Selecciona una actividad...</option>
+                        <option value="Fútbol">Fútbol</option>
+                        <option value="Baloncesto">Baloncesto</option>
+                        <option value="Tenis">Tenis</option>
+                        <option value="Natación">Natación</option>
+                        <option value="Running / Correr">Running / Correr</option>
+                        <option value="Ciclismo">Ciclismo</option>
+                        <option value="Pádel">Pádel</option>
+                        <option value="Senderismo / Caminar">Senderismo / Caminar</option>
+                        <option value="Fitness / Gimnasio">Fitness / Gimnasio</option>
+                        <option value="Yoga">Yoga</option>
+                        <option value="Pilates">Pilates</option>
+                        <option value="Voleibol">Voleibol</option>
+                        <option value="Balonmano">Balonmano</option>
+                        <option value="Atletismo">Atletismo</option>
+                        <option value="Boxeo">Boxeo</option>
+                        <option value="Artes Marciales">Artes Marciales (general)</option>
+                        <option value="Golf">Golf</option>
+                        <option value="Crossfit">Crossfit</option>
+                        <option value="Escalada">Escalada</option>
+                        <option value="Bádminton">Bádminton</option>
+                        <option value="Danza">Danza</option>
+                        <option value="Surf">Surf</option>
+                        <option value="Deportes acuáticos">Deportes acuáticos (general)</option>
+                        <option value="Deportes de raqueta (otros)">Deportes de raqueta (otros)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    ---
+
+    <div id="sport_details_container" style="display: none;">
+        </div>
+
+</div>
+
+<script>
+    // Datos de los deportes CON URLs de imágenes (actualizadas para la nueva ruta)
+    const SPORTS_DATA = {
+        "Fútbol": {"descripcion": "Deporte de equipo con balón, muy popular en España.", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/futbol.jpg') }}"},
+        "Baloncesto": {"descripcion": "Deporte de equipo con canastas, requiere agilidad y precisión.", "calorias_por_hora": 450, "imagen": "{{ url_for('static', filename='images/sports/baloncesto.jpg') }}"},
+        "Tenis": {"descripcion": "Deporte de raqueta individual o dobles, ideal para la coordinación.", "calorias_por_hora": 480, "imagen": "{{ url_for('static', filename='images/sports/tenis.jpg') }}"},
+        "Natación": {"descripcion": "Ejercicio completo en el agua, bajo impacto y mejora la resistencia.", "calorias_por_hora": 500, "imagen": "{{ url_for('static', filename='images/sports/natacion.jpg') }}"},
+        "Running / Correr": {"descripcion": "Actividad cardiovascular de alta intensidad, mejora la salud del corazón.", "calorias_por_hora": 600, "imagen": "{{ url_for('static', filename='images/sports/running.jpg') }}"},
+        "Ciclismo": {"descripcion": "Deporte sobre dos ruedas, excelente para las piernas y la resistencia.", "calorias_por_hora": 550, "imagen": "{{ url_for('static', filename='images/sports/ciclismo.jpg') }}"},
+        "Pádel": {"descripcion": "Deporte de raqueta similar al tenis, muy social y divertido.", "calorias_por_hora": 420, "imagen": "{{ url_for('static', filename='images/sports/padel.jpg') }}"},
+        "Senderismo / Caminar": {"descripcion": "Actividad al aire libre para todos los niveles, ideal para relajarse y mantenerse activo.", "calorias_por_hora": 300, "imagen": "{{ url_for('static', filename='images/sports/senderismo.jpg') }}"},
+        "Fitness / Gimnasio": {"descripcion": "Variedad de ejercicios en un centro, para fuerza, resistencia o flexibilidad.", "calorias_por_hora": 380, "imagen": "{{ url_for('static', filename='images/sports/fitness.jpg') }}"},
+        "Yoga": {"descripcion": "Práctica física y mental que combina posturas, respiración y meditación.", "calorias_por_hora": 200, "imagen": "{{ url_for('static', filename='images/sports/yoga.jpg') }}"},
+        "Pilates": {"descripcion": "Método de ejercicio que busca fuerza, flexibilidad, equilibrio y control corporal.", "calorias_por_hora": 250, "imagen": "{{ url_for('static', filename='images/sports/pilates.jpg') }}"},
+        "Voleibol": {"descripcion": "Deporte de equipo con red, requiere saltos y coordinación.", "calorias_por_hora": 350, "imagen": "{{ url_for('static', filename='images/sports/voleibol.jpg') }}"},
+        "Balonmano": {"descripcion": "Deporte de equipo con balón y portería, dinámico y estratégico.", "calorias_por_hora": 470, "imagen": "{{ url_for('static', filename='images/sports/balonmano.jpg') }}"},
+        "Atletismo": {"descripcion": "Conjunto de disciplinas de pista y campo, desde correr a lanzar.", "calorias_por_hora": 500, "imagen": "{{ url_for('static', filename='images/sports/atletismo.jpg') }}"},
+        "Boxeo": {"descripcion": "Deporte de combate, mejora la fuerza, resistencia y disciplina.", "calorias_por_hora": 650, "imagen": "{{ url_for('static', filename='images/sports/boxeo.jpg') }}"},
+        "Artes Marciales": {"descripcion": "Disciplinas de lucha y defensa personal, fomentan el respeto y la concentración.", "calorias_por_hora": 550, "imagen": "{{ url_for('static', filename='images/sports/artes_marciales.jpg') }}"},
+        "Golf": {"descripcion": "Deporte de precisión con palos y pelota, ideal para el aire libre.", "calorias_por_hora": 280, "imagen": "{{ url_for('static', filename='images/sports/golf.jpg') }}"},
+        "Crossfit": {"descripcion": "Entrenamiento de fuerza y acondicionamiento de alta intensidad.", "calorias_por_hora": 700, "imagen": "{{ url_for('static', filename='images/sports/crossfit.jpg') }}"},
+        "Escalada": {"descripcion": "Ascenso de paredes o rocas, requiere fuerza, técnica y equilibrio.", "calorias_por_hora": 600, "imagen": "{{ url_for('static', filename='images/sports/escalada.jpg') }}"},
+        "Bádminton": {"descripcion": "Deporte de raqueta con volante, rápido y ágil.", "calorias_por_hora": 350, "imagen": "{{ url_for('static', filename='images/sports/badminton.jpg') }}"},
+        "Danza": {"descripcion": "Expresión artística y ejercicio físico, mejora la coordinación y el ritmo.", "calorias_por_hora": 300, "imagen": "{{ url_for('static', filename='images/sports/danza.jpg') }}"},
+        "Surf": {"descripcion": "Deporte acuático sobre olas, combina equilibrio y fuerza.", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/surf.jpg') }}"},
+        "Deportes acuáticos": {"descripcion": "Actividades variadas en el agua (kayak, paddle surf, etc.).", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/deportes_acuaticos.jpg') }}"},
+        "Deportes de raqueta (otros)": {"descripcion": "Otras disciplinas con raqueta, como el squash o el bádminton.", "calorias_por_hora": 380, "imagen": "{{ url_for('static', filename='images/sports/raqueta_otros.jpg') }}"},
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const activitySelect = document.getElementById('activity_select');
+        const sportDetailsContainer = document.getElementById('sport_details_container');
+
+        // Función para mostrar y actualizar los detalles del deporte
+        function showSportDetails(sportName) {
+            const sportInfo = SPORTS_DATA[sportName];
+
+            if (sportInfo) {
+                sportDetailsContainer.style.display = 'block'; // Asegura que el contenedor sea visible
+
+                // Inyecta el HTML de los detalles del deporte en el contenedor
+                sportDetailsContainer.innerHTML = `
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h2 class="mb-0">${sportName}</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-center mb-3">
+                                <div class="col-md-4">
+                                    <img src="${sportInfo.imagen}" class="img-fluid rounded shadow-sm" alt="Imagen de ${sportName}">
+                                </div>
+                                <div class="col-md-8">
+                                    <p class="lead">${sportInfo.descripcion}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="mb-3">
+                                <h5 class="mb-2">Calorías quemadas estimadas:</h5>
+                                <p class="fs-4">
+                                    <span id="calories_display_current">${sportInfo.calorias_por_hora}</span> Kcal por hora
+                                </p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="duration_input" class="form-label fw-medium">Cambiar tiempo de ejercicio (minutos):</label>
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="duration_input"
+                                    value="60"
+                                    min="1"
+                                    step="1"
+                                    placeholder="Minutos"
+                                >
+                                <small class="form-text text-muted">Introduce el número de minutos para recalcular las calorías.</small>
+                            </div>
+
+                            <div class="alert alert-info" role="alert">
+                                Calorías para <span id="current_duration">60</span> minutos: <strong id="calculated_calories">${sportInfo.calorias_por_hora}</strong> Kcal
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Configurar el recalculador de calorías después de que el HTML se haya inyectado
+                const durationInput = document.getElementById('duration_input');
+                const calculatedCaloriesDisplay = document.getElementById('calculated_calories');
+                const currentDurationDisplay = document.getElementById('current_duration');
+
+                function recalculateCalories() {
+                    let durationMinutes = parseInt(durationInput.value);
+                    if (isNaN(durationMinutes) || durationMinutes < 1) {
+                        durationMinutes = 0; // O un valor predeterminado seguro
+                    }
+
+                    const calories = (sportInfo.calorias_por_hora / 60) * durationMinutes;
+                    calculatedCaloriesDisplay.textContent = calories.toFixed(0); // Muestra sin decimales
+                    currentDurationDisplay.textContent = durationMinutes;
+                }
+
+                // Añadir el event listener para el input de duración
+                durationInput.addEventListener('input', recalculateCalories);
+
+                // Realizar el cálculo inicial para asegurar que los valores sean correctos al cargar el deporte
+                recalculateCalories();
+
+            } else {
+                sportDetailsContainer.style.display = 'none'; // Ocultar si no se encontró el deporte o se seleccionó la opción por defecto
+            }
+        }
+
+        // Event listener para el cambio en la lista desplegable
+        activitySelect.addEventListener('change', function() {
+            const selectedSport = this.value;
+            if (selectedSport) {
+                showSportDetails(selectedSport);
+            } else {
+                sportDetailsContainer.style.display = 'none'; // Ocultar si se selecciona la opción "Selecciona una actividad..."
+            }
+        });
+    });
+</script>
+{% endblock %}
