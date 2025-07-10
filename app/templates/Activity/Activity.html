@@ -4,67 +4,95 @@
 
 {% block section %}
 <div class="page-header">
-    <h1 class="page-title">
-      <i class="fas fa-dumbbell me-2"></i>Actividad diaria
-    </h1>
-  </div>
+    <h1 class="page-title">
+      <i class="fas fa-dumbbell me-2"></i>Actividad diaria
+    </h1>
+</div>
+
 <div class="container mt-5">
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white border-0">
-            <h5 class="mb-0">
-                <i class="fas fa-search me-2"></i>Selecciona actividad a realizar
-            </h5>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-12">
-                    <label for="activity_select" class="form-label fw-medium">Actividad</label>
-                    <select
-                        class="form-select"
-                        name="sport_name"
-                        id="activity_select"
-                        aria-label="Selecciona una actividad"
-                    >
-                        <option selected disabled value="">Selecciona una actividad...</option>
-                        <option value="Fútbol">Fútbol</option>
-                        <option value="Baloncesto">Baloncesto</option>
-                        <option value="Tenis">Tenis</option>
-                        <option value="Natación">Natación</option>
-                        <option value="Running / Correr">Running / Correr</option>
-                        <option value="Ciclismo">Ciclismo</option>
-                        <option value="Pádel">Pádel</option>
-                        <option value="Senderismo / Caminar">Senderismo / Caminar</option>
-                        <option value="Fitness / Gimnasio">Fitness / Gimnasio</option>
-                        <option value="Yoga">Yoga</option>
-                        <option value="Pilates">Pilates</option>
-                        <option value="Voleibol">Voleibol</option>
-                        <option value="Balonmano">Balonmano</option>
-                        <option value="Atletismo">Atletismo</option>
-                        <option value="Boxeo">Boxeo</option>
-                        <option value="Artes Marciales">Artes Marciales (general)</option>
-                        <option value="Golf">Golf</option>
-                        <option value="Crossfit">Crossfit</option>
-                        <option value="Escalada">Escalada</option>
-                        <option value="Bádminton">Bádminton</option>
-                        <option value="Danza">Danza</option>
-                        <option value="Surf">Surf</option>
-                        <option value="Deportes acuáticos">Deportes acuáticos (general)</option>
-                        <option value="Deportes de raqueta (otros)">Deportes de raqueta (otros)</option>
-                    </select>
+    {# EL FORMULARIO PRINCIPAL ENVOLVERÁ TODO AHORA #}
+    <form id="activityRegisterForm"> 
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="fas fa-search me-2"></i>Selecciona actividad a realizar
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label for="activity_select" class="form-label fw-medium">Actividad</label>
+                        <select
+                            class="form-select"
+                            name="activity_name" {# Changed to activity_name to match Flask expectation #}
+                            id="activity_select"
+                            aria-label="Selecciona una actividad"
+                            required {# Added required for basic HTML validation #}
+                        >
+                            <option selected disabled value="">Selecciona una actividad...</option>
+                            <option value="Fútbol">Fútbol</option>
+                            <option value="Baloncesto">Baloncesto</option>
+                            <option value="Tenis">Tenis</option>
+                            <option value="Natación">Natación</option>
+                            <option value="Running / Correr">Running / Correr</option>
+                            <option value="Ciclismo">Ciclismo</option>
+                            <option value="Pádel">Pádel</option>
+                            <option value="Senderismo / Caminar">Senderismo / Caminar</option>
+                            <option value="Fitness / Gimnasio">Fitness / Gimnasio</option>
+                            <option value="Yoga">Yoga</option>
+                            <option value="Pilates">Pilates</option>
+                            <option value="Voleibol">Voleibol</option>
+                            <option value="Balonmano">Balonmano</option>
+                            <option value="Atletismo">Atletismo</option>
+                            <option value="Boxeo">Boxeo</option>
+                            <option value="Artes Marciales">Artes Marciales (general)</option>
+                            <option value="Golf">Golf</option>
+                            <option value="Crossfit">Crossfit</option>
+                            <option value="Escalada">Escalada</option>
+                            <option value="Bádminton">Bádminton</option>
+                            <option value="Danza">Danza</option>
+                            <option value="Surf">Surf</option>
+                            <option value="Deportes acuáticos">Deportes acuáticos (general)</option>
+                            <option value="Deportes de raqueta (otros)">Deportes de raqueta (otros)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    ---
-
-    <div id="sport_details_container" style="display: none;">
+        {# This div will be populated dynamically by JavaScript #}
+        <div id="sport_details_container" style="display: none;">
+            {# Dynamic content for sport details will be injected here #}
         </div>
 
-</div>
+        {# HIDDEN INPUTS to capture data for form submission #}
+        <input type="hidden" id="calories_burned_hidden" name="calories_burned" value="0">
+        <input type="hidden" id="duration_hidden" name="duration_minutes" value="0">
+        
+        <button type="submit" class="btn btn-primary mt-4" id="registerActivityBtn" disabled>
+            <i class="fas fa-save me-2"></i>Registrar Actividad Diaria
+        </button>
+    </form>
+    
+    {# Optional: Section for displaying registered activities today #}
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header bg-white border-0">
+            <h5 class="mb-0">
+                <i class="fas fa-clipboard-list me-2"></i>Actividades Registradas Hoy
+            </h5>
+        </div>
+        <div class="card-body" id="dailyActivitiesList">
+            <p class="text-muted" id="noActivitiesMessage">No hay actividades registradas para hoy.</p>
+        </div>
+    </div>
 
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }} {# Important to keep scripts from base.html #}
 <script>
-    // Datos de los deportes CON URLs de imágenes (actualizadas para la nueva ruta)
+    // Data for sports with image URLs
     const SPORTS_DATA = {
         "Fútbol": {"descripcion": "Deporte de equipo con balón, muy popular en España.", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/futbol.jpg') }}"},
         "Baloncesto": {"descripcion": "Deporte de equipo con canastas, requiere agilidad y precisión.", "calorias_por_hora": 450, "imagen": "{{ url_for('static', filename='images/sports/baloncesto.jpg') }}"},
@@ -95,15 +123,19 @@
     document.addEventListener('DOMContentLoaded', function() {
         const activitySelect = document.getElementById('activity_select');
         const sportDetailsContainer = document.getElementById('sport_details_container');
+        const activityRegisterForm = document.getElementById('activityRegisterForm'); // Reference to the main form
+        const caloriesBurnedHidden = document.getElementById('calories_burned_hidden');
+        const durationHidden = document.getElementById('duration_hidden');
+        const registerActivityBtn = document.getElementById('registerActivityBtn');
 
-        // Función para mostrar y actualizar los detalles del deporte
+        // Function to show and update sport details
         function showSportDetails(sportName) {
             const sportInfo = SPORTS_DATA[sportName];
 
             if (sportInfo) {
-                sportDetailsContainer.style.display = 'block'; // Asegura que el contenedor sea visible
+                sportDetailsContainer.style.display = 'block'; // Ensure container is visible
 
-                // Inyecta el HTML de los detalles del deporte en el contenedor
+                // Inject HTML for sport details into the container
                 sportDetailsContainer.innerHTML = `
                     <div class="card shadow-sm mb-4">
                         <div class="card-header bg-primary text-white">
@@ -147,7 +179,7 @@
                     </div>
                 `;
 
-                // Configurar el recalculador de calorías después de que el HTML se haya inyectado
+                // Set up calorie recalculator after HTML has been injected
                 const durationInput = document.getElementById('duration_input');
                 const calculatedCaloriesDisplay = document.getElementById('calculated_calories');
                 const currentDurationDisplay = document.getElementById('current_duration');
@@ -155,34 +187,87 @@
                 function recalculateCalories() {
                     let durationMinutes = parseInt(durationInput.value);
                     if (isNaN(durationMinutes) || durationMinutes < 1) {
-                        durationMinutes = 0; // O un valor predeterminado seguro
+                        durationMinutes = 0; // Or a safe default value
                     }
 
                     const calories = (sportInfo.calorias_por_hora / 60) * durationMinutes;
-                    calculatedCaloriesDisplay.textContent = calories.toFixed(0); // Muestra sin decimales
+                    calculatedCaloriesDisplay.textContent = calories.toFixed(0); // Display without decimals
                     currentDurationDisplay.textContent = durationMinutes;
+
+                    // Update the hidden fields of the main form
+                    caloriesBurnedHidden.value = calories.toFixed(2); // Save with decimals for precision
+                    durationHidden.value = durationMinutes;
+
+                    // Enable the registration button if data is valid
+                    if (durationMinutes > 0 && calories > 0) {
+                        registerActivityBtn.disabled = false;
+                    } else {
+                        registerActivityBtn.disabled = true;
+                    }
                 }
 
-                // Añadir el event listener para el input de duración
                 durationInput.addEventListener('input', recalculateCalories);
-
-                // Realizar el cálculo inicial para asegurar que los valores sean correctos al cargar el deporte
-                recalculateCalories();
+                recalculateCalories(); // Perform initial calculation to ensure correct values when sport loads
 
             } else {
-                sportDetailsContainer.style.display = 'none'; // Ocultar si no se encontró el deporte o se seleccionó la opción por defecto
+                sportDetailsContainer.style.display = 'none'; // Hide if sport not found or default option selected
+                registerActivityBtn.disabled = true; // Disable button if no sport selected
+                caloriesBurnedHidden.value = "0";
+                durationHidden.value = "0";
             }
         }
 
-        // Event listener para el cambio en la lista desplegable
+        // Event listener for dropdown change
         activitySelect.addEventListener('change', function() {
             const selectedSport = this.value;
             if (selectedSport) {
                 showSportDetails(selectedSport);
             } else {
-                sportDetailsContainer.style.display = 'none'; // Ocultar si se selecciona la opción "Selecciona una actividad..."
+                sportDetailsContainer.style.display = 'none'; // Hide if "Select an activity..." option is chosen
+                registerActivityBtn.disabled = true; // Disable button
+                caloriesBurnedHidden.value = "0";
+                durationHidden.value = "0";
             }
         });
+
+        // --- Logic to submit the form to Flask (when "Registrar Actividad Diaria" is clicked) ---
+        activityRegisterForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission (page reload)
+
+            // Ensure activity_name, duration_minutes, and calories_burned are in the formData
+            const formData = new FormData(activityRegisterForm); 
+
+            // Validate data before sending
+            const activityName = formData.get('activity_name');
+            const duration = parseFloat(formData.get('duration_minutes'));
+            const calories = parseFloat(formData.get('calories_burned'));
+
+            if (!activityName || duration <= 0 || calories <= 0) {
+                alert('Por favor, selecciona una actividad, introduce una duración válida y calcula las calorías antes de registrar.');
+                return; // Stop submission if data is invalid
+            }
+
+            fetch('{{ url_for("register_activity") }}', { 
+                method: 'POST',
+                body: formData 
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url; // Follow Flask's redirect (with flash messages)
+                } else {
+                    // This should be a rare case if Flask always redirects with flash
+                    console.log('Respuesta no redireccionada:', response);
+                    alert('Algo salió mal al registrar la actividad. No hubo redirección.');
+                }
+            })
+            .catch(error => {
+                console.error('Error al registrar la actividad:', error);
+                alert('Hubo un problema de conexión o un error inesperado al registrar la actividad.');
+            });
+        });
+
+        // Initialize button state on page load
+        registerActivityBtn.disabled = true; 
     });
 </script>
 {% endblock %}
