@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from app import app
 from app.conexion import get_db_cursor
 import datetime
+from app.models.ActivityModel import get_total_activity_minutes_today
 
 @app.route('/dashboard')
 @login_required
@@ -50,6 +51,11 @@ def dashboard():
         """, (current_user.id,))
         recent_foods = cur.fetchall()
 
+    # Obtener minutos totales de actividad hoy
+    activity_minutes = get_total_activity_minutes_today(current_user.id)
+    today_stats['activity'] = activity_minutes
+    daily_activity = goals.get('daily_activity', 30) or 30
+    activity_percentage = min(100, (activity_minutes / daily_activity) * 100) if daily_activity > 0 else 0
 
     # Calcular porcentajes para todos los macros
     daily_calories = goals.get('daily_calories', 2000) or 2000
@@ -58,6 +64,7 @@ def dashboard():
     daily_carbs = goals.get('daily_carbs', 250) or 250
     daily_water_ml = (goals.get('daily_water', 2) or 2) * 1000 # Convertir litros a ml para el cálculo
     water_consumed_ml = goals.get('water_consumed', 0) or 0 # Obtener el agua consumida
+    
 
     calories_percentage = min(100, (today_calories / daily_calories) * 100)
     proteins_percentage = min(100, (today_proteins / daily_proteins) * 100)
@@ -77,11 +84,10 @@ def dashboard():
         fats_percentage=round(fats_percentage, 1),
         carbs_percentage=round(carbs_percentage, 1),
         water_percentage=round(water_percentage, 1),
-        water_consumed_ml=water_consumed_ml
+        water_consumed_ml=water_consumed_ml,
+        activity_minutes=activity_minutes,
+        activity_percentage=round(activity_percentage, 1)
     )
-
-
-
 
 @app.route('/add_water_intake', methods=['POST'])
 @login_required
@@ -108,4 +114,3 @@ def add_water_intake():
         print(f"Error al registrar el agua: {e}") # Para depuración en la consola
 
     return redirect(url_for('dashboard'))
-

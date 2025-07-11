@@ -2,13 +2,11 @@ import sqlite3
 from datetime import datetime
 from app.conexion import DATABASE
 
-# Define la ruta de tu base de datos
-
 
 def get_db_connection():
     """Establece una conexión con la base de datos SQLite."""
     conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row # Permite acceder a las columnas por nombre (ej. row['id'])
+    conn.row_factory = sqlite3.Row 
     return conn
 
 def save_daily_activity(user_id, activity_name, duration_minutes, calories_burned):
@@ -54,3 +52,27 @@ def get_daily_activities_for_user(user_id, date=None):
     activities = cursor.fetchall() # Obtiene todos los resultados
     conn.close()
     return activities
+
+
+def get_total_activity_minutes_today(user_id, date=None):
+    """
+    Devuelve la suma total de minutos de actividad realizados por el usuario en la fecha dada (por defecto, hoy).
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if date is None:
+        date = datetime.now().strftime('%Y-%m-%d')
+
+    try:
+        cursor.execute(
+            "SELECT SUM(duration_minutes) AS total_minutes FROM daily_activities WHERE user_id = ? AND date_recorded = ?",
+            (user_id, date)
+        )
+        result = cursor.fetchone()
+        return result["total_minutes"] if result["total_minutes"] is not None else 0
+    except sqlite3.Error as e:
+        print(f"Error al obtener total de minutos: {e}")
+        return 0
+    finally:
+        conn.close()

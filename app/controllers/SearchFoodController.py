@@ -2,7 +2,6 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app import app
 import requests
-# Asegúrate de que estas funciones existan y estén correctamente definidas en SearchFoodModel.py
 from app.models.SearchFoodModel import save_food_entry, calculate_macros_for_quantity 
 
 
@@ -10,8 +9,7 @@ from app.models.SearchFoodModel import save_food_entry, calculate_macros_for_qua
 @login_required
 def search_food():
     query = request.args.get('query', '').strip()
-    if not query:
-        flash("Ingresa un alimento para buscar", "warning")
+    if not query:        
         return render_template("SearchFood/FoodResults.html", alimentos=[], query="")
 
     try:
@@ -23,7 +21,7 @@ def search_food():
                 'page_size': 10
             }
         )
-        response.raise_for_status() # Lanza una excepción para códigos de estado HTTP erróneos (4xx o 5xx)
+        response.raise_for_status() 
         data = response.json()
         productos = data.get("products", [])
 
@@ -110,7 +108,7 @@ def save_food():
         flash('Datos incompletos', 'warning')
         return redirect(url_for('search_food'))
 
-    # ¡Aquí es donde usamos calculate_macros_for_quantity!
+   
     calories, proteins, fats, carbs = calculate_macros_for_quantity(
         calories_100g, proteins_100g, fats_100g, carbs_100g, quantity
     )

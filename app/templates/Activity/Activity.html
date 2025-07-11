@@ -4,14 +4,14 @@
 
 {% block section %}
 <div class="page-header">
-    <h1 class="page-title">
-      <i class="fas fa-dumbbell me-2"></i>Actividad diaria
-    </h1>
+    <h1 class="page-title">
+      <i class="fas fa-dumbbell me-2"></i>Actividad diaria
+    </h1>
 </div>
 
 <div class="container mt-5">
     {# EL FORMULARIO PRINCIPAL ENVOLVERÁ TODO AHORA #}
-    <form id="activityRegisterForm"> 
+    <form id="activityRegisterForm">
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white border-0">
                 <h5 class="mb-0">
@@ -24,10 +24,10 @@
                         <label for="activity_select" class="form-label fw-medium">Actividad</label>
                         <select
                             class="form-select"
-                            name="activity_name" {# Changed to activity_name to match Flask expectation #}
+                            name="activity_name"
                             id="activity_select"
                             aria-label="Selecciona una actividad"
-                            required {# Added required for basic HTML validation #}
+                            required
                         >
                             <option selected disabled value="">Selecciona una actividad...</option>
                             <option value="Fútbol">Fútbol</option>
@@ -68,13 +68,16 @@
         {# HIDDEN INPUTS to capture data for form submission #}
         <input type="hidden" id="calories_burned_hidden" name="calories_burned" value="0">
         <input type="hidden" id="duration_hidden" name="duration_minutes" value="0">
-        
+
         <button type="submit" class="btn btn-primary mt-4" id="registerActivityBtn" disabled>
             <i class="fas fa-save me-2"></i>Registrar Actividad Diaria
         </button>
     </form>
-    
-    {# Optional: Section for displaying registered activities today #}
+
+    {# Nuevo contenedor para mensajes flash gestionados por JS #}
+    <div id="flash-messages-container" class="mt-3"></div>
+
+    {# Section for displaying registered activities today #}
     <div class="card border-0 shadow-sm mt-4">
         <div class="card-header bg-white border-0">
             <h5 class="mb-0">
@@ -82,7 +85,24 @@
             </h5>
         </div>
         <div class="card-body" id="dailyActivitiesList">
-            <p class="text-muted" id="noActivitiesMessage">No hay actividades registradas para hoy.</p>
+            {# Este contenido será gestionado por JS, pero Jinja puede poner un valor inicial #}
+            {% if activities %}
+                <ul class="list-group list-group-flush">
+                    {% for activity in activities %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ activity.activity_name }}</strong> ({{ activity.duration_minutes }} min)
+                                <br>
+                                {# Asegúrate de que activity.timestamp es un string y extrae la hora #}
+                                <small class="text-muted">{{ activity.date_recorded }} - {{ activity.timestamp[11:16] if activity.timestamp else '' }}</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ activity.calories_burned|round(0) }} Kcal</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted" id="noActivitiesMessage">No hay actividades registradas para hoy.</p>
+            {% endif %}
         </div>
     </div>
 
@@ -90,7 +110,7 @@
 {% endblock %}
 
 {% block scripts %}
-{{ super() }} {# Important to keep scripts from base.html #}
+{{ super() }} {# Importante para mantener scripts de base.html #}
 <script>
     // Data for sports with image URLs
     const SPORTS_DATA = {
@@ -117,25 +137,76 @@
         "Danza": {"descripcion": "Expresión artística y ejercicio físico, mejora la coordinación y el ritmo.", "calorias_por_hora": 300, "imagen": "{{ url_for('static', filename='images/sports/danza.jpg') }}"},
         "Surf": {"descripcion": "Deporte acuático sobre olas, combina equilibrio y fuerza.", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/surf.jpg') }}"},
         "Deportes acuáticos": {"descripcion": "Actividades variadas en el agua (kayak, paddle surf, etc.).", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/deportes_acuaticos.jpg') }}"},
-        "Deportes de raqueta (otros)": {"descripcion": "Otras disciplinas con raqueta, como el squash o el bádminton.", "calorias_por_hora": 380, "imagen": "{{ url_for('static', filename='images/sports/raqueta_otros.jpg') }}"},
+        
     };
 
     document.addEventListener('DOMContentLoaded', function() {
         const activitySelect = document.getElementById('activity_select');
         const sportDetailsContainer = document.getElementById('sport_details_container');
-        const activityRegisterForm = document.getElementById('activityRegisterForm'); // Reference to the main form
+        const activityRegisterForm = document.getElementById('activityRegisterForm');
         const caloriesBurnedHidden = document.getElementById('calories_burned_hidden');
         const durationHidden = document.getElementById('duration_hidden');
         const registerActivityBtn = document.getElementById('registerActivityBtn');
+        const dailyActivitiesList = document.getElementById('dailyActivitiesList'); // Referencia al contenedor de la lista
 
-        // Function to show and update sport details
+        // Función para mostrar mensajes flash de Bootstrap
+        function showFlashMessage(message, category) {
+            const container = document.getElementById('flash-messages-container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${category} alert-dismissible fade show`;
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            container.innerHTML = ''; // Limpia mensajes anteriores
+            container.appendChild(alertDiv);
+
+            // Opcional: desaparecer automáticamente después de unos segundos
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alertDiv); // Crea una instancia de Alert para usar el método close
+                bsAlert.close(); // Cierra la alerta de Bootstrap
+            }, 5000); // 5 segundos
+        }
+
+        // Función para renderizar la lista de actividades
+        function renderActivities(activities) {
+            dailyActivitiesList.innerHTML = ''; // Limpia el contenido actual
+
+            if (activities && activities.length > 0) {
+                const ul = document.createElement('ul');
+                ul.className = 'list-group list-group-flush';
+
+                activities.forEach(activity => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+                    // Extrae solo la parte de la hora (HH:MM) si el timestamp existe
+                    const timePart = activity.timestamp ? activity.timestamp.substring(11, 16) : '';
+
+                    li.innerHTML = `
+                        <div>
+                            <strong>${activity.activity_name}</strong> (${activity.duration_minutes} min)
+                            <br>
+                            <small class="text-muted">${activity.date_recorded} - ${timePart}</small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">${activity.calories_burned} Kcal</span>
+                    `;
+                    ul.appendChild(li);
+                });
+                dailyActivitiesList.appendChild(ul);
+            } else {
+                dailyActivitiesList.innerHTML = '<p class="text-muted" id="noActivitiesMessage">No hay actividades registradas para hoy.</p>';
+            }
+        }
+
+        // --- Función para mostrar y actualizar detalles del deporte (parte existente) ---
         function showSportDetails(sportName) {
             const sportInfo = SPORTS_DATA[sportName];
 
             if (sportInfo) {
-                sportDetailsContainer.style.display = 'block'; // Ensure container is visible
+                sportDetailsContainer.style.display = 'block';
 
-                // Inject HTML for sport details into the container
                 sportDetailsContainer.innerHTML = `
                     <div class="card shadow-sm mb-4">
                         <div class="card-header bg-primary text-white">
@@ -179,7 +250,7 @@
                     </div>
                 `;
 
-                // Set up calorie recalculator after HTML has been injected
+                // Configura el recalculador de calorías después de que el HTML ha sido inyectado
                 const durationInput = document.getElementById('duration_input');
                 const calculatedCaloriesDisplay = document.getElementById('calculated_calories');
                 const currentDurationDisplay = document.getElementById('current_duration');
@@ -187,18 +258,18 @@
                 function recalculateCalories() {
                     let durationMinutes = parseInt(durationInput.value);
                     if (isNaN(durationMinutes) || durationMinutes < 1) {
-                        durationMinutes = 0; // Or a safe default value
+                        durationMinutes = 0;
                     }
 
                     const calories = (sportInfo.calorias_por_hora / 60) * durationMinutes;
-                    calculatedCaloriesDisplay.textContent = calories.toFixed(0); // Display without decimals
+                    calculatedCaloriesDisplay.textContent = calories.toFixed(0); // Muestra sin decimales
                     currentDurationDisplay.textContent = durationMinutes;
 
-                    // Update the hidden fields of the main form
-                    caloriesBurnedHidden.value = calories.toFixed(2); // Save with decimals for precision
+                    // Actualiza los campos ocultos del formulario principal
+                    caloriesBurnedHidden.value = calories.toFixed(2); // Guarda con 2 decimales para precisión
                     durationHidden.value = durationMinutes;
 
-                    // Enable the registration button if data is valid
+                    // Habilita el botón de registro si los datos son válidos
                     if (durationMinutes > 0 && calories > 0) {
                         registerActivityBtn.disabled = false;
                     } else {
@@ -207,67 +278,84 @@
                 }
 
                 durationInput.addEventListener('input', recalculateCalories);
-                recalculateCalories(); // Perform initial calculation to ensure correct values when sport loads
+                recalculateCalories(); // Realiza el cálculo inicial para asegurar valores correctos al cargar el deporte
 
             } else {
-                sportDetailsContainer.style.display = 'none'; // Hide if sport not found or default option selected
-                registerActivityBtn.disabled = true; // Disable button if no sport selected
+                sportDetailsContainer.style.display = 'none'; // Oculta si no se encuentra el deporte o se selecciona la opción por defecto
+                registerActivityBtn.disabled = true; // Deshabilita el botón si no hay deporte seleccionado
                 caloriesBurnedHidden.value = "0";
                 durationHidden.value = "0";
             }
         }
 
-        // Event listener for dropdown change
+        // Event listener para el cambio en el desplegable
         activitySelect.addEventListener('change', function() {
             const selectedSport = this.value;
             if (selectedSport) {
                 showSportDetails(selectedSport);
             } else {
-                sportDetailsContainer.style.display = 'none'; // Hide if "Select an activity..." option is chosen
-                registerActivityBtn.disabled = true; // Disable button
+                sportDetailsContainer.style.display = 'none'; // Oculta si se elige la opción "Selecciona una actividad..."
+                registerActivityBtn.disabled = true; // Deshabilita el botón
                 caloriesBurnedHidden.value = "0";
                 durationHidden.value = "0";
             }
         });
 
-        // --- Logic to submit the form to Flask (when "Registrar Actividad Diaria" is clicked) ---
+        // --- Lógica para enviar el formulario a Flask (cuando se hace clic en "Registrar Actividad Diaria") ---
         activityRegisterForm.addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission (page reload)
+            event.preventDefault(); // Evita el envío por defecto del formulario (recarga de página)
 
-            // Ensure activity_name, duration_minutes, and calories_burned are in the formData
-            const formData = new FormData(activityRegisterForm); 
+            // Asegúrate de que activity_name, duration_minutes y calories_burned estén en el formData
+            const formData = new FormData(activityRegisterForm);
 
-            // Validate data before sending
+            // Valida los datos antes de enviar
             const activityName = formData.get('activity_name');
             const duration = parseFloat(formData.get('duration_minutes'));
             const calories = parseFloat(formData.get('calories_burned'));
 
             if (!activityName || duration <= 0 || calories <= 0) {
-                alert('Por favor, selecciona una actividad, introduce una duración válida y calcula las calorías antes de registrar.');
-                return; // Stop submission if data is invalid
+                showFlashMessage('Por favor, selecciona una actividad, introduce una duración válida y calcula las calorías antes de registrar.', 'warning');
+                return; // Detiene el envío si los datos no son válidos
             }
 
-            fetch('{{ url_for("register_activity") }}', { 
+            fetch('{{ url_for("register_activity") }}', {
                 method: 'POST',
-                body: formData 
+                body: formData
             })
             .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url; // Follow Flask's redirect (with flash messages)
+                if (!response.ok) { // Si la respuesta no es OK (ej. 400 o 500)
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message || 'Error desconocido del servidor.');
+                    });
+                }
+                return response.json(); // Espera una respuesta JSON si la respuesta es OK
+            })
+            .then(data => {
+                if (data.success) {
+                    showFlashMessage(data.message, 'success');
+                    renderActivities(data.activities); // ¡Aquí se actualiza la lista con las actividades devueltas!
+                    activityRegisterForm.reset(); // Opcional: limpia el formulario
+                    sportDetailsContainer.style.display = 'none'; // Oculta los detalles del deporte
+                    registerActivityBtn.disabled = true; // Deshabilita el botón
+                    activitySelect.value = ""; // Resetea el selector de actividad
                 } else {
-                    // This should be a rare case if Flask always redirects with flash
-                    console.log('Respuesta no redireccionada:', response);
-                    alert('Algo salió mal al registrar la actividad. No hubo redirección.');
+                    // Aunque el `throw new Error` anterior ya manejaría esto, por si acaso
+                    showFlashMessage(data.message, 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error al registrar la actividad:', error);
-                alert('Hubo un problema de conexión o un error inesperado al registrar la actividad.');
+                showFlashMessage(error.message || 'Hubo un problema de conexión o un error inesperado al registrar la actividad.', 'danger');
             });
         });
 
-        // Initialize button state on page load
-        registerActivityBtn.disabled = true; 
+        // Inicializa el estado del botón al cargar la página
+        registerActivityBtn.disabled = true;
+
+        // Llamar a renderActivities con las actividades iniciales cargadas por Jinja
+        // Esto es crucial para que las actividades se muestren al cargar la página
+        // Asegúrate de que `activities` se pase desde tu Flask Controller
+        renderActivities({{ activities | tojson }});
     });
 </script>
 {% endblock %}

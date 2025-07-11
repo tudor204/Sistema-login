@@ -19,32 +19,39 @@
       <div class="row g-3">
         <div class="col-md-4">
           <label class="form-label">Calorías (kcal)</label>
-          <input type="number" name="daily_calories" class="form-control" 
-                 value="{{ goals.daily_calories }}" min="1000" max="5000" required>
+          <input type="number" name="daily_calories" class="form-control"
+                 placeholder="{{ goals.daily_calories|default('2000') }}" required>
         </div>
         <div class="col-md-4">
           <label class="form-label">Proteínas (g)</label>
-          <input type="number" name="daily_proteins" class="form-control" 
-                 value="{{ goals.daily_proteins }}" min="10" required>
+          <input type="number" name="daily_proteins" class="form-control"
+                 placeholder="{{ goals.daily_proteins|default('150') }}" required>
         </div>
         <div class="col-md-4">
           <label class="form-label">Agua (L)</label>
-          <input type="number" name="daily_water" class="form-control" 
-                 value="{{ goals.daily_water }}" min="1" max="10" step="0.5" required>
+          <input type="number" name="daily_water" class="form-control"
+                 placeholder="{{ goals.daily_water|default('2.5') }}" step="0.5" required>
         </div>
+
         <div class="mb-3">
           <label for="daily_fats" class="form-label">Grasas Diarias (g)</label>
-          <input type="number" id="daily_fats" name="daily_fats" class="form-control" value="{{ goals.daily_fats|default(60) }}" min="1" required>
-      </div>
-      <div class="mb-3">
+          <input type="number" id="daily_fats" name="daily_fats" class="form-control"
+                 placeholder="{{ goals.daily_fats|default('60') }}" required>
+        </div>
+
+        <div class="mb-3">
           <label for="daily_carbs" class="form-label">Carbohidratos Diarios (g)</label>
-          <input type="number" id="daily_carbs" name="daily_carbs" class="form-control" value="{{ goals.daily_carbs|default(250) }}" min="1" required>
-      </div>
-      <div class="mb-3">
+          <input type="number" id="daily_carbs" name="daily_carbs" class="form-control"
+                 placeholder="{{ goals.daily_carbs|default('250') }}" required>
+        </div>
+
+        <div class="mb-3">
           <label for="daily_activity" class="form-label">Actividad Diaria (min)</label>
-          <input type="number" id="daily_activity" name="daily_activity" class="form-control" value="{{ goals.daily_activity|default(30) }}" min="0" required>
+          <input type="number" id="daily_activity" name="daily_activity" class="form-control"
+                 placeholder="{{ goals.daily_activity|default('30') }}" required>
+        </div>
       </div>
-      </div>
+
       <div class="mt-4">
         <button type="submit" class="btn btn-primary">
           <i class="fas fa-save me-2"></i>Guardar Cambios
