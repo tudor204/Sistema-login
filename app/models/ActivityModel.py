@@ -1,8 +1,9 @@
 import sqlite3
 from datetime import datetime
+from app.conexion import DATABASE
 
 # Define la ruta de tu base de datos
-DATABASE = 'loggin.sqlite' # Asegúrate de que esta ruta sea correcta
+
 
 def get_db_connection():
     """Establece una conexión con la base de datos SQLite."""
