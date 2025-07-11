@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from app import app
 from app.conexion import get_db_cursor
 import datetime
-from app.models.ActivityModel import get_total_activity_minutes_today
+from app.models.ActivityModel import get_total_activity_minutes_today,get_total_calories_burned_today
 
 @app.route('/dashboard')
 @login_required
@@ -37,6 +37,12 @@ def dashboard():
             today_stats = dict(today_stats)
         
         today_calories = today_stats.get('calories') or 0
+        # Obtener calorías quemadas por actividad hoy
+        burned_calories = get_total_calories_burned_today(current_user.id)
+
+        # Calorías netas = calorías ingeridas - calorías gastadas
+        net_calories = today_calories - burned_calories
+
         today_proteins = today_stats.get('proteins') or 0
         today_fats = today_stats.get('fats') or 0
         today_carbs = today_stats.get('carbs') or 0
@@ -86,7 +92,11 @@ def dashboard():
         water_percentage=round(water_percentage, 1),
         water_consumed_ml=water_consumed_ml,
         activity_minutes=activity_minutes,
-        activity_percentage=round(activity_percentage, 1)
+        activity_percentage=round(activity_percentage, 1),
+        net_calories=net_calories,
+        burned_calories=burned_calories,
+        calories_in=today_calories
+
     )
 
 @app.route('/add_water_intake', methods=['POST'])

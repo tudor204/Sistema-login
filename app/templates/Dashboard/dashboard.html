@@ -2,230 +2,185 @@
 {% block title %}Panel de control | NutriTrack Pro{% endblock %}
 
 {% block section %}
-<div class="page-header d-flex justify-content-between align-items-center">
-  <h1 class="page-title">
-    <i class="fas fa-tachometer-alt me-2"></i>Panel de control
+<div class="d-flex justify-content-between align-items-center mb-5">
+  <h1 class="fs-2 fw-bold text-primary">
+    <i class="fas fa-tachometer-alt me-3"></i>Panel de Control
   </h1>
 </div>
 
-<div class="row">
-  <!-- Tarjeta de Calorías -->
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card border-0 shadow-sm h-100">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="fw-medium text-muted mb-2">Calorías Hoy</h6>
-            <h3 class="mb-0">{{ today_stats.calories|default(0) }} kcal</h3>
-          </div>
-          <div class="bg-primary bg-opacity-10 p-3 rounded">
-            <i class="fas fa-fire text-primary fa-lg"></i>
+<div class="row g-4 mb-4">
+  <!-- Calorías Hoy (más grande) -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 rounded-5 h-100 position-relative overflow-hidden">
+      <div class="card-body d-flex flex-column justify-content-between">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-muted fw-semibold mb-0">Calorías Hoy</h6>
+          <div class="icon-circle bg-danger bg-opacity-15 d-flex align-items-center justify-content-center rounded-circle" style="width:72px; height:72px; cursor:pointer;">
+            <i class="fas fa-fire text-danger fs-3"></i>
           </div>
         </div>
-        <div class="mt-3">
-          <div class="progress" style="height: 6px;">
-            <div class="progress-bar bg-primary" style="width: {{ calories_percentage }}%"></div>
-          </div>
-          <small class="text-muted">{{ calories_percentage }}% de {{ goals.daily_calories|default(0) }} kcal</small>
+        <h2 class="fw-bold display-4 mb-1">
+          {{ today_stats.calories|default(0) }} <small class="text-muted fs-6">kcal</small>
+        </h2>
+        <div class="progress rounded-pill" style="height: 12px;">
+          <div class="progress-bar bg-danger" role="progressbar" style="width: {{ calories_percentage }}%" aria-valuenow="{{ calories_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
+        <small class="text-muted d-block mt-3">
+          {{ calories_percentage }}% de {{ goals.daily_calories|default(0) }} kcal
+        </small>
       </div>
-    </div>
-  </div>
-  
-  <!-- Tarjeta de Proteínas -->
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card border-0 shadow-sm h-100">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="fw-medium text-muted mb-2">Proteínas Hoy</h6>
-            <h3 class="mb-0">{{ today_stats.proteins|default(0) }}g</h3>
-          </div>
-          <div class="bg-success bg-opacity-10 p-3 rounded">
-            <i class="fas fa-dumbbell text-success fa-lg"></i>
-          </div>
-        </div>
-        <div class="mt-3">
-          <div class="progress" style="height: 6px;">
-            <div class="progress-bar bg-success" style="width: {{ proteins_percentage }}%"></div>
-          </div>
-          <small class="text-muted">{{ proteins_percentage }}% de {{ goals.daily_proteins|default(0) }}g</small>
-        </div>
+      <div class="position-absolute bottom-0 end-0 opacity-10" style="font-size: 8rem; line-height: 0.8; color: var(--bs-danger); user-select:none; pointer-events:none;">
+        <i class="fas fa-fire"></i>
       </div>
     </div>
   </div>
 
-  <!-- Tarjeta de Grasas -->
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card border-0 shadow-sm h-100">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="fw-medium text-muted mb-2">Grasas Hoy</h6>
-            <h3 class="mb-0">{{ today_stats.fats|default(0) }}g</h3>
-          </div>
-          <div class="bg-danger bg-opacity-10 p-3 rounded">
-            <i class="fas fa-bacon text-danger fa-lg"></i>
+  <!-- Balance Calórico (más grande) -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 rounded-5 h-100 position-relative overflow-hidden">
+      <div class="card-body d-flex flex-column justify-content-between">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-muted fw-semibold mb-0">Balance Calórico</h6>
+          <div class="icon-circle bg-secondary bg-opacity-15 d-flex align-items-center justify-content-center rounded-circle" style="width:72px; height:72px; cursor:pointer;">
+            <i class="fas fa-balance-scale text-secondary fs-3"></i>
           </div>
         </div>
-        <div class="mt-3">
-          <div class="progress" style="height: 6px;">
-            <div class="progress-bar bg-danger" style="width: {{ fats_percentage }}%"></div>
-          </div>
-          <small class="text-muted">{{ fats_percentage }}% de {{ goals.daily_fats|default(0) }}g</small>
-        </div>
+        {% set calories_in = net_calories + burned_calories %}
+        {% set calories_out = burned_calories %}
+        {% set calories_net = calories_in - calories_out %}
+        <h2 class="fw-bold display-4 mb-1">
+          {{ calories_net }} <small class="text-muted fs-6">kcal</small>
+        </h2>
+        <small class="text-muted">
+          <div><strong>Ingresadas:</strong> {{ calories_in }} kcal</div>
+          <div><strong>Gastadas:</strong> {{ calories_out }} kcal</div>
+        </small>
       </div>
-    </div>
-  </div>
-
-  <!-- Tarjeta de Carbohidratos -->
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card border-0 shadow-sm h-100">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="fw-medium text-muted mb-2">Carbohidratos Hoy</h6>
-            <h3 class="mb-0">{{ today_stats.carbs|default(0) }}g</h3>
-          </div>
-          <div class="bg-warning bg-opacity-10 p-3 rounded">
-            <i class="fas fa-bread-slice text-warning fa-lg"></i>
-          </div>
-        </div>
-        <div class="mt-3">
-          <div class="progress" style="height: 6px;">
-            <div class="progress-bar bg-warning" style="width: {{ carbs_percentage }}%"></div>
-          </div>
-          <small class="text-muted">{{ carbs_percentage }}% de {{ goals.daily_carbs|default(0) }}g</small>
-        </div>
+      <div class="position-absolute bottom-0 end-0 opacity-10" style="font-size: 8rem; line-height: 0.8; color: var(--bs-secondary); user-select:none; pointer-events:none;">
+        <i class="fas fa-balance-scale"></i>
       </div>
     </div>
   </div>
 </div>
 
-<div class="row mt-4">
-  <!-- Tarjeta de Agua -->
-  <div class="col-xl-6 col-lg-6 mb-4">
-    <div class="card border-0 shadow-sm h-100">
+<div class="row g-4 mb-4">
+  <!-- Macros en 4 columnas -->
+  {% set macros = [
+    {'title': 'Proteínas Hoy', 'value': today_stats.proteins|default(0), 'unit': 'g', 'icon': 'fa-dumbbell', 'color': 'success', 'percentage': proteins_percentage, 'goal': goals.daily_proteins|default(0)},
+    {'title': 'Grasas Hoy', 'value': today_stats.fats|default(0), 'unit': 'g', 'icon': 'fa-bacon', 'color': 'warning', 'percentage': fats_percentage, 'goal': goals.daily_fats|default(0)},
+    {'title': 'Carbohidratos Hoy', 'value': today_stats.carbs|default(0), 'unit': 'g', 'icon': 'fa-bread-slice', 'color': 'info', 'percentage': carbs_percentage, 'goal': goals.daily_carbs|default(0)},
+    {'title': 'Agua Consumida', 'value': water_consumed_ml|default(0), 'unit': 'ml', 'icon': 'fa-tint', 'color': 'info', 'percentage': water_percentage, 'goal': (goals.daily_water|default(0) * 1000)}
+  ] %}
+
+  {% for macro in macros %}
+  <div class="col-6 col-md-3">
+    <div class="card shadow-sm border-0 rounded-5 h-100 position-relative overflow-hidden">
       <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <h6 class="fw-medium text-muted mb-2">Agua Hoy</h6>
-            <h3 class="mb-0">{{ water_consumed_ml|default(0) }} ml / {{ (goals.daily_water|default(0) * 1000)|round(0) }} ml</h3>
+            <h6 class="text-muted fw-semibold mb-2">{{ macro.title }}</h6>
+            <h4 class="fw-bold mb-0">
+              {{ macro.value }} <small class="text-muted fs-6">{{ macro.unit }}</small>
+            </h4>
           </div>
-          <div class="bg-info bg-opacity-10 p-3 rounded">
-            <i class="fas fa-tint text-info fa-lg"></i>
+          <div class="icon-circle bg-{{ macro.color }} bg-opacity-15 d-flex align-items-center justify-content-center rounded-circle" style="width:50px; height:50px;">
+            <i class="fas {{ macro.icon }} text-{{ macro.color }} fs-4"></i>
           </div>
         </div>
-        <div class="mt-3">
-          <div class="progress" style="height: 6px;">
-            <div class="progress-bar bg-info" style="width: {{ water_percentage }}%"></div>
-          </div>
-          <small class="text-muted">{{ water_percentage }}% de tu meta diaria</small>
+        <div class="progress rounded-pill" style="height: 8px;">
+          <div class="progress-bar bg-{{ macro.color }}" role="progressbar" style="width: {{ macro.percentage }}%" aria-valuenow="{{ macro.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
+        <small class="text-muted d-block mt-2">
+          {{ macro.percentage }}% de {{ macro.goal }} {{ macro.unit }}
+        </small>
+      </div>
+      <div class="position-absolute bottom-0 end-0 opacity-10" style="font-size: 5rem; line-height: 0.8; color: var(--bs-{{ macro.color }}); user-select:none; pointer-events:none;">
+        <i class="fas {{ macro.icon }}"></i>
       </div>
     </div>
   </div>
-  
-  <!-- Tarjeta de Actividad -->
-  <div class="col-xl-6 col-lg-6 mb-4">
-    <div class="card border-0 shadow-sm h-100">
+  {% endfor %}
+</div>
+
+<div class="row g-4">
+  <!-- Actividad Hoy -->
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 rounded-5 h-100">
       <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="fw-medium text-muted mb-2">Meta de Actividad</h6>
-            <h3 class="mb-0">{{ today_stats.activity|default(0) }} min / {{ goals.daily_activity|default(0) }} min</h3>
-          </div>
-          <div class="bg-secondary bg-opacity-10 p-3 rounded">
-            <i class="fas fa-walking text-secondary fa-lg"></i>
-          </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-muted fw-semibold mb-0">Actividad Hoy</h6>
+          <i class="fas fa-walking text-secondary fs-3"></i>
         </div>
-        <div class="mt-3">
-          <div class="progress" style="height: 6px;">
-            <div class="progress-bar bg-secondary" style="width: {{ [activity_percentage|default(0), 100]|min }}%"
-            ></div>
-          </div>
-          <small class="text-muted">{{ activity_percentage|default(0) }}% de tu meta diaria</small>
+        <h2 class="fw-bold display-4 mb-1">{{ today_stats.activity|default(0) }} <small class="text-muted fs-6">min</small></h2>
+        <div class="progress rounded-pill mb-3" style="height: 12px;">
+          <div class="progress-bar bg-secondary" style="width: {{ [activity_percentage|default(0), 100]|min }}%" role="progressbar" aria-valuenow="{{ activity_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
+        <small class="text-muted">Meta diaria: {{ goals.daily_activity|default(0) }} min</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registro de Agua -->
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 rounded-5 h-100">
+      <div class="card-header bg-white border-0">
+        <h5 class="fw-semibold mb-0"><i class="fas fa-tint me-2 text-info"></i>Registro de Agua</h5>
+      </div>
+      <div class="card-body">
+        <form id="water-form" method="POST" action="{{ url_for('add_water_intake') }}">
+          <div class="input-group mb-3">
+            <input
+              type="number"
+              min="50"
+              max="1000"
+              step="50"
+              name="water-quantity"
+              class="form-control form-control-lg"
+              placeholder="Cantidad (ml)"
+              aria-label="Cantidad de agua en ml"
+              required
+              value="250"
+            />
+            <button class="btn btn-info" type="submit" aria-label="Añadir agua">
+              <i class="fas fa-plus me-1"></i>Añadir
+            </button>
+          </div>
+        </form>
+
+        {% if water_logs %}
+        <div class="table-responsive" style="max-height: 180px; overflow-y: auto;">
+          <table class="table table-sm table-hover align-middle mb-0">
+            <thead class="table-light sticky-top">
+              <tr>
+                <th scope="col">Hora</th>
+                <th scope="col">Cantidad (ml)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in water_logs %}
+              <tr>
+                <td>{{ log.timestamp.strftime('%H:%M') }}</td>
+                <td>{{ log.quantity_ml }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted fst-italic">No se ha registrado consumo de agua hoy.</p>
+        {% endif %}
       </div>
     </div>
   </div>
 </div>
 
-<!-- Registro de consumo de agua -->
-<div class="card border-0 shadow-sm mt-4">
-  <div class="card-header bg-white border-0">
-    <h5 class="mb-0 fw-semibold">
-      <i class="fas fa-tint me-2 text-primary"></i>Registro de Agua
-    </h5>
-  </div>
-  <div class="card-body">
-    <form id="water-form" method="POST" action="{{ url_for('add_water_intake') }}">
-      <div class="mb-3">
-        <label for="water-quantity" class="form-label fw-medium">Cantidad (ml)</label>
-        <div class="input-group">
-          <input 
-            type="number" 
-            min="50" 
-            max="1000" 
-            step="50" 
-            id="water-quantity" 
-            name="water-quantity" 
-            class="form-control form-control-lg" 
-            value="250"
-            aria-describedby="water-addon"
-            required
-          >
-          <button class="btn btn-primary" type="submit" id="water-addon">
-            <i class="fas fa-plus me-1"></i> Añadir
-          </button>
-        </div>
-        <div class="form-text text-muted mt-1">
-          Cantidad recomendada: 250-500 ml por toma
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
+<style>
+  .icon-circle {
+    transition: background-color 0.3s ease;
+  }
+  .card:hover .icon-circle {
+    background-color: var(--bs-primary) !important;
+  }
+</style>
 
-<!-- Últimos alimentos registrados -->
-<div class="card border-0 shadow-sm mt-4">
-  <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-    <h5 class="mb-0">
-      <i class="fas fa-clock-rotate-left me-2"></i>Recientes
-    </h5>
-    <a href="{{ url_for('mis_comidas') }}" class="btn btn-sm btn-outline-primary">Ver todo</a>
-  </div>
-  <div class="card-body">
-    {% if recent_foods %}
-    <div class="table-responsive">
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>Alimento</th>
-            <th>Calorías</th>
-            <th>Proteínas</th>
-            <th>Grasas</th>
-            <th>Carbohidratos</th>
-            <th>Fecha</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for food in recent_foods %}
-          <tr>
-            <td>{{ food['food_name'] }}</td>
-            <td>{{ food['calories'] }} kcal</td>
-            <td>{{ food['proteins'] }}g</td>
-            <td>{{ food['fats'] }}g</td>
-            <td>{{ food['carbs'] }}g</td>
-            <td>{{ food['date'] }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <p class="text-muted">No hay alimentos registrados</p>
-    {% endif %}
-  </div>
-</div>
 {% endblock %}

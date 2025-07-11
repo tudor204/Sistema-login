@@ -76,3 +76,27 @@ def get_total_activity_minutes_today(user_id, date=None):
         return 0
     finally:
         conn.close()
+
+def get_total_calories_burned_today(user_id, date=None):
+    """
+    Devuelve la suma total de calorías quemadas por el usuario en actividades del día.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if date is None:
+        date = datetime.now().strftime('%Y-%m-%d')
+
+    try:
+        cursor.execute(
+            "SELECT SUM(calories_burned) AS total_burned FROM daily_activities WHERE user_id = ? AND date_recorded = ?",
+            (user_id, date)
+        )
+        result = cursor.fetchone()
+        return result["total_burned"] if result["total_burned"] is not None else 0
+    except sqlite3.Error as e:
+        print(f"Error al obtener calorías quemadas: {e}")
+        return 0
+    finally:
+        conn.close()
+
