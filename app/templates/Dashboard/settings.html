@@ -2,62 +2,135 @@
 {% block title %}Configuración | NutriTrack Pro{% endblock %}
 
 {% block section %}
-<div class="page-header">
-  <h1 class="page-title">
-    <i class="fas fa-cog me-2"></i>Configuración
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="fs-3 fw-bold text-primary">
+    <i class="fas fa-cog me-3"></i>Configuración de Metas Diarias
   </h1>
 </div>
 
-<div class="card border-0 shadow-sm">
-  <div class="card-header bg-white border-0">
-    <h5 class="mb-0">
-      <i class="fas fa-bullseye me-2"></i>Metas Diarias
-    </h5>
-  </div>
-  <div class="card-body">
-    <form method="POST">
-      <div class="row g-3">
-        <div class="col-md-4">
-          <label class="form-label">Calorías (kcal)</label>
-          <input type="number" name="daily_calories" class="form-control"
-                 placeholder="{{ goals.daily_calories|default('2000') }}" required>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Proteínas (g)</label>
-          <input type="number" name="daily_proteins" class="form-control"
-                 placeholder="{{ goals.daily_proteins|default('150') }}" required>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Agua (L)</label>
-          <input type="number" name="daily_water" class="form-control"
-                 placeholder="{{ goals.daily_water|default('2.5') }}" step="0.5" required>
-        </div>
-
-        <div class="mb-3">
-          <label for="daily_fats" class="form-label">Grasas Diarias (g)</label>
-          <input type="number" id="daily_fats" name="daily_fats" class="form-control"
-                 placeholder="{{ goals.daily_fats|default('60') }}" required>
-        </div>
-
-        <div class="mb-3">
-          <label for="daily_carbs" class="form-label">Carbohidratos Diarios (g)</label>
-          <input type="number" id="daily_carbs" name="daily_carbs" class="form-control"
-                 placeholder="{{ goals.daily_carbs|default('250') }}" required>
-        </div>
-
-        <div class="mb-3">
-          <label for="daily_activity" class="form-label">Actividad Diaria (min)</label>
-          <input type="number" id="daily_activity" name="daily_activity" class="form-control"
-                 placeholder="{{ goals.daily_activity|default('30') }}" required>
-        </div>
+<div class="card shadow-sm border-0 rounded-5 p-4">
+  <form method="POST" novalidate>
+    <div class="row g-4">
+      <!-- Calorías -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <label for="daily_calories" class="form-label fw-semibold text-secondary">
+          <i class="fas fa-fire me-2 text-danger"></i>Calorías (kcal)
+        </label>
+        <input
+          type="number"
+          id="daily_calories"
+          name="daily_calories"
+          class="form-control form-control-lg rounded-4 border-2 border-danger"
+          placeholder="2000"
+          value="{{ goals.daily_calories|default('') }}"
+          min="0"
+          required
+        >
       </div>
 
-      <div class="mt-4">
-        <button type="submit" class="btn btn-primary">
-          <i class="fas fa-save me-2"></i>Guardar Cambios
-        </button>
+      <!-- Proteínas -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <label for="daily_proteins" class="form-label fw-semibold text-secondary">
+          <i class="fas fa-dumbbell me-2 text-success"></i>Proteínas (g)
+        </label>
+        <input
+          type="number"
+          id="daily_proteins"
+          name="daily_proteins"
+          class="form-control form-control-lg rounded-4 border-2 border-success"
+          placeholder="150"
+          value="{{ goals.daily_proteins|default('') }}"
+          min="0"
+          required
+        >
       </div>
-    </form>
-  </div>
+
+      <!-- Agua -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <label for="daily_water" class="form-label fw-semibold text-secondary">
+          <i class="fas fa-tint me-2 text-info"></i>Agua (L)
+        </label>
+        <input
+          type="number"
+          id="daily_water"
+          name="daily_water"
+          class="form-control form-control-lg rounded-4 border-2 border-info"
+          placeholder="2.5"
+          step="0.1"
+          value="{{ goals.daily_water|default('') }}"
+          min="0"
+          required
+        >
+      </div>
+
+      <!-- Grasas -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <label for="daily_fats" class="form-label fw-semibold text-secondary">
+          <i class="fas fa-bacon me-2 text-warning"></i>Grasas (g)
+        </label>
+        <input
+          type="number"
+          id="daily_fats"
+          name="daily_fats"
+          class="form-control form-control-lg rounded-4 border-2 border-warning"
+          placeholder="60"
+          value="{{ goals.daily_fats|default('') }}"
+          min="0"
+          required
+        >
+      </div>
+
+      <!-- Carbohidratos -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <label for="daily_carbs" class="form-label fw-semibold text-secondary">
+          <i class="fas fa-bread-slice me-2 text-info"></i>Carbohidratos (g)
+        </label>
+        <input
+          type="number"
+          id="daily_carbs"
+          name="daily_carbs"
+          class="form-control form-control-lg rounded-4 border-2 border-info"
+          placeholder="250"
+          value="{{ goals.daily_carbs|default('') }}"
+          min="0"
+          required
+        >
+      </div>
+
+      <!-- Actividad -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <label for="daily_activity" class="form-label fw-semibold text-secondary">
+          <i class="fas fa-walking me-2 text-secondary"></i>Actividad Diaria (min)
+        </label>
+        <input
+          type="number"
+          id="daily_activity"
+          name="daily_activity"
+          class="form-control form-control-lg rounded-4 border-2 border-secondary"
+          placeholder="30"
+          value="{{ goals.daily_activity|default('') }}"
+          min="0"
+          required
+        >
+      </div>
+    </div>
+
+    <div class="mt-5 text-end">
+      <button type="submit" class="btn btn-primary btn-lg rounded-5 px-5 shadow-sm">
+        <i class="fas fa-save me-2"></i>Guardar Cambios
+      </button>
+    </div>
+  </form>
 </div>
+
+<style>
+  /* Inputs con bordes destacados según macro */
+  input.form-control-lg {
+    transition: border-color 0.3s ease;
+  }
+  input.form-control-lg:focus {
+    box-shadow: 0 0 8px rgba(0,123,255,0.25);
+    border-color: #0d6efd !important; /* bootstrap primary */
+  }
+</style>
 {% endblock %}

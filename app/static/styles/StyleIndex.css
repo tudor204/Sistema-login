@@ -3,121 +3,139 @@
   --secondary-color: #3f37c9;
   --accent-color: #4cc9f0;
   --dark-color: #1a1a2e;
-  --light-color: #f8f9fa;
-  --success-color: #4bb543;
+  --light-color: #f1f3f5;
+  --success-color: #38b000;
+  --danger-color: #d00000;
+  --background-overlay: rgba(255, 255, 255, 0.12);
+  --blur-strength: 8px;
+  --text-color: #1f1f1f;
 }
 
-/* Estilos base unificados */
+/* Base */
 body {
+  margin: 0;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  color: #080000;
+  color: var(--text-color);
+  background: 
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)),
+    url('../images/fondos/Index.jpg') center/cover no-repeat fixed;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  margin: 0;
-  background: 
-    url('../images/ImagenIndex2.webp') no-repeat center center fixed;
   image-rendering: crisp-edges;
-  image-rendering: -webkit-optimize-contrast;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-  will-change: transform;
-  background-size:100% auto;
-  background-blend-mode: overlay;
-  
+  background-blend-mode: multiply;
 }
 
 /* Navbar */
 .navbar {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  background: white !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(4px);
+  padding: 1rem 2rem;
+  z-index: 100;
 }
 
 .navbar-brand {
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
+  color: var(--primary-color);
   letter-spacing: -0.5px;
 }
 
 /* Contenido principal */
 .main-content {
-  flex: 2;
-  padding: 2rem 2.5rem;
-  backdrop-filter: blur(2px);
+  flex: 1;
+  padding: 2.5rem 3rem;
+  backdrop-filter: blur(var(--blur-strength));
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  margin: 2rem auto;
+  width: 95%;
+  max-width: 1200px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 }
 
-/* Cards */
+/* Tarjetas (cards) */
 .card {
+  background-color: rgba(255, 255, 255, 0.95);
   border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.12);
 }
 
 .card-header {
-  background-color: white;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   font-weight: 600;
-  border-radius: 12px 12px 0 0 !important;
+  font-size: 1.2rem;
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1rem 1.5rem;
+  border-radius: 16px 16px 0 0;
 }
 
 /* Botones */
 .btn-primary {
   background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  font-weight: 500;
-  padding: 8px 20px;
-  border-radius: 8px;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #fff;
+  font-size: 1rem;
+  transition: background 0.2s ease-in-out;
 }
 
 .btn-primary:hover {
   background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
 }
 
-/* Avatar de usuario */
+/* Avatar */
 .user-avatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background-color: var(--primary-color);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  font-weight: bold;
+  font-size: 1rem;
+  box-shadow: 0 0 0 2px white;
 }
 
-/* Mensajes flash */
+/* Flash messages */
 .flash-message {
   position: fixed;
   top: 85px;
   right: 25px;
   z-index: 1100;
   min-width: 300px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  border: none;
+  padding: 1.2rem 1.5rem;
+  background-color: #ffffff;
+  border-left: 6px solid var(--success-color);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Header de páginas */
+/* Page headers */
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.07);
 }
 
 .page-title {
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   color: var(--dark-color);
   margin: 0;
 }
@@ -125,7 +143,7 @@ body {
 /* Responsive */
 @media (max-width: 992px) {
   .main-content {
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
   }
 }
 
@@ -133,8 +151,14 @@ body {
   body {
     background-attachment: scroll;
   }
-  
+
   .card {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
 }
