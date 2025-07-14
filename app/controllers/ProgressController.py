@@ -22,32 +22,29 @@ def progreso(fecha=None):
         fecha = fecha_obj.isoformat()
 
     with get_db_cursor() as cur:
-        # Calorías consumidas últimos 7 días
+        # Calorías consumidos 7 días relativos a la fecha seleccionada
         cur.execute("""
             SELECT date(date) AS dia, SUM(calories) AS total_calorias
             FROM food_entries
-            WHERE user_id = ? AND date >= date('now', '-6 days')
+            WHERE user_id = ? AND date BETWEEN date(?, '-6 days') AND ?
             GROUP BY dia
             ORDER BY dia
-        """, (current_user.id,))
+        """, (current_user.id, fecha, fecha))
         datos_calorias = [dict(row) for row in (cur.fetchall() or [])]
 
-        # Macronutrientes sumados últimos 7 días
+        # Macronutrientes sumados para los 7 días relativos a la fecha seleccionada
         cur.execute("""
             SELECT 
                 COALESCE(SUM(proteins), 0) AS proteinas, 
                 COALESCE(SUM(fats), 0) AS grasas, 
                 COALESCE(SUM(carbs), 0) AS carbohidratos
             FROM food_entries
-            WHERE user_id = ? AND date >= date('now', '-6 days')
-        """, (current_user.id,))
+            WHERE user_id = ? AND date BETWEEN date(?, '-6 days') AND ?
+        """, (current_user.id, fecha, fecha))
         row = cur.fetchone()
         macros = dict(row) if row else {'proteinas': 0, 'grasas': 0, 'carbohidratos': 0}
 
-    # dias_disponibles ahora es lista de dicts con keys 'fecha' y 'dia_semana', por ejemplo:
-    # [{'fecha': '2025-07-14', 'dia_semana': 'Lun'}, ...]
     dias_disponibles = obtener_dias_registrados(current_user.id)
-
     resumen_dia = obtener_resumen_dia(current_user.id, fecha)
 
     return render_template('Progress/progreso.html',

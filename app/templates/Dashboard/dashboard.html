@@ -36,32 +36,32 @@
   </div>
 
   <!-- Balance Calórico (más grande) -->
-  <div class="col-lg-6">
-    <div class="card shadow-sm border-0 rounded-5 h-100 position-relative overflow-hidden">
-      <div class="card-body d-flex flex-column justify-content-between">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h6 class="text-muted fw-semibold mb-0">Balance Calórico</h6>
-          <div class="icon-circle bg-secondary bg-opacity-15 d-flex align-items-center justify-content-center rounded-circle" style="width:72px; height:72px; cursor:pointer;">
-            <i class="fas fa-balance-scale text-secondary fs-3"></i>
-          </div>
+<div class="col-lg-6">
+  <div class="card shadow-sm border-0 rounded-5 h-100 position-relative overflow-hidden">
+    <div class="card-body d-flex flex-column justify-content-between">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="text-muted fw-semibold mb-0">Balance Calórico</h6>
+        <div class="icon-circle bg-secondary bg-opacity-15 d-flex align-items-center justify-content-center rounded-circle" style="width:72px; height:72px; cursor:pointer;">
+          <i class="fas fa-balance-scale text-secondary fs-3"></i>
         </div>
-        {% set calories_in = net_calories + burned_calories %}
-        {% set calories_out = burned_calories %}
-        {% set calories_net = calories_in - calories_out %}
-        <h2 class="fw-bold display-4 mb-1">
-          {{ calories_net }} <small class="text-muted fs-6">kcal</small>
-        </h2>
-        <small class="text-muted">
-          <div><strong>Ingresadas:</strong> {{ calories_in }} kcal</div>
-          <div><strong>Gastadas:</strong> {{ calories_out }} kcal</div>
-        </small>
       </div>
-      <div class="position-absolute bottom-0 end-0 opacity-10" style="font-size: 8rem; line-height: 0.8; color: var(--bs-secondary); user-select:none; pointer-events:none;">
-        <i class="fas fa-balance-scale"></i>
-      </div>
+      {% set calories_in = net_calories + burned_calories %}
+      {% set calories_out = burned_calories %}
+      {% set calories_net = calories_in - calories_out %}
+      <h2 class="fw-bold display-4 mb-1">
+        {{ '%.1f' % calories_net }} <small class="text-muted fs-6">kcal</small>
+      </h2>
+      <small class="text-muted">
+        <div><strong>Ingresadas:</strong> {{ '%.1f' % calories_in }} kcal</div>
+        <div><strong>Gastadas:</strong> {{ '%.1f' % calories_out }} kcal</div>
+      </small>
+    </div>
+    <div class="position-absolute bottom-0 end-0 opacity-10" style="font-size: 8rem; line-height: 0.8; color: var(--bs-secondary); user-select:none; pointer-events:none;">
+      <i class="fas fa-balance-scale"></i>
     </div>
   </div>
 </div>
+
 
 <div class="row g-4 mb-4">
   <!-- Macros en 4 columnas -->
@@ -167,7 +167,7 @@
           </table>
         </div>
         {% else %}
-        <p class="text-muted fst-italic">No se ha registrado consumo de agua hoy.</p>
+        <p class="text-muted fst-italic">Beber agua es clave para tu salud. ¡Hidrátate!</p>
         {% endif %}
       </div>
     </div>

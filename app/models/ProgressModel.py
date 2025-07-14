@@ -31,13 +31,21 @@ def obtener_dias_registrados(user_id):
     return resultado
 
 def obtener_resumen_dia(user_id, fecha):
+    # Asegurarnos de que la fecha está en formato YYYY-MM-DD
+    try:
+        fecha_obj = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
+        fecha_str = fecha_obj.isoformat()
+    except ValueError:
+        # Si la fecha no está en el formato esperado, usar hoy
+        fecha_str = datetime.date.today().isoformat()
+
     with get_db_cursor() as cur:
-        # Alimentos y calorías
+        # Alimentos y calorías (el resto igual)
         cur.execute("""
-            SELECT food_name, calories, proteins, fats, carbs
+            SELECT food_name as name, calories, proteins, fats, carbs
             FROM food_entries
             WHERE user_id = ? AND date(date) = ?
-        """, (user_id, fecha))
+        """, (user_id, fecha_str))
         alimentos = [dict(row) for row in cur.fetchall()]
 
         # Actividades
@@ -45,7 +53,7 @@ def obtener_resumen_dia(user_id, fecha):
             SELECT activity_name, duration_minutes, calories_burned
             FROM daily_activities
             WHERE user_id = ? AND date(date_recorded) = ?
-        """, (user_id, fecha))
+        """, (user_id, fecha_str))
         actividades = [dict(row) for row in cur.fetchall()]
 
         return {
