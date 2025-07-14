@@ -8,6 +8,14 @@
   </h1>
 </div>
 
+<!-- Calendario con selector de fecha -->
+<form id="datepickerForm" method="get" action="{{ url_for('progreso') }}" class="mb-4">
+  <div class="input-group" style="max-width: 300px;">
+    <input type="text" class="form-control" id="datepicker" name="fecha" autocomplete="off" placeholder="Selecciona una fecha" value="{{ fecha_seleccionada }}">
+    <button class="btn btn-primary" type="submit">Ver</button>
+  </div>
+</form>
+
 <div class="row">
   <!-- Gráfico de Calorías -->
   <div class="col-lg-8 mb-4">
@@ -36,56 +44,126 @@
 
 <!-- Incluir Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- jQuery y Bootstrap Datepicker -->
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
+  rel="stylesheet"
+/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js"></script>
+
 <script>
-    // Gráfico de Calorías
-    const ctxCalorias = document.getElementById('caloriasChart').getContext('2d');
-    new Chart(ctxCalorias, {
-      type: 'bar',
-      data: {
-        labels: {{ datos_calorias|map(attribute='dia')|list|tojson }},
-        datasets: [{
-          label: 'Calorías',
-          data: {{ datos_calorias|map(attribute='total_calorias')|list|tojson }},
-          backgroundColor: '#4361ee',
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
+  // Inicializar Datepicker con opciones en español
+  $(document).ready(function() {
+    $('#datepicker').datepicker({
+      format: 'yyyy-mm-dd',
+      autoclose: true,
+      todayHighlight: true,
+      language: 'es',
+      calendarWeeks: true,
+      clearBtn: true
+    });
+  });
+
+  // Gráfico de Calorías
+  const ctxCalorias = document.getElementById('caloriasChart').getContext('2d');
+  new Chart(ctxCalorias, {
+    type: 'bar',
+    data: {
+      labels: {{ datos_calorias|map(attribute='dia')|list|tojson }},
+      datasets: [{
+        label: 'Calorías',
+        data: {{ datos_calorias|map(attribute='total_calorias')|list|tojson }},
+        backgroundColor: '#4361ee',
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
         }
       }
-    });
-  
-    // Gráfico de Macronutrientes
-    const ctxMacros = document.getElementById('macrosChart').getContext('2d');
-    new Chart(ctxMacros, {
-      type: 'doughnut',
-      data: {
-        labels: ['Proteínas', 'Grasas', 'Carbohidratos'],
-        datasets: [{
-          data: [
-            {{ macros.proteinas|default(0) }},
-            {{ macros.grasas|default(0) }},
-            {{ macros.carbohidratos|default(0) }}
-          ],
-          backgroundColor: [
-            '#4bb543',
-            '#f72585',
-            '#4895ef'
-          ],
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'bottom',
-          }
+    }
+  });
+
+  // Gráfico de Macronutrientes
+  const ctxMacros = document.getElementById('macrosChart').getContext('2d');
+  new Chart(ctxMacros, {
+    type: 'doughnut',
+    data: {
+      labels: ['Proteínas', 'Grasas', 'Carbohidratos'],
+      datasets: [{
+        data: [
+          {{ macros.proteinas|default(0) }},
+          {{ macros.grasas|default(0) }},
+          {{ macros.carbohidratos|default(0) }}
+        ],
+        backgroundColor: [
+          '#4bb543',
+          '#f72585',
+          '#4895ef'
+        ],
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
         }
       }
-    });
-  </script>
+    }
+  });
+</script>
+
+<!-- Resumen del día -->
+<div class="row">
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0">
+        <h5 class="mb-0">Alimentos registrados ({{ fecha_seleccionada }})</h5>
+      </div>
+      <div class="card-body">
+        {% if resumen_dia.alimentos %}
+          <ul class="list-group">
+            {% for item in resumen_dia.alimentos %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ item.name }}
+                <span class="text-muted">{{ item.calories }} kcal</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>No hay alimentos registrados.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0">
+        <h5 class="mb-0">Actividades registradas ({{ fecha_seleccionada }})</h5>
+      </div>
+      <div class="card-body">
+        {% if resumen_dia.actividades %}
+          <ul class="list-group">
+            {% for act in resumen_dia.actividades %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ act.activity_name }} ({{ act.duration_minutes }} min)
+                <span class="text-muted">-{{ act.calories_burned }} kcal</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>No hay actividades registradas.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
