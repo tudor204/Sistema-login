@@ -8,10 +8,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    
+
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/Stylebase.css') }}">
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white">
         <div class="container-fluid">
             <button class="navbar-toggler me-2 d-lg-none" type="button" id="sidebarToggle">
@@ -20,24 +21,16 @@
             <a class="navbar-brand text-primary" href="{{ url_for('logout') }}">
                 <i class="fas fa-leaf me-2"></i>NutriTrack
             </a>
-            
             <div class="d-flex align-items-center ms-auto">
-                <span class="me-3 d-none d-md-inline">Hola, <strong>{{ current_user.username }}</strong></span>
-                <a href="{{ url_for('logout') }}" 
-                   class="btn btn-outline-secondary btn-sm me-3" 
-                   onclick="return confirmLogout(event)">
-                    <i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión
-                </a>
-                
-                {% if session.username %}
+                {% if current_user.is_authenticated %}
                 <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown">
-                        <div class="user-avatar me-2">
-                            {{ session.username|first|upper }}
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar bg-primary text-white rounded-circle text-center me-2" style="width: 36px; height: 36px; line-height: 36px; font-weight: bold;">
+                            {{ current_user.username[0]|upper }}
                         </div>
-                        <span class="d-none d-sm-inline">{{ session.username }}</span>
+                        <span class="d-none d-sm-inline">{{ current_user.username }}</span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
                         <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Perfil</a></li>
                         <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Configuración</a></li>
                         <li><hr class="dropdown-divider"></li>
@@ -45,12 +38,13 @@
                     </ul>
                 </div>
                 {% endif %}
-            </div>
+            </div>                
         </div>
     </nav>
 
     <div class="container-fluid flex-grow-1">
         <div class="row h-100 g-0"> 
+            <!-- Sidebar -->
             <nav class="sidebar d-flex flex-column p-3" id="sidebar">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="sidebar-title mb-0">Menú</h6>
@@ -64,14 +58,14 @@
                             <i class="fas fa-cogs"></i> Ajustes Diarios
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li>
                         <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.path == url_for('dashboard') %}active{% endif %}">
                             <i class="fas fa-chart-pie"></i> Panel de Control
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li>
                         <a href="{{ url_for('activity') }}" class="nav-link {% if request.path == url_for('activity') %}active{% endif %}">
-                            <i class="fas fa-chart-pie"></i> Actividad diaria
+                            <i class="fas fa-walking"></i> Actividad diaria
                         </a>
                     </li>
                     <li>
@@ -89,50 +83,29 @@
                             <i class="fas fa-chart-line"></i> Progreso
                         </a>
                     </li>
-                    
                     <li class="pt-3 mt-3 border-top">
                         {% if session.username %}
                         <a href="{{ url_for('logout') }}" class="nav-link">
                             <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                        </a>
-                        {% else %}
-                        <a href="{{ url_for('login') }}" class="nav-link">
-                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                        </a>
-                        <a href="{{ url_for('register') }}" class="nav-link">
-                            <i class="fas fa-user-plus"></i> Registrarse
-                        </a>
+                        </a>                        
                         {% endif %}
                     </li>
                 </ul>
-                
-                <div class="mt-auto pt-3 border-top">
-                    <div class="text-center small text-muted">
-                        v2.1.0 · NutriTrack Pro
-                    </div>
+
+                <div class="mt-auto pt-3 border-top text-center small text-muted">
+                    v2.1.0 · NutriTrack Pro
                 </div>
             </nav>
 
+            <!-- Main Content -->
             <main class="main-content" id="mainContent">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }} alert-dismissible fade show flash-message" role="alert">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas {% if category == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
-                                    <div>{{ message }}</div>
-                                </div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
 
                 {% block section %}{% endblock %}
             </main>
         </div>
     </div>
 
+    <!-- Footer -->
     <footer class="bg-white py-4 mt-auto">
         <div class="container-fluid">
             <div class="row align-items-center">
@@ -148,117 +121,118 @@
         </div>
     </footer>
 
-    {# Core Bootstrap JS, SweetAlert2, and then your base scripts inside the block #}
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     {% block scripts %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle and buttons logic
             const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
             const sidebarToggle = document.getElementById('sidebarToggle');
-            const toggleSidebarDesktop = document.getElementById('toggleSidebarDesktop'); // Este elemento no existe en tu HTML, lo he dejado por si lo tienes en tu CSS
             const closeSidebarBtn = document.getElementById('closeSidebarBtn');
-
+    
             let showSidebarBtn = document.getElementById('showSidebarBtn');
-            if (!showSidebarBtn) { // Create only if it doesn't exist
+            if (!showSidebarBtn) {
                 showSidebarBtn = document.createElement('button');
                 showSidebarBtn.id = 'showSidebarBtn';
-                showSidebarBtn.className = 'show-sidebar-btn'; 
+                showSidebarBtn.className = 'show-sidebar-btn';
                 showSidebarBtn.innerHTML = '<i class="fas fa-bars"></i>';
                 document.body.appendChild(showSidebarBtn);
             }
-
+    
             function updateSidebarState(isCollapsed) {
                 if (isCollapsed) {
                     sidebar.classList.add('collapsed');
-                    
-                    if (toggleSidebarDesktop) toggleSidebarDesktop.style.display = 'none';
                     if (closeSidebarBtn) closeSidebarBtn.style.display = 'none';
-                    if (showSidebarBtn) showSidebarBtn.style.display = 'block'; 
-                    
-                    if (toggleSidebarDesktop && toggleSidebarDesktop.querySelector('i')) {
-                        toggleSidebarDesktop.querySelector('i').className = 'fas fa-bars';
-                    }
+                    if (showSidebarBtn) showSidebarBtn.style.display = 'block';
                 } else {
                     sidebar.classList.remove('collapsed');
-
-                    if (toggleSidebarDesktop) toggleSidebarDesktop.style.display = 'block';
                     if (closeSidebarBtn) closeSidebarBtn.style.display = 'block';
-                    if (showSidebarBtn) showSidebarBtn.style.display = 'none'; 
-
-                    if (toggleSidebarDesktop && toggleSidebarDesktop.querySelector('i')) {
-                        toggleSidebarDesktop.querySelector('i').className = 'fas fa-times';
-                    }
+                    if (showSidebarBtn) showSidebarBtn.style.display = 'none';
                 }
                 localStorage.setItem('sidebarCollapsed', isCollapsed); 
             }
-
-            toggleSidebarDesktop?.addEventListener('click', function() {
-                updateSidebarState(!sidebar.classList.contains('collapsed')); 
-            });
-
-            closeSidebarBtn?.addEventListener('click', function() {
-                updateSidebarState(true); 
-            });
-
-            showSidebarBtn?.addEventListener('click', function() {
-                updateSidebarState(false); 
-            });
-            
-            sidebarToggle?.addEventListener('click', function() {
-                sidebar.classList.toggle('show');
-            });
-
-            // Flash messages auto-close
-            setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
-                    new bootstrap.Alert(alert).close();
+    
+            // Restaurar estado sidebar desde localStorage
+            const collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            updateSidebarState(collapsed);
+    
+            closeSidebarBtn?.addEventListener('click', () => updateSidebarState(true));
+            showSidebarBtn?.addEventListener('click', () => updateSidebarState(false));
+            sidebarToggle?.addEventListener('click', () => sidebar.classList.toggle('show'));
+    
+            // Confirmación logout
+            const logoutLinks = document.querySelectorAll('a[href="{{ url_for('logout') }}"]');
+            logoutLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '¿Quieres cerrar sesión?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, salir',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = this.href;
+                        }
+                    });
                 });
-            }, 5000);
-
-            function initializeTooltips() {
-                if (toggleSidebarDesktop) {
-                    new bootstrap.Tooltip(toggleSidebarDesktop, { placement: 'right', title: 'Alternar menú' });
-                }
-                if (showSidebarBtn) {
-                    new bootstrap.Tooltip(showSidebarBtn, { placement: 'right', title: 'Mostrar menú' });
-                }
-                if (closeSidebarBtn) {
-                    new bootstrap.Tooltip(closeSidebarBtn, { placement: 'right', title: 'Cerrar menú' });
-                }
-            }
-            
-            const initialCollapsedState = false; 
-            updateSidebarState(initialCollapsedState); 
-
-            initializeTooltips();
-        });
-
-        // Make confirmLogout globally accessible as it's used in onclick attribute
-        window.confirmLogout = function(event) {
-            event.preventDefault(); 
-            const logoutUrl = event.currentTarget.getAttribute('href');
-            
-            Swal.fire({
-                title: '¿Cerrar sesión?',
-                text: "¿Estás seguro de que deseas salir de tu cuenta?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#4361ee',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, cerrar sesión',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = logoutUrl;
-                }
             });
-            
-            return false;
-        }
+    
+            // Confirmación general para acciones críticas con clase 'confirm-action'
+            document.querySelectorAll('.confirm-action').forEach(elem => {
+                elem.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const href = this.href || this.dataset.href;
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: this.dataset.confirmText || "Esta acción no se puede deshacer.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, continuar',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            if (href) {
+                                window.location.href = href;
+                            } else {
+                                this.closest('form')?.submit();
+                            }
+                        }
+                    });
+                });
+            });
+    
+            // SweetAlert2 para mensajes flash
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: '{{ "success" if category == "success" else "error" if category == "error" else "info" }}',
+                            title: {{ message|tojson }},
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer)
+                                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                            }
+                        });
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        });
     </script>
     {% endblock %}
+    
 </body>
 </html>

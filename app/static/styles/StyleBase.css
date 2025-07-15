@@ -192,15 +192,6 @@ body {
     display: block; /* Elimina cualquier espacio extra debajo de la imagen */
 }
 
-/* Si quieres que las imágenes cubran el área completamente y se recorten si es necesario, usa 'cover': */
-/*
-.card-img-custom-cover {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-*/
 
 /* Ajustes para el cuerpo de la tarjeta */
 .card-body {
@@ -313,6 +304,18 @@ body {
   color: var(--dark-color);
   margin: 0;
 }
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #0d6efd;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  line-height: 36px;
+}
+
 
 /* Estilos personalizados para SweetAlert */
 .swal2-styled.swal2-confirm {
