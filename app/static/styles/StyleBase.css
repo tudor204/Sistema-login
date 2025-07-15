@@ -315,6 +315,31 @@ body {
   font-weight: bold;
   line-height: 36px;
 }
+/* Estilos para el espiral de carga */
+.loading-spinner {
+    display: none; /* Asegura que esté oculto por defecto */
+    align-items: center; /* Centra verticalmente el spinner y el texto */
+    justify-content: flex-start; /* Alinea al inicio si es parte de un flujo horizontal */
+    gap: 10px; /* Espacio entre el spinner y el texto */
+    margin-top: 15px; /* Mismo margen superior que en tu HTML */
+    padding: 8px 0; /* Un poco de padding para dar "aire" */
+    color: var(--bs-primary); /* Usa la variable de color primario de Bootstrap */
+    font-size: 0.95rem; /* Un poco más pequeño */
+    opacity: 0; /* Iniciamos con opacidad 0 para la transición */
+    transition: opacity 0.3s ease-in-out; /* Transición suave para la aparición */
+}
+
+/* Estado cuando el spinner es visible */
+.loading-spinner[style*="display: flex"] {
+    opacity: 1; /* Hacemos que aparezca con una transición */
+}
+
+/* Opcional: Estilos para el botón cuando está deshabilitado y cargando */
+#addFoodButton[disabled] {
+    opacity: 0.7; /* Reduce un poco la opacidad */
+    cursor: not-allowed; /* Cambia el cursor */
+    /* Puedes añadir más estilos como un color de fondo diferente si quieres */
+}
 
 
 /* Estilos personalizados para SweetAlert */
@@ -329,4 +354,8 @@ body {
 }
 .swal2-styled.swal2-cancel:hover {
   background-color: #5a6268 !important;
+  }
+  /* Asegúrate de que los SweetAlerts siempre estén encima de todo */
+.swal2-container {
+  z-index: 9999 !important; /* Un valor alto para asegurar que esté por encima de la navbar */
 }

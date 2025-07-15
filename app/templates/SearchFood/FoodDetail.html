@@ -16,8 +16,8 @@
     <div class="row g-0">
       <div class="col-md-4 text-center p-3">
         {# Usamos url_for para el fallback y el onerror para depuración #}
-        <img src="{{ imagen or url_for('static', filename='default-food.jpg') }}" 
-             alt="Imagen de {{ nombre }}" 
+        <img src="{{ imagen or url_for('static', filename='default-food.jpg') }}"
+             alt="Imagen de {{ nombre }}"
              class="img-fluid rounded"
              onerror="this.onerror=null;this.src='{{ url_for('static', filename='default-food.jpg') }}'; console.error('Error al cargar la imagen: ' + this.src);">
       </div>
@@ -29,31 +29,79 @@
           <p class="card-text"><strong>Grasas por 100g:</strong> {{ grasas }} g</p>
           <p class="card-text"><strong>Carbohidratos por 100g:</strong> {{ carbohidratos }} g</p>
 
-          <!-- Formulario para añadir el alimento con cantidad personalizada -->
-          <form method="POST" action="{{ url_for('save_food') }}">
+          <form method="POST" action="{{ url_for('save_food') }}" id="foodForm">
             <input type="hidden" name="food_name" value="{{ nombre }}">
             <input type="hidden" name="calories_per_100g" value="{{ calorias if calorias != 'N/D' else 0 }}">
             <input type="hidden" name="proteins_per_100g" value="{{ proteinas if proteinas != 'N/D' else 0 }}">
             <input type="hidden" name="fats_per_100g" value="{{ grasas if grasas != 'N/D' else 0 }}">
             <input type="hidden" name="carbs_per_100g" value="{{ carbohidratos if carbohidratos != 'N/D' else 0 }}">
-            
+
             <div class="mb-3">
               <label for="quantity" class="form-label">Cantidad (gramos)</label>
               <input type="number" min="1" step="1" id="quantity" name="quantity" class="form-control" value="100" required>
               <div class="form-text">Introduce la cantidad en gramos para calcular los macros.</div>
             </div>
-            
-            <button 
-              class="confirm-action" 
-              data-confirm-text="¿Estás seguro que quiere añadir éste alimento?"
-              type="submit">
-              Añadir alimento
-          </button>
 
+            <button
+              class="btn btn-primary" {# Cambiamos la clase a btn-primary o tu botón principal #}
+              type="submit"
+              id="addFoodButton">
+              Añadir alimento
+            </button>
+            <div id="loadingSpinner" class="loading-spinner">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+              <span class="ms-2">Añadiendo alimento...</span>
+            </div>
           </form>
         </div>
       </div>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }} {# ¡IMPORTANTE! Esto hereda los scripts de base.html #}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('foodForm');
+      const addButton = document.getElementById('addFoodButton');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+
+      // Eliminamos la clase 'confirm-action' si el botón la tiene, para manejar la lógica aquí
+      if (addButton.classList.contains('confirm-action')) {
+          addButton.classList.remove('confirm-action');
+      }
+
+      // Añadimos nuestro propio evento de click al botón
+      addButton.addEventListener('click', function(event) {
+        event.preventDefault(); // Detenemos el envío del formulario inicial
+
+        // SweetAlert para la confirmación
+        Swal.fire({
+            title: this.dataset.confirmText || "¿Estás seguro que quieres añadir este alimento?",
+            icon: 'question', // Cambiado a 'question' o 'info' para ser menos alarmante
+            showCancelButton: true,
+            confirmButtonText: 'Sí, añadir',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Si el usuario confirma, mostramos el spinner y deshabilitamos el botón
+                loadingSpinner.style.display = 'flex'; // Usamos 'flex' para centrar si aplicamos CSS
+                addButton.disabled = true;
+                addButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Añadiendo...';
+                
+                // Simular el tiempo de carga antes de enviar el formulario
+                setTimeout(function() {
+                    form.submit(); // Envía el formulario después del retraso
+                }, 3000); // 3000 milisegundos = 3 segundos
+            }
+        });
+      });
+    });
+  </script>
 {% endblock %}
