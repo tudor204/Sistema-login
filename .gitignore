@@ -2,3 +2,4 @@
 **/__pycache__/**
 __pycache__
 /.env
+/static/images/profile_photo/*

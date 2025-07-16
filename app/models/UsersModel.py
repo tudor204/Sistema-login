@@ -29,3 +29,9 @@ def update_user_profile(user_id, full_name, birth_date, height_cm, weight_kg, ge
             SET full_name = ?, birth_date = ?, height_cm = ?, weight_kg = ?, gender = ?, activity_level = ?, goal = ?
             WHERE id = ?
         """, (full_name, birth_date, height_cm, weight_kg, gender, activity_level, goal, user_id))
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

@@ -29,7 +29,23 @@
         <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Editar Información Personal</h5>
       </div>
       <div class="card-body">
-        <form method="POST" class="row g-3" novalidate>
+        <form method="POST" class="row g-3" novalidate enctype="multipart/form-data">
+          <!-- Campo foto perfil -->
+        <div class="col-md-12 mb-3">
+          <label for="profile_photo" class="form-label fw-semibold">Foto de perfil</label>
+          {% if user.profile_photo %}
+            <div class="mb-2">
+              <img src="{{ url_for('static', filename='images/profile_photo/' ~ user.profile_photo) }}" alt="Foto de perfil" class="img-thumbnail" style="max-width: 150px;">
+            </div>
+          {% endif %}
+          <input
+            type="file"
+            class="form-control"
+            id="profile_photo"
+            name="profile_photo"
+            accept="image/png, image/jpeg, image/jpg, image/gif"
+          >
+        </div>
           <!-- Nombre completo -->
           <div class="col-md-6">
             <label for="full_name" class="form-label fw-semibold">Nombre completo</label>
