@@ -340,6 +340,10 @@ body {
     cursor: not-allowed; /* Cambia el cursor */
     /* Puedes añadir más estilos como un color de fondo diferente si quieres */
 }
+[data-bs-theme="dark"] {
+  background-color: #121212;
+  color: #eee;
+}
 
 
 /* Estilos personalizados para SweetAlert */

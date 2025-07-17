@@ -1,13 +1,29 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import logout_user, login_required, current_user
-from app.conexion import get_db_cursor
-from app.models.UsersModel import allowed_file
 from app import app
-import json
-import os
 from werkzeug.utils import secure_filename
-from flask import current_app
-from werkzeug.security import check_password_hash, generate_password_hash
+import os
+
+
+from app.models.UsersModel import (
+    allowed_file,
+    get_user_profile,
+    update_user_profile,
+    update_user_preferences,
+    get_user_preferences,
+    check_user_password,
+    update_user_password,
+    check_email_exists,
+    update_user_email,
+    delete_user_account
+)
+
+@app.context_processor
+def inject_prefs():
+    if current_user.is_authenticated:
+        prefs = get_user_preferences(current_user.id)  # función que recupera las prefs
+        return dict(prefs=prefs)
+    return dict(prefs=None)
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -16,7 +32,6 @@ def profile():
     if request.method == 'POST':
         full_name = request.form.get('full_name', '').strip()
         birth_date = request.form.get('birth_date', '').strip()
-        
         try:
             height_cm = int(request.form.get('height_cm', ''))
         except (TypeError, ValueError):
@@ -30,7 +45,6 @@ def profile():
         activity_level = request.form.get('activity_level', '').strip()
         goal = request.form.get('goal', '').strip()
 
-        # --- Manejo de foto ---
         photo = request.files.get('profile_photo')
         filename = None
         if photo and allowed_file(photo.filename):
@@ -38,77 +52,34 @@ def profile():
             upload_folder = os.path.join(current_app.root_path, 'static', 'images', 'profile_photo')
             os.makedirs(upload_folder, exist_ok=True)
             photo.save(os.path.join(upload_folder, filename))
-        # ----------------------
 
         if not full_name:
             flash("El nombre completo no puede estar vacío.", "warning")
         else:
-            try:
-                with get_db_cursor() as cursor:
-                    if filename:
-                        cursor.execute("""
-                            UPDATE loggin 
-                            SET full_name = ?, birth_date = ?, height_cm = ?, weight_kg = ?, gender = ?, activity_level = ?, goal = ?, profile_photo = ?
-                            WHERE id = ?
-                        """, (full_name, birth_date, height_cm, weight_kg, gender, activity_level, goal, filename, current_user.id))
-                    else:
-                        cursor.execute("""
-                            UPDATE loggin 
-                            SET full_name = ?, birth_date = ?, height_cm = ?, weight_kg = ?, gender = ?, activity_level = ?, goal = ?
-                            WHERE id = ?
-                        """, (full_name, birth_date, height_cm, weight_kg, gender, activity_level, goal, current_user.id))
-                    flash("Perfil actualizado correctamente", "success")
-                    return redirect(url_for('profile'))
-            except Exception as e:
-                flash(f"Error al actualizar el perfil: {e}", "danger")
-                print(f"Error al actualizar perfil: {e}")
+            update_user_profile(current_user.id, full_name, birth_date, height_cm, weight_kg, gender, activity_level, goal, filename)
+            flash("Perfil actualizado correctamente", "success")
+            return redirect(url_for('profile'))
 
-    with get_db_cursor() as cursor:
-        cursor.execute("""
-            SELECT username, email, full_name, birth_date, height_cm, weight_kg, gender, activity_level, goal, profile_photo
-            FROM loggin 
-            WHERE id = ?
-        """, (current_user.id,))
-        user_data = cursor.fetchone()
-        if not isinstance(user_data, dict):
-            user_data = dict(user_data)
-
+    user_data = get_user_profile(current_user.id)
     return render_template('Users/profile.html', user=user_data)
+
 
 @app.route('/configuracion', methods=['GET', 'POST'])
 @login_required
 def configuracion():
     if request.method == 'POST':
-        # Recoger los datos del formulario
         preferencias = {
             "dark_mode": request.form.get("dark_mode") == "on",
             "units": request.form.get("units", "kg/cm"),
             "auto_suggestions": request.form.get("auto_suggestions") == "on"
         }
+        update_user_preferences(current_user.id, preferencias)
+        flash("Preferencias actualizadas correctamente", "success")
+        return redirect(url_for('configuracion'))
 
-        try:
-            with get_db_cursor() as cursor:
-                cursor.execute("""
-                    UPDATE loggin SET preferences = ?
-                    WHERE id = ?
-                """, (json.dumps(preferencias), current_user.id))
-                flash("Preferencias actualizadas correctamente", "success")
-                return redirect(url_for('configuracion'))
-        except Exception as e:
-            flash(f"Error al guardar preferencias: {e}", "danger")
-
-    # Cargar preferencias actuales
-    with get_db_cursor() as cursor:
-        cursor.execute("SELECT preferences FROM loggin WHERE id = ?", (current_user.id,))
-        row = cursor.fetchone()
-        prefs = {}
-        if row and row["preferences"]:
-            try:
-                prefs = json.loads(row["preferences"])
-            except Exception:
-                prefs = {}
-
+    prefs = get_user_preferences(current_user.id)
     return render_template('Users/configuracion.html', prefs=prefs)
+
 
 @app.route('/cambiar-password', methods=['GET', 'POST'])
 @login_required
@@ -118,31 +89,19 @@ def cambiar_password():
         new_password = request.form.get('new_password', '')
         confirm_password = request.form.get('confirm_password', '')
 
-        # Verificar que no esté vacío
         if not current_password or not new_password or not confirm_password:
             flash("Por favor completa todos los campos.", "warning")
-            return redirect(url_for('cambiar_password'))
-
-        # Verificar que coincidan
-        if new_password != confirm_password:
+        elif new_password != confirm_password:
             flash("Las nuevas contraseñas no coinciden.", "danger")
-            return redirect(url_for('cambiar_password'))
-
-        # Verificar contraseña actual
-        with get_db_cursor() as cursor:
-            cursor.execute("SELECT password FROM loggin WHERE id = ?", (current_user.id,))
-            row = cursor.fetchone()
-            if row and not check_password_hash(row["password"], current_password):
-                flash("La contraseña actual es incorrecta.", "danger")
-                return redirect(url_for('cambiar_password'))
-
-            # Actualizar nueva contraseña
-            hashed_pw = generate_password_hash(new_password)
-            cursor.execute("UPDATE loggin SET password = ? WHERE id = ?", (hashed_pw, current_user.id))
+        elif not check_user_password(current_user.id, current_password):
+            flash("La contraseña actual es incorrecta.", "danger")
+        else:
+            update_user_password(current_user.id, new_password)
             flash("Contraseña actualizada correctamente.", "success")
             return redirect(url_for('configuracion'))
 
     return render_template("Users/cambiar_password.html")
+
 
 @app.route('/cambiar-email', methods=['GET', 'POST'])
 @login_required
@@ -152,18 +111,10 @@ def cambiar_email():
 
         if not nuevo_email:
             flash("Por favor, ingresa un nuevo correo electrónico.", "warning")
-            return redirect(url_for('cambiar_email'))
-
-        with get_db_cursor() as cursor:
-            # Verificar si ya existe ese email en otro usuario
-            cursor.execute("SELECT id FROM loggin WHERE email = ? AND id != ?", (nuevo_email, current_user.id))
-            existing = cursor.fetchone()
-            if existing:
-                flash("Ese correo electrónico ya está en uso.", "danger")
-                return redirect(url_for('cambiar_email'))
-
-            # Actualizar correo electrónico
-            cursor.execute("UPDATE loggin SET email = ? WHERE id = ?", (nuevo_email, current_user.id))
+        elif check_email_exists(nuevo_email, current_user.id):
+            flash("Ese correo electrónico ya está en uso.", "danger")
+        else:
+            update_user_email(current_user.id, nuevo_email)
             flash("Correo electrónico actualizado correctamente.", "success")
             return redirect(url_for('configuracion'))
 
@@ -178,18 +129,10 @@ def eliminar_cuenta():
 
         if not password:
             flash("Debes ingresar tu contraseña para confirmar.", "warning")
-            return redirect(url_for('eliminar_cuenta'))
-
-        with get_db_cursor() as cursor:
-            cursor.execute("SELECT password FROM loggin WHERE id = ?", (current_user.id,))
-            user = cursor.fetchone()
-
-            if not user or not check_password_hash(user["password"], password):
-                flash("Contraseña incorrecta. La cuenta no ha sido eliminada.", "danger")
-                return redirect(url_for('eliminar_cuenta'))
-
-            # Eliminar cuenta
-            cursor.execute("DELETE FROM loggin WHERE id = ?", (current_user.id,))
+        elif not check_user_password(current_user.id, password):
+            flash("Contraseña incorrecta. La cuenta no ha sido eliminada.", "danger")
+        else:
+            delete_user_account(current_user.id)
             logout_user()
             flash("Tu cuenta ha sido eliminada correctamente.", "success")
             return redirect(url_for('index'))
@@ -198,12 +141,9 @@ def eliminar_cuenta():
     return render_template("Users/eliminar_cuenta.html")
 
 
-
-
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     flash('Sesión cerrada', 'info')
     return redirect(url_for('index'))
-

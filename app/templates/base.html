@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-bs-theme="light">
+<html lang="es" data-bs-theme="{% if prefs and prefs.dark_mode %}dark{% else %}light{% endif %}">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -22,24 +22,51 @@
                 <i class="fas fa-leaf me-2"></i>NutriTrack
             </a>
             <div class="d-flex align-items-center ms-auto">
-                {% if current_user.is_authenticated %}
-                <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="user-avatar bg-primary text-white rounded-circle text-center me-2" style="width: 36px; height: 36px; line-height: 36px; font-weight: bold;">
-                            {{ current_user.username[0]|upper }}
-                        </div>
-                        <span class="d-none d-sm-inline">{{ current_user.username }}</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="fas fa-user me-2"></i>Perfil</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('configuracion') }}"><i class="fas fa-cog me-2"></i>Configuración</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
-                    </ul>
-                    
-                </div>
-                {% endif %}
-            </div>                
+  {% if current_user.is_authenticated %}
+  <div class="dropdown">
+    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="gap: 0.5rem;">
+      
+      {% if current_user.profile_photo %}
+        <!-- Avatar con imagen desde static/images/profile_photo -->
+        <img src="{{ url_for('static', filename='images/profile_photo/' ~ current_user.profile_photo) }}" 
+             alt="Avatar" 
+             class="rounded-circle shadow-sm" 
+             style="width: 42px; height: 42px; object-fit: cover; border: 2px solid #0d6efd;">
+      {% else %}
+        <!-- Avatar con inicial si no hay imagen -->
+        <div class="user-avatar bg-primary text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm" 
+             style="width: 42px; height: 42px; font-weight: 700; font-size: 1.1rem; user-select: none;">
+          {{ current_user.username[0]|upper }}
+        </div>
+      {% endif %}
+
+      <span class="d-none d-sm-inline fw-semibold text-primary" style="font-size: 1rem;">
+        {{ current_user.username }}
+      </span>
+    </a>
+
+    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="userDropdown" style="min-width: 12rem;">
+      <li>
+        <a class="dropdown-item d-flex align-items-center gap-2" href="{{ url_for('profile') }}">
+          <i class="fas fa-user fa-fw"></i> Perfil
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item d-flex align-items-center gap-2" href="{{ url_for('configuracion') }}">
+          <i class="fas fa-cog fa-fw"></i> Configuración
+        </a>
+      </li>
+      <li><hr class="dropdown-divider"></li>
+      <li>
+        <a class="dropdown-item d-flex align-items-center gap-2 text-danger" href="{{ url_for('logout') }}">
+          <i class="fas fa-sign-out-alt fa-fw"></i> Cerrar sesión
+        </a>
+      </li>
+    </ul>
+  </div>
+  {% endif %}
+</div>
+      
         </div>
     </nav>
 
@@ -182,6 +209,17 @@
                             window.location.href = this.href;
                         }
                     });
+                });
+            });
+            //Cambio de color a modo oscuro
+            document.addEventListener('DOMContentLoaded', () => {
+                const checkbox = document.getElementById('dark_mode');
+                checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-bs-theme', 'light');
+                }
                 });
             });
     
