@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Cambiar correo | NutriTrack Pro{% endblock %}
+
+{% block section %}
+<div class="container py-4">
+  <h2 class="mb-4"><i class="fas fa-envelope me-2"></i>Cambiar correo electrónico</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" class="card p-4 shadow-sm border-0">
+    <div class="mb-3">
+      <label for="nuevo_email" class="form-label fw-semibold">Nuevo correo electrónico</label>
+      <input type="email" class="form-control" id="nuevo_email" name="nuevo_email" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Actualizar email</button>
+    <a href="{{ url_for('configuracion') }}" class="btn btn-link">← Volver a configuración</a>
+  </form>
+</div>
+{% endblock %}

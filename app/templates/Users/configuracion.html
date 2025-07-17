@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Configuración | NutriTrack Pro{% endblock %}
+
+{% block section %}
+<style>
+  /* Botones pequeños y compactos */
+  .btn-small {
+    font-size: 1rem;
+    padding: 0.5rem 0.8rem;
+    border-width: 1.5px;
+    transition: all 0.3s ease;
+    min-width: auto;
+  }
+
+  /* Animación suave al hacer hover y focus */
+  .btn-small:hover, .btn-small:focus {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: scale(1.05);
+    filter: brightness(1.1);
+    text-decoration: none;
+  }
+
+  /* Para el modal, mejorar botón eliminar para que no sea tan ancho */
+  .modal-footer .btn {
+    min-width: 120px;
+  }
+</style>
+
+<div class="container py-4">
+  <h2 class="mb-4"><i class="fas fa-cog me-2"></i>Configuración de Usuario</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" class="card p-4 shadow-sm border-0 mb-5">
+    <h4 class="mb-3">🌓 Preferencias de Interfaz</h4>
+
+    <div class="form-check form-switch mb-3">
+      <input class="form-check-input" type="checkbox" id="dark_mode" name="dark_mode" {% if prefs.dark_mode %}checked{% endif %}>
+      <label class="form-check-label" for="dark_mode">Activar modo oscuro</label>
+    </div>
+
+    <div class="mb-3">
+      <label for="units" class="form-label fw-semibold">Unidades</label>
+      <select class="form-select" name="units" id="units">
+        <option value="kg/cm" {% if prefs.units == 'kg/cm' %}selected{% endif %}>kg / cm</option>
+        <option value="lb/in" {% if prefs.units == 'lb/in' %}selected{% endif %}>lb / in</option>
+      </select>
+    </div>
+
+    <div class="form-check form-switch mb-4">
+      <input class="form-check-input" type="checkbox" id="auto_suggestions" name="auto_suggestions" {% if prefs.auto_suggestions %}checked{% endif %}>
+      <label class="form-check-label" for="auto_suggestions">Activar sugerencias automáticas</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-smaller fw-semibold"><i class="fas fa-save me-2"></i>Guardar cambios</button>
+  </form>
+
+  <div class="card p-4 shadow-sm border-0">
+    <h4 class="mb-3">🔐 Seguridad y cuenta</h4>
+    <div class="d-flex flex-column gap-2">
+      <a href="{{ url_for('cambiar_password') }}" 
+         class="btn btn-outline-danger btn-small fw-semibold d-inline-flex align-items-center gap-2">
+        <i class="fas fa-lock"></i> Cambiar contraseña
+      </a>
+
+      <a href="{{ url_for('cambiar_email') }}" 
+         class="btn btn-outline-danger btn-small fw-semibold d-inline-flex align-items-center gap-2">
+        <i class="fas fa-envelope"></i> Cambiar email
+      </a>
+
+      <!-- Botón que abre el modal -->
+      <button type="button" 
+              class="btn btn-danger btn-small fw-semibold d-inline-flex align-items-center gap-2" 
+              data-bs-toggle="modal" data-bs-target="#confirmarEliminacionModal">
+        <i class="fas fa-trash-alt"></i> Eliminar cuenta
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmarEliminacionModal" tabindex="-1" aria-labelledby="confirmarEliminacionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="confirmarEliminacionLabel">
+          <i class="fas fa-exclamation-triangle me-2"></i>Confirmar eliminación
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0">
+          ¿Estás seguro de que deseas eliminar tu cuenta? <strong>Esta acción no se puede deshacer</strong>.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-small" data-bs-dismiss="modal">Cancelar</button>
+        <form method="POST" action="{{ url_for('eliminar_cuenta') }}" class="m-0">
+          <button type="submit" class="btn btn-danger btn-small">Sí, eliminar cuenta</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

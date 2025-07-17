@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Eliminar cuenta | NutriTrack Pro{% endblock %}
+
+{% block section %}
+<div class="container py-4">
+  <h2 class="text-danger mb-4"><i class="fas fa-user-times me-2"></i>Eliminar cuenta</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" class="card border-danger shadow-sm p-4">
+    <p class="fw-bold text-danger">Esta acción eliminará tu cuenta permanentemente. Ingresa tu contraseña para confirmar.</p>
+
+    <div class="mb-3">
+      <label for="password" class="form-label fw-semibold">Contraseña</label>
+      <input type="password" class="form-control" name="password" id="password" required>
+    </div>
+
+    <button type="submit" class="btn btn-danger">
+      <i class="fas fa-trash me-2"></i>Eliminar cuenta definitivamente
+    </button>
+    <a href="{{ url_for('configuracion') }}" class="btn btn-link">← Cancelar</a>
+  </form>
+</div>
+{% endblock %}
