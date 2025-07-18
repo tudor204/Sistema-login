@@ -28,10 +28,11 @@
       
       {% if current_user.profile_photo %}
         <!-- Avatar con imagen desde static/images/profile_photo -->
-        <img src="{{ url_for('static', filename='images/profile_photo/' ~ current_user.profile_photo) }}" 
-             alt="Avatar" 
-             class="rounded-circle shadow-sm" 
-             style="width: 42px; height: 42px; object-fit: cover; border: 2px solid #0d6efd;">
+        <img src="{{ url_for('static', filename='images/profile_photo/' + current_user.profile_photo) }}"
+            alt="Avatar"
+            class="rounded-circle shadow-sm"
+            style="width: 42px; height: 42px; object-fit: cover; border: 2px solid #0d6efd;">
+
       {% else %}
         <!-- Avatar con inicial si no hay imagen -->
         <div class="user-avatar bg-primary text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm" 
