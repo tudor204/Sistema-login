@@ -32,14 +32,28 @@ def profile():
     if request.method == 'POST':
         full_name = request.form.get('full_name', '').strip()
         birth_date = request.form.get('birth_date', '').strip()
+        prefs = get_user_preferences(current_user.id)
+
         try:
-            height_cm = int(request.form.get('height_cm', ''))
+            height = float(request.form.get('height_cm', ''))
         except (TypeError, ValueError):
-            height_cm = None
+            height = None
+
         try:
-            weight_kg = int(request.form.get('weight_kg', ''))
+            weight = float(request.form.get('weight_kg', ''))
         except (TypeError, ValueError):
-            weight_kg = None
+            weight = None
+
+        # Convertir de vuelta a kg/cm si el usuario envía lb/in
+        if prefs.get('units') == 'lb/in':
+            if weight:
+                weight = round(weight / 2.20462, 1)
+            if height:
+                height = round(height / 0.393701, 1)
+
+        height_cm = int(height) if height else None
+        weight_kg = int(weight) if weight else None
+
 
         gender = request.form.get('gender', '').strip()
         activity_level = request.form.get('activity_level', '').strip()
@@ -61,6 +75,14 @@ def profile():
             return redirect(url_for('profile'))
 
     user_data = get_user_profile(current_user.id)
+    prefs = get_user_preferences(current_user.id) 
+    # Si el usuario prefiere lb/in, convertimos los valores para mostrarlos
+    if prefs.get('units') == 'lb/in':
+        if user_data['weight_kg']:
+            user_data['weight_kg'] = round(user_data['weight_kg'] * 2.20462, 1)
+        if user_data['height_cm']:
+            user_data['height_cm'] = round(user_data['height_cm'] * 0.393701, 1)
+
     return render_template('Users/profile.html', user=user_data)
 
 

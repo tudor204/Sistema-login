@@ -78,9 +78,12 @@
             <div id="birthHelp" class="form-text">Fecha en formato día/mes/año</div>
           </div>
 
+         
           <!-- Altura -->
           <div class="col-md-4">
-            <label for="height_cm" class="form-label fw-semibold">Altura (cm)</label>
+            <label for="height_cm" class="form-label fw-semibold">
+              Altura ({{ 'cm' if prefs.units == 'kg/cm' else 'in' }})
+            </label>
             <input
               type="number"
               class="form-control"
@@ -89,13 +92,15 @@
               value="{{ user.height_cm or '' }}"
               min="50"
               max="250"
-              placeholder="Ej. 177"
+              placeholder="Ej. {{ '177 cm' if prefs.units == 'kg/cm' else '70 in' }}"
             >
           </div>
 
           <!-- Peso -->
           <div class="col-md-4">
-            <label for="weight_kg" class="form-label fw-semibold">Peso (kg)</label>
+            <label for="weight_kg" class="form-label fw-semibold">
+              Peso ({{ 'kg' if prefs.units == 'kg/cm' else 'lb' }})
+            </label>
             <input
               type="number"
               class="form-control"
@@ -104,7 +109,7 @@
               value="{{ user.weight_kg or '' }}"
               min="20"
               max="300"
-              placeholder="Ej. 78"
+              placeholder="Ej. {{ '78 kg' if prefs.units == 'kg/cm' else '172 lb' }}"
             >
           </div>
 
