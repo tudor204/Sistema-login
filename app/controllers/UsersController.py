@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request, current_app
+from flask import render_template, redirect, url_for, flash, request, current_app, session
 from flask_login import logout_user, login_required, current_user
 from app import app
 from werkzeug.utils import secure_filename
@@ -93,9 +93,14 @@ def configuracion():
         preferencias = {
             "dark_mode": request.form.get("dark_mode") == "on",
             "units": request.form.get("units", "kg/cm"),
-            "auto_suggestions": request.form.get("auto_suggestions") == "on"
+            "auto_suggestions": request.form.get("auto_suggestions") == "on",
+            "language": request.form.get("language", "es")
         }
         update_user_preferences(current_user.id, preferencias)
+
+        # Aquí actualizas la sesión para que Flask-Babel detecte el idioma
+        session['user_lang'] = preferencias['language']
+
         flash("Preferencias actualizadas correctamente", "success")
         return redirect(url_for('configuracion'))
 

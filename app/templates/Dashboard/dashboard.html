@@ -1,32 +1,32 @@
 {% extends "base.html" %}
-{% block title %}Panel de control | NutriTrack Pro{% endblock %}
+{% block title %}{{ _('Panel de control | NutriTrack Pro') }}{% endblock %}
 
 {% block section %}
 <div class="d-flex justify-content-between align-items-center mb-5">
   <h1 class="fs-2 fw-bold text-primary">
-    <i class="fas fa-tachometer-alt me-3"></i>Panel de Control
+    <i class="fas fa-tachometer-alt me-3"></i>{{ _('Panel de Control') }}
   </h1>
 </div>
 
 <div class="row g-4 mb-4">
-  <!-- Calorías Hoy (más grande) -->
+  <!-- Calorías Hoy -->
   <div class="col-lg-6">
     <div class="card shadow-sm border-0 rounded-5 h-100 position-relative overflow-hidden">
       <div class="card-body d-flex flex-column justify-content-between">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h6 class="text-muted fw-semibold mb-0">Calorías Hoy</h6>
+          <h6 class="text-muted fw-semibold mb-0">{{ _('Calorías Hoy') }}</h6>
           <div class="icon-circle bg-danger bg-opacity-15 d-flex align-items-center justify-content-center rounded-circle" style="width:72px; height:72px; cursor:pointer;">
             <i class="fas fa-fire text-danger fs-3"></i>
           </div>
         </div>
         <h2 class="fw-bold display-4 mb-1">
-          {{ today_stats.calories|default(0) }} <small class="text-muted fs-6">kcal</small>
+          {{ today_stats.calories|default(0) }} <small class="text-muted fs-6">{{ _('kcal') }}</small>
         </h2>
         <div class="progress rounded-pill" style="height: 12px;">
           <div class="progress-bar bg-danger" role="progressbar" style="width: {{ calories_percentage }}%" aria-valuenow="{{ calories_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
         <small class="text-muted d-block mt-3">
-          {{ calories_percentage }}% de {{ goals.daily_calories|default(0) }} kcal
+          {{ calories_percentage }}% {{ _('de') }} {{ goals.daily_calories|default(0) }} {{ _('kcal') }}
         </small>
       </div>
       <div class="position-absolute bottom-0 end-0 opacity-10" style="font-size: 8rem; line-height: 0.8; color: var(--bs-danger); user-select:none; pointer-events:none;">
@@ -35,41 +35,41 @@
     </div>
   </div>
 
-  <!-- Balance Calórico (más grande) -->
-<div class="col-lg-6">
-  <div class="card shadow-sm border-0 rounded-5 h-100 position-relative overflow-hidden">
-    <div class="card-body d-flex flex-column justify-content-between">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h6 class="text-muted fw-semibold mb-0">Balance Calórico</h6>
-        <div class="icon-circle bg-secondary bg-opacity-15 d-flex align-items-center justify-content-center rounded-circle" style="width:72px; height:72px; cursor:pointer;">
-          <i class="fas fa-balance-scale text-secondary fs-3"></i>
+  <!-- Balance Calórico -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 rounded-5 h-100 position-relative overflow-hidden">
+      <div class="card-body d-flex flex-column justify-content-between">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-muted fw-semibold mb-0">{{ _('Balance Calórico') }}</h6>
+          <div class="icon-circle bg-secondary bg-opacity-15 d-flex align-items-center justify-content-center rounded-circle" style="width:72px; height:72px; cursor:pointer;">
+            <i class="fas fa-balance-scale text-secondary fs-3"></i>
+          </div>
         </div>
+        {% set calories_in = net_calories + burned_calories %}
+        {% set calories_out = burned_calories %}
+        {% set calories_net = calories_in - calories_out %}
+        <h2 class="fw-bold display-4 mb-1">
+          {{ '%.1f' % calories_net }} <small class="text-muted fs-6">{{ _('kcal') }}</small>
+        </h2>
+        <small class="text-muted">
+          <div><strong>{{ _('Ingresadas:') }}</strong> {{ '%.1f' % calories_in }} {{ _('kcal') }}</div>
+          <div><strong>{{ _('Gastadas:') }}</strong> {{ '%.1f' % calories_out }} {{ _('kcal') }}</div>
+        </small>
       </div>
-      {% set calories_in = net_calories + burned_calories %}
-      {% set calories_out = burned_calories %}
-      {% set calories_net = calories_in - calories_out %}
-      <h2 class="fw-bold display-4 mb-1">
-        {{ '%.1f' % calories_net }} <small class="text-muted fs-6">kcal</small>
-      </h2>
-      <small class="text-muted">
-        <div><strong>Ingresadas:</strong> {{ '%.1f' % calories_in }} kcal</div>
-        <div><strong>Gastadas:</strong> {{ '%.1f' % calories_out }} kcal</div>
-      </small>
-    </div>
-    <div class="position-absolute bottom-0 end-0 opacity-10" style="font-size: 8rem; line-height: 0.8; color: var(--bs-secondary); user-select:none; pointer-events:none;">
-      <i class="fas fa-balance-scale"></i>
+      <div class="position-absolute bottom-0 end-0 opacity-10" style="font-size: 8rem; line-height: 0.8; color: var(--bs-secondary); user-select:none; pointer-events:none;">
+        <i class="fas fa-balance-scale"></i>
+      </div>
     </div>
   </div>
 </div>
 
-
 <div class="row g-4 mb-4">
   <!-- Macros en 4 columnas -->
   {% set macros = [
-    {'title': 'Proteínas Hoy', 'value': today_stats.proteins|default(0), 'unit': 'g', 'icon': 'fa-dumbbell', 'color': 'success', 'percentage': proteins_percentage, 'goal': goals.daily_proteins|default(0)},
-    {'title': 'Grasas Hoy', 'value': today_stats.fats|default(0), 'unit': 'g', 'icon': 'fa-bacon', 'color': 'warning', 'percentage': fats_percentage, 'goal': goals.daily_fats|default(0)},
-    {'title': 'Carbohidratos Hoy', 'value': today_stats.carbs|default(0), 'unit': 'g', 'icon': 'fa-bread-slice', 'color': 'info', 'percentage': carbs_percentage, 'goal': goals.daily_carbs|default(0)},
-    {'title': 'Agua Consumida', 'value': water_consumed_ml|default(0), 'unit': 'ml', 'icon': 'fa-tint', 'color': 'info', 'percentage': water_percentage, 'goal': (goals.daily_water|default(0) * 1000)}
+    {'title': _('Proteínas Hoy'), 'value': today_stats.proteins|default(0), 'unit': _('g'), 'icon': 'fa-dumbbell', 'color': 'success', 'percentage': proteins_percentage, 'goal': goals.daily_proteins|default(0)},
+    {'title': _('Grasas Hoy'), 'value': today_stats.fats|default(0), 'unit': _('g'), 'icon': 'fa-bacon', 'color': 'warning', 'percentage': fats_percentage, 'goal': goals.daily_fats|default(0)},
+    {'title': _('Carbohidratos Hoy'), 'value': today_stats.carbs|default(0), 'unit': _('g'), 'icon': 'fa-bread-slice', 'color': 'info', 'percentage': carbs_percentage, 'goal': goals.daily_carbs|default(0)},
+    {'title': _('Agua Consumida'), 'value': water_consumed_ml|default(0), 'unit': _('ml'), 'icon': 'fa-tint', 'color': 'info', 'percentage': water_percentage, 'goal': (goals.daily_water|default(0) * 1000)}
   ] %}
 
   {% for macro in macros %}
@@ -91,7 +91,7 @@
           <div class="progress-bar bg-{{ macro.color }}" role="progressbar" style="width: {{ macro.percentage }}%" aria-valuenow="{{ macro.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
         <small class="text-muted d-block mt-2">
-          {{ macro.percentage }}% de {{ macro.goal }} {{ macro.unit }}
+          {{ macro.percentage }}% {{ _('de') }} {{ macro.goal }} {{ macro.unit }}
         </small>
       </div>
       <div class="position-absolute bottom-0 end-0 opacity-10" style="font-size: 5rem; line-height: 0.8; color: var(--bs-{{ macro.color }}); user-select:none; pointer-events:none;">
@@ -108,14 +108,14 @@
     <div class="card shadow-sm border-0 rounded-5 h-100">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h6 class="text-muted fw-semibold mb-0">Actividad Hoy</h6>
+          <h6 class="text-muted fw-semibold mb-0">{{ _('Actividad Hoy') }}</h6>
           <i class="fas fa-walking text-secondary fs-3"></i>
         </div>
-        <h2 class="fw-bold display-4 mb-1">{{ today_stats.activity|default(0) }} <small class="text-muted fs-6">min</small></h2>
+        <h2 class="fw-bold display-4 mb-1">{{ today_stats.activity|default(0) }} <small class="text-muted fs-6">{{ _('min') }}</small></h2>
         <div class="progress rounded-pill mb-3" style="height: 12px;">
           <div class="progress-bar bg-secondary" style="width: {{ [activity_percentage|default(0), 100]|min }}%" role="progressbar" aria-valuenow="{{ activity_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
-        <small class="text-muted">Meta diaria: {{ goals.daily_activity|default(0) }} min</small>
+        <small class="text-muted">{{ _('Meta diaria:') }} {{ goals.daily_activity|default(0) }} {{ _('min') }}</small>
       </div>
     </div>
   </div>
@@ -124,7 +124,7 @@
   <div class="col-md-6">
     <div class="card shadow-sm border-0 rounded-5 h-100">
       <div class="card-header bg-white border-0">
-        <h5 class="fw-semibold mb-0"><i class="fas fa-tint me-2 text-info"></i>Registro de Agua</h5>
+        <h5 class="fw-semibold mb-0"><i class="fas fa-tint me-2 text-info"></i>{{ _('Registro de Agua') }}</h5>
       </div>
       <div class="card-body">
         <form id="water-form" method="POST" action="{{ url_for('add_water_intake') }}">
@@ -136,13 +136,13 @@
               step="50"
               name="water-quantity"
               class="form-control form-control-lg"
-              placeholder="Cantidad (ml)"
-              aria-label="Cantidad de agua en ml"
+              placeholder="{{ _('Cantidad (ml)') }}"
+              aria-label="{{ _('Cantidad de agua en ml') }}"
               required
               value="250"
             />
-            <button class="btn btn-info" type="submit" aria-label="Añadir agua">
-              <i class="fas fa-plus me-1"></i>Añadir
+            <button class="btn btn-info" type="submit" aria-label="{{ _('Añadir agua') }}">
+              <i class="fas fa-plus me-1"></i>{{ _('Añadir') }}
             </button>
           </div>
         </form>
@@ -152,8 +152,8 @@
           <table class="table table-sm table-hover align-middle mb-0">
             <thead class="table-light sticky-top">
               <tr>
-                <th scope="col">Hora</th>
-                <th scope="col">Cantidad (ml)</th>
+                <th scope="col">{{ _('Hora') }}</th>
+                <th scope="col">{{ _('Cantidad (ml)') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -167,30 +167,27 @@
           </table>
         </div>
         {% else %}
-        <p class="text-muted fst-italic">Beber agua es clave para tu salud. ¡Hidrátate!</p>
+        <p class="text-muted fst-italic">{{ _('Beber agua es clave para tu salud. ¡Hidrátate!') }}</p>
         {% endif %}
       </div>
     </div>
   </div>
 </div>
+
 {% if tips %}
 <section class="tips-section">
-  <h3>Consejos Nutricionales del Día 🥦</h3>
+  <h3>{{ _('Consejos Nutricionales del Día 🥦') }}</h3>
   <div class="tips-container">
-    {% for tip in tips %}    
-    {% set icon = tip[:2] %}
-    {% set text = tip[2:].strip() %}
-    <div class="tip-card" data-icon="{{ icon }}">
-      <p>{{ text }}</p>
-    </div>
-  {% endfor %}
+    {% for tip in tips %}
+      {% set icon = tip[:2] %}
+      {% set text = tip[2:].strip() %}
+      <div class="tip-card" data-icon="{{ icon }}">
+        <p>{{ text }}</p>
+      </div>
+    {% endfor %}
   </div>
 </section>
 {% endif %}
-
-
-
-
 
 <style>
   .icon-circle {
@@ -201,89 +198,86 @@
   }
 
   .tips-section {
-  margin-top: 2rem;
-  padding: 0 1rem;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
-}
+    margin-top: 2rem;
+    padding: 0 1rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+  }
 
-.tips-section h3 {
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #4caf50;
-  padding-bottom: 0.5rem;
-  letter-spacing: 0.05em;
-}
+  .tips-section h3 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #4caf50;
+    padding-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+  }
 
-.tips-container {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: space-between;
-  flex-wrap: nowrap;
-}
-
-.tip-card {
-  background-color: #ffffff;
-  border-left: 6px solid #4caf50;
-  padding: 1.5rem 1.5rem 1.5rem 2rem;
-  border-radius: 14px;
-  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.15);
-  font-size: 1.1rem;
-  flex: 1 1 calc(50% - 1.5rem);
-  position: relative;
-  cursor: default;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  line-height: 1.5;
-  font-style: italic; /* Texto en cursiva */
-}
-
-/* Icono destacado */
-.tip-card::before {
-  content: attr(data-icon);
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.8rem;
-  background-color: #e8f5e9;
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Ajuste para el texto para no chocar con el icono */
-.tip-card p {
-  margin-left: 40px;
-  margin-bottom: 0;
-}
-
-/* Hover suave */
-.tip-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 24px rgba(76, 175, 80, 0.25);
-  background-color: #f4fff9;
-}
-
-/* Responsive: para pantallas pequeñas (móviles) */
-@media (max-width: 600px) {
   .tips-container {
-    flex-wrap: wrap;
-    gap: 1rem;
+    display: flex;
+    gap: 1.5rem;
+    justify-content: space-between;
+    flex-wrap: nowrap;
   }
+
   .tip-card {
-    flex: 1 1 100%; /* Una tarjeta por fila */
+    background-color: #ffffff;
+    border-left: 6px solid #4caf50;
+    padding: 1.5rem 1.5rem 1.5rem 2rem;
+    border-radius: 14px;
+    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.15);
+    font-size: 1.1rem;
+    flex: 1 1 calc(50% - 1.5rem);
+    position: relative;
+    cursor: default;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    line-height: 1.5;
+    font-style: italic; /* Texto en cursiva */
   }
-}
 
+  /* Icono destacado */
+  .tip-card::before {
+    content: attr(data-icon);
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.8rem;
+    background-color: #e8f5e9;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
+  /* Ajuste para el texto para no chocar con el icono */
+  .tip-card p {
+    margin-left: 40px;
+    margin-bottom: 0;
+  }
 
+  /* Hover suave */
+  .tip-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(76, 175, 80, 0.25);
+    background-color: #f4fff9;
+  }
+
+  /* Responsive: para pantallas pequeñas (móviles) */
+  @media (max-width: 600px) {
+    .tips-container {
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .tip-card {
+      flex: 1 1 100%; /* Una tarjeta por fila */
+    }
+  }
 </style>
 
 {% endblock %}

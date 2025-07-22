@@ -59,6 +59,33 @@
       <label class="form-check-label" for="auto_suggestions">Activar sugerencias automáticas</label>
     </div>
 
+    <!-- Nuevo selector de idioma -->
+    <div class="mb-4">
+      <label for="language" class="form-label fw-semibold">Idioma</label>
+      <select class="form-select" name="language" id="language">
+        <option value="zh" {% if prefs.language == 'zh' %}selected{% endif %}>Chino mandarín</option>
+        <option value="es" {% if prefs.language == 'es' %}selected{% endif %}>Español</option>
+        <option value="en" {% if prefs.language == 'en' %}selected{% endif %}>Inglés</option>
+        <option value="hi" {% if prefs.language == 'hi' %}selected{% endif %}>Hindi</option>
+        <option value="ar" {% if prefs.language == 'ar' %}selected{% endif %}>Árabe</option>
+        <option value="bn" {% if prefs.language == 'bn' %}selected{% endif %}>Bengalí</option>
+        <option value="pt" {% if prefs.language == 'pt' %}selected{% endif %}>Portugués</option>
+        <option value="ru" {% if prefs.language == 'ru' %}selected{% endif %}>Ruso</option>
+        <option value="ja" {% if prefs.language == 'ja' %}selected{% endif %}>Japonés</option>
+        <option value="pa" {% if prefs.language == 'pa' %}selected{% endif %}>Punyabí</option>
+        <option value="de" {% if prefs.language == 'de' %}selected{% endif %}>Alemán</option>
+        <option value="jw" {% if prefs.language == 'jw' %}selected{% endif %}>Javanés</option>
+        <option value="ko" {% if prefs.language == 'ko' %}selected{% endif %}>Coreano</option>
+        <option value="fr" {% if prefs.language == 'fr' %}selected{% endif %}>Francés</option>
+        <option value="tr" {% if prefs.language == 'tr' %}selected{% endif %}>Turco</option>
+        <option value="vi" {% if prefs.language == 'vi' %}selected{% endif %}>Vietnamita</option>
+        <option value="it" {% if prefs.language == 'it' %}selected{% endif %}>Italiano</option>
+        <option value="th" {% if prefs.language == 'th' %}selected{% endif %}>Tailandés</option>
+        <option value="gu" {% if prefs.language == 'gu' %}selected{% endif %}>Gujarati</option>
+        <option value="fa" {% if prefs.language == 'fa' %}selected{% endif %}>Persa (Farsi)</option>
+      </select>
+    </div>
+
     <button type="submit" class="btn btn-primary btn-smaller fw-semibold"><i class="fas fa-save me-2"></i>Guardar cambios</button>
   </form>
 
