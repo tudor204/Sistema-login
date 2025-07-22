@@ -4,6 +4,18 @@ from app import app
 from app.conexion import get_db_cursor
 import datetime
 from app.models.ActivityModel import get_total_activity_minutes_today,get_total_calories_burned_today
+from app.models.UsersModel import get_user_preferences
+import random
+import os
+import sys
+
+tips_path = os.path.join(os.path.dirname(__file__), '..', 'static', 'utils')
+sys.path.append(tips_path)
+from app.utils.tips import nutritional_tips  # ✅ Correcto ahora
+
+
+
+
 
 @app.route('/dashboard')
 @login_required
@@ -80,6 +92,14 @@ def dashboard():
     # Calcular porcentaje de agua
     water_percentage = min(100, (water_consumed_ml / daily_water_ml) * 100) if daily_water_ml > 0 else 0
 
+    # Obtener preferencias del usuario
+    prefs = get_user_preferences(current_user.id)
+    tips_to_show = []
+
+    if prefs.get("auto_suggestions"):
+        tips_to_show = random.sample(nutritional_tips, k=min(2, len(nutritional_tips)))  # Mostrar 2 tips aleatorios
+
+
 
     return render_template('Dashboard/dashboard.html',
         goals=goals,
@@ -95,7 +115,8 @@ def dashboard():
         activity_percentage=round(activity_percentage, 1),
         net_calories=net_calories,
         burned_calories=burned_calories,
-        calories_in=today_calories
+        calories_in=today_calories,
+        tips=tips_to_show
 
     )
 

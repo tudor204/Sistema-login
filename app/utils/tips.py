@@ -1,0 +1,22 @@
+nutritional_tips = [
+    "💧 Bebe al menos 2 litros de agua al día para mantener tu cuerpo hidratado, mejorar tu digestión y optimizar el rendimiento físico.",
+    "🥗 Asegúrate de incluir vegetales de distintos colores en tus platos. Cada color aporta distintos antioxidantes, vitaminas y minerales esenciales.",
+    "🏃‍♂️ Realiza al menos 30 minutos de actividad física moderada al día para activar el metabolismo y mejorar la salud cardiovascular.",
+    "🧂 Reduce el consumo de sal procesada. Opta por especias naturales para dar sabor sin elevar la presión arterial.",
+    "🛌 Dormir entre 7 y 9 horas por noche ayuda a regular las hormonas del apetito, recuperarte del entrenamiento y construir masa muscular.",
+    "🥚 Asegúrate de incluir una fuente de proteína completa en cada comida para favorecer la recuperación muscular y controlar el apetito.",
+    "📋 Planifica tus comidas con antelación para evitar decisiones impulsivas y mantenerte alineado con tus objetivos nutricionales.",
+    "💪 La constancia supera a la perfección. Una alimentación equilibrada sostenida en el tiempo es más poderosa que una dieta extrema.",
+    "🍌 Come un plátano después de entrenar: aporta potasio, carbohidratos y ayuda a la recuperación muscular.",
+    "🧠 Una dieta equilibrada no solo mejora tu cuerpo, también potencia tu enfoque, memoria y estado de ánimo.",
+    "🥤 Evita bebidas azucaradas. Opta por agua, infusiones o bebidas sin calorías para reducir el consumo de azúcar sin esfuerzo.",
+    "🍳 Desayuna con proteínas (como huevos o yogur griego) para comenzar el día con energía y evitar picos de hambre.",
+    "🥜 Un puñado de frutos secos al día aporta grasas saludables, proteína y fibra. Ideal como snack nutritivo.",
+    "📱 Lleva un registro de lo que comes: te ayudará a tomar conciencia de tus hábitos y ajustar según tus metas.",
+    "🥦 Cuanto menos procesado sea un alimento, mejor. Prioriza alimentos frescos, naturales y de temporada.",
+    "🍫 Si vas a darte un gusto, hazlo con conciencia. Disfrutar ocasionalmente sin culpa también forma parte de una alimentación saludable.",
+    "🥩 Aumenta tu ingesta de proteínas si estás entrenando para hipertrofia. Ayuda a construir músculo y recuperarte más rápido.",
+    "🧃 Lee las etiquetas: muchos productos 'saludables' esconden azúcares o grasas no deseadas.",
+    "🍽 Come despacio y mastica bien. Esto mejora la digestión y te permite sentirte saciado con menos comida.",
+    "📊 Ajusta tus porciones según tu nivel de actividad física. Comer más no siempre es malo si estás en fase de volumen o entrenando duro."
+]

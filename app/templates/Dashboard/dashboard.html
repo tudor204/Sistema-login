@@ -173,6 +173,23 @@
     </div>
   </div>
 </div>
+{% if tips %}
+<section class="tips-section">
+  <h3>Consejos Nutricionales del Día 🥦</h3>
+  <div class="tips-container">
+    {% for tip in tips %}    
+    {% set icon = tip[:2] %}
+    {% set text = tip[2:].strip() %}
+    <div class="tip-card" data-icon="{{ icon }}">
+      <p>{{ text }}</p>
+    </div>
+  {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+
+
 
 
 <style>
@@ -182,6 +199,91 @@
   .card:hover .icon-circle {
     background-color: var(--bs-primary) !important;
   }
+
+  .tips-section {
+  margin-top: 2rem;
+  padding: 0 1rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.tips-section h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #4caf50;
+  padding-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.tips-container {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+.tip-card {
+  background-color: #ffffff;
+  border-left: 6px solid #4caf50;
+  padding: 1.5rem 1.5rem 1.5rem 2rem;
+  border-radius: 14px;
+  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.15);
+  font-size: 1.1rem;
+  flex: 1 1 calc(50% - 1.5rem);
+  position: relative;
+  cursor: default;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  line-height: 1.5;
+  font-style: italic; /* Texto en cursiva */
+}
+
+/* Icono destacado */
+.tip-card::before {
+  content: attr(data-icon);
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.8rem;
+  background-color: #e8f5e9;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ajuste para el texto para no chocar con el icono */
+.tip-card p {
+  margin-left: 40px;
+  margin-bottom: 0;
+}
+
+/* Hover suave */
+.tip-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(76, 175, 80, 0.25);
+  background-color: #f4fff9;
+}
+
+/* Responsive: para pantallas pequeñas (móviles) */
+@media (max-width: 600px) {
+  .tips-container {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .tip-card {
+    flex: 1 1 100%; /* Una tarjeta por fila */
+  }
+}
+
+
+
 </style>
 
 {% endblock %}
