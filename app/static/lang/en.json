@@ -1,0 +1,17 @@
+{
+  "user_settings": "User Settings",
+  "interface_preferences": "Interface Preferences",
+  "dark_mode": "Enable dark mode",
+  "units": "Units",
+  "auto_suggestions": "Enable auto-suggestions",
+  "language": "Language",
+  "save_changes": "Save changes",
+  "security_account": "🔐 Security and account",
+  "change_password": "Change password",
+  "change_email": "Change email",
+  "delete_account": "Delete account",
+  "confirm_deletion": "Confirm deletion",
+  "delete_warning": "Are you sure you want to delete your account? This action cannot be undone.",
+  "cancel": "Cancel",
+  "confirm_delete": "Yes, delete account"
+}

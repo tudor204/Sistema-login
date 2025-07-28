@@ -1,0 +1,18 @@
+{
+    "user_settings": "Paramètres utilisateur",
+    "interface_preferences": "Préférences de l'interface",
+    "dark_mode": "Activer le mode sombre",
+    "units": "Unités",
+    "auto_suggestions": "Activer les suggestions automatiques",
+    "language": "Langue",
+    "save_changes": "Enregistrer les modifications",
+    "security_account": "🔐 Sécurité et compte",
+    "change_password": "Changer le mot de passe",
+    "change_email": "Changer l'email",
+    "delete_account": "Supprimer le compte",
+    "confirm_deletion": "Confirmer la suppression",
+    "delete_warning": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.",
+    "cancel": "Annuler",
+    "confirm_delete": "Oui, supprimer le compte"
+  }
+  

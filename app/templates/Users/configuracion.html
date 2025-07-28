@@ -2,33 +2,10 @@
 {% block title %}Configuración | NutriTrack Pro{% endblock %}
 
 {% block section %}
-<style>
-  /* Botones pequeños y compactos profesionales */
-  .btn-small {
-    font-size: 1rem;
-    padding: 0.5rem 0.8rem;
-    border-width: 1.5px;
-    transition: all 0.3s ease;
-    min-width: auto;
-  }
-
-  /* Animación suave al hacer hover y focus */
-  .btn-small:hover, .btn-small:focus {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    transform: scale(1.05);
-    filter: brightness(1.1);
-    text-decoration: none;
-  }
-
-  /* Para el modal, mejorar botón eliminar para que no sea tan ancho y más estético*/
-  .modal-footer .btn {
-    min-width: 120px;
-  }
-  
-</style>
+<script src="/static/lang.js"></script>
 
 <div class="container py-4">
-  <h2 class="mb-4"><i class="fas fa-cog me-2"></i>Configuración de Usuario</h2>
+  <h2 class="mb-4"><i class="fas fa-cog me-2"></i> <span data-i18n="user_settings">Configuración de Usuario</span></h2>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -39,15 +16,15 @@
   {% endwith %}
 
   <form method="POST" class="card p-4 shadow-sm border-0 mb-5">
-    <h4 class="mb-3">🌓 Preferencias de Interfaz</h4>
+    <h4 class="mb-3"><span data-i18n="interface_preferences">Preferencias de Interfaz</span></h4>
 
     <div class="form-check form-switch mb-3">
       <input class="form-check-input" type="checkbox" id="dark_mode" name="dark_mode" {% if prefs.dark_mode %}checked{% endif %}>
-      <label class="form-check-label" for="dark_mode">Activar modo oscuro</label>
+      <label class="form-check-label" for="dark_mode" data-i18n="dark_mode">Activar modo oscuro</label>
     </div>
 
     <div class="mb-3">
-      <label for="units" class="form-label fw-semibold">Unidades</label>
+      <label for="units" class="form-label fw-semibold" data-i18n="units">Unidades</label>
       <select class="form-select" name="units" id="units">
         <option value="kg/cm" {% if prefs.units == 'kg/cm' %}selected{% endif %}>kg / cm</option>
         <option value="lb/in" {% if prefs.units == 'lb/in' %}selected{% endif %}>lb / in</option>
@@ -56,81 +33,64 @@
 
     <div class="form-check form-switch mb-4">
       <input class="form-check-input" type="checkbox" id="auto_suggestions" name="auto_suggestions" {% if prefs.auto_suggestions %}checked{% endif %}>
-      <label class="form-check-label" for="auto_suggestions">Activar sugerencias automáticas</label>
+      <label class="form-check-label" for="auto_suggestions" data-i18n="auto_suggestions">Activar sugerencias automáticas</label>
     </div>
 
-    <!-- Nuevo selector de idioma -->
     <div class="mb-4">
-      <label for="language" class="form-label fw-semibold">Idioma</label>
-      <select class="form-select" name="language" id="language">
-        <option value="zh" {% if prefs.language == 'zh' %}selected{% endif %}>Chino mandarín</option>
-        <option value="es" {% if prefs.language == 'es' %}selected{% endif %}>Español</option>
-        <option value="en" {% if prefs.language == 'en' %}selected{% endif %}>Inglés</option>
-        <option value="hi" {% if prefs.language == 'hi' %}selected{% endif %}>Hindi</option>
-        <option value="ar" {% if prefs.language == 'ar' %}selected{% endif %}>Árabe</option>
-        <option value="bn" {% if prefs.language == 'bn' %}selected{% endif %}>Bengalí</option>
-        <option value="pt" {% if prefs.language == 'pt' %}selected{% endif %}>Portugués</option>
-        <option value="ru" {% if prefs.language == 'ru' %}selected{% endif %}>Ruso</option>
-        <option value="ja" {% if prefs.language == 'ja' %}selected{% endif %}>Japonés</option>
-        <option value="pa" {% if prefs.language == 'pa' %}selected{% endif %}>Punyabí</option>
-        <option value="de" {% if prefs.language == 'de' %}selected{% endif %}>Alemán</option>
-        <option value="jw" {% if prefs.language == 'jw' %}selected{% endif %}>Javanés</option>
-        <option value="ko" {% if prefs.language == 'ko' %}selected{% endif %}>Coreano</option>
-        <option value="fr" {% if prefs.language == 'fr' %}selected{% endif %}>Francés</option>
-        <option value="tr" {% if prefs.language == 'tr' %}selected{% endif %}>Turco</option>
-        <option value="vi" {% if prefs.language == 'vi' %}selected{% endif %}>Vietnamita</option>
-        <option value="it" {% if prefs.language == 'it' %}selected{% endif %}>Italiano</option>
-        <option value="th" {% if prefs.language == 'th' %}selected{% endif %}>Tailandés</option>
-        <option value="gu" {% if prefs.language == 'gu' %}selected{% endif %}>Gujarati</option>
-        <option value="fa" {% if prefs.language == 'fa' %}selected{% endif %}>Persa (Farsi)</option>
+      <label for="language" class="form-label fw-semibold" data-i18n="language">Idioma</label>
+      <select class="form-select" name="language" id="language" onchange="setLanguage(this.value)">
+        <option value="es">Español</option>
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="de">Deutsch</option>
       </select>
     </div>
 
-    <button type="submit" class="btn btn-primary btn-smaller fw-semibold"><i class="fas fa-save me-2"></i>Guardar cambios</button>
+    <button type="submit" class="btn btn-primary btn-smaller fw-semibold">
+      <i class="fas fa-save me-2"></i> <span data-i18n="save_changes">Guardar cambios</span>
+    </button>
   </form>
 
   <div class="card p-4 shadow-sm border-0">
-    <h4 class="mb-3">🔐 Seguridad y cuenta</h4>
+    <h4 class="mb-3"><span data-i18n="security_account">🔐 Seguridad y cuenta</span></h4>
     <div class="d-flex flex-column gap-2">
       <a href="{{ url_for('cambiar_password') }}" 
          class="btn btn-outline-danger btn-small fw-semibold d-inline-flex align-items-center gap-2">
-        <i class="fas fa-lock"></i> Cambiar contraseña
+        <i class="fas fa-lock"></i> <span data-i18n="change_password">Cambiar contraseña</span>
       </a>
 
       <a href="{{ url_for('cambiar_email') }}" 
          class="btn btn-outline-danger btn-small fw-semibold d-inline-flex align-items-center gap-2">
-        <i class="fas fa-envelope"></i> Cambiar email
+        <i class="fas fa-envelope"></i> <span data-i18n="change_email">Cambiar email</span>
       </a>
 
-      <!-- Botón que abre el modal -->
       <button type="button" 
               class="btn btn-danger btn-small fw-semibold d-inline-flex align-items-center gap-2" 
               data-bs-toggle="modal" data-bs-target="#confirmarEliminacionModal">
-        <i class="fas fa-trash-alt"></i> Eliminar cuenta
+        <i class="fas fa-trash-alt"></i> <span data-i18n="delete_account">Eliminar cuenta</span>
       </button>
     </div>
   </div>
 </div>
 
-<!-- Modal de confirmación -->
 <div class="modal fade" id="confirmarEliminacionModal" tabindex="-1" aria-labelledby="confirmarEliminacionLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-danger">
       <div class="modal-header bg-danger text-white">
         <h5 class="modal-title" id="confirmarEliminacionLabel">
-          <i class="fas fa-exclamation-triangle me-2"></i>Confirmar eliminación
+          <i class="fas fa-exclamation-triangle me-2"></i> <span data-i18n="confirm_deletion">Confirmar eliminación</span>
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        <p class="mb-0">
+        <p class="mb-0" data-i18n="delete_warning">
           ¿Estás seguro de que deseas eliminar tu cuenta? <strong>Esta acción no se puede deshacer</strong>.
         </p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-small" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-secondary btn-small" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
         <form method="POST" action="{{ url_for('eliminar_cuenta') }}" class="m-0">
-          <button type="submit" class="btn btn-danger btn-small">Sí, eliminar cuenta</button>
+          <button type="submit" class="btn btn-danger btn-small" data-i18n="confirm_delete">Sí, eliminar cuenta</button>
         </form>
       </div>
     </div>

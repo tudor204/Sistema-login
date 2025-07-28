@@ -1,0 +1,18 @@
+{
+    "user_settings": "Benutzereinstellungen",
+    "interface_preferences": "Schnittstellen-Einstellungen",
+    "dark_mode": "Dunkelmodus aktivieren",
+    "units": "Einheiten",
+    "auto_suggestions": "Automatische Vorschläge aktivieren",
+    "language": "Sprache",
+    "save_changes": "Änderungen speichern",
+    "security_account": "🔐 Sicherheit und Konto",
+    "change_password": "Passwort ändern",
+    "change_email": "E-Mail ändern",
+    "delete_account": "Konto löschen",
+    "confirm_deletion": "Löschen bestätigen",
+    "delete_warning": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "cancel": "Abbrechen",
+    "confirm_delete": "Ja, Konto löschen"
+  }
+  

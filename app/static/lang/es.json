@@ -1,0 +1,17 @@
+{
+  "user_settings": "Configuración de Usuario",
+  "interface_preferences": "Preferencias de Interfaz",
+  "dark_mode": "Activar modo oscuro",
+  "units": "Unidades",
+  "auto_suggestions": "Activar sugerencias automáticas",
+  "language": "Idioma",
+  "save_changes": "Guardar cambios",
+  "security_account": "🔐 Seguridad y cuenta",
+  "change_password": "Cambiar contraseña",
+  "change_email": "Cambiar email",
+  "delete_account": "Eliminar cuenta",
+  "confirm_deletion": "Confirmar eliminación",
+  "delete_warning": "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.",
+  "cancel": "Cancelar",
+  "confirm_delete": "Sí, eliminar cuenta"
+}
