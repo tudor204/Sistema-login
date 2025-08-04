@@ -58,7 +58,7 @@ def calculate_macros(weight, height, age, gender, activity_level, goal):
     elif goal == 'lose':
         tdee -= 300
 
-    # Macronutrientes (aproximado)
+    # Macronutrientes (aprox)
     proteins = weight * 2.2  # 2.2 g/kg de peso
     fats = weight * 1        # 1 g/kg de peso
     calories_from_protein = proteins * 4
