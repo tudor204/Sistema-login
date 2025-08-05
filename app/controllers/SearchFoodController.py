@@ -119,5 +119,5 @@ def save_food():
     except Exception as e:
         flash(f'Error al guardar: {str(e)}', 'danger')
 
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('search_food'))
 

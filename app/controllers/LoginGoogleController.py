@@ -4,6 +4,12 @@ from flask_login import login_user
 from app import app, google
 from app.models.LoginGoogleModel import User
 from app.conexion import get_db_cursor
+from app.models.SettingsModel import get_user_goals
+
+def user_has_settings(user_id):
+    goals = get_user_goals(user_id)
+    return goals.get('weight') and goals.get('height')
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -50,7 +56,11 @@ def login():
                     user = User(id=user_data['id'], username=user_data['username'], 
                                  email=user_data['email'])
                     login_user(user)                    
-                    return redirect(url_for('settings'))
+                    if user_has_settings(user.id):
+                        return redirect(url_for('dashboard'))
+                    else:
+                        return redirect(url_for('settings'))
+
                 
             flash('Credenciales inválidas', 'danger')
         
@@ -91,5 +101,8 @@ def authorize_google():
     # Loguear usuario
     login_user(user)
     flash(f'Has iniciado sesión como {user.username} con Google', 'success')    
-    return redirect(url_for('settings'))
+    if user_has_settings(user.id):
+        return redirect(url_for('dashboard'))
+    else:
+        return redirect(url_for('settings'))
 
