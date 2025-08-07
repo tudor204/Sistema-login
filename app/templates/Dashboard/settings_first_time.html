@@ -2,11 +2,106 @@
 {% block title %}Configuración Inicial | NutriTrack Pro{% endblock %}
 
 {% block section %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="fs-3 fw-bold text-primary">
-    <i class="fas fa-user-cog me-3"></i>Configuración Inicial del Perfil
+
+  <!-- ENCABEZADO DE LA PÁGINA -->
+<div class="text-center mb-5">
+  <h1 class="display-6 fw-bold text-primary mb-3">
+    <i class="fas fa-user-cog me-2"></i>Configuración Inicial del Perfil
   </h1>
+  <p class="text-muted fs-6">
+    Esta es la primera vez que accedes. Vamos a crear tu perfil personalizado para adaptar tu plan de alimentación y entrenamiento a tus necesidades reales.
+  </p>
 </div>
+
+<!-- BLOQUE INTRODUCTORIO PASO A PASO -->
+<div class="card shadow-sm rounded-4 p-4 mb-5 border-start border-4 border-primary bg-light">
+  <h2 class="h5 fw-bold text-primary mb-3 text-center">
+    <i class="fas fa-route me-2"></i>Completa estos 3 pasos sencillos
+  </h2>
+  <p class="mb-4 text-secondary text-center">
+    En menos de 2 minutos tendrás tu plan base generado automáticamente.
+  </p>
+
+  <!-- PASOS CON TOOLTIP INTEGRADO -->
+
+<div class="row g-4 text-center">
+  <!-- Paso 1 -->
+  <div class="col-12 col-md-4">
+    <div class="bg-white border rounded-4 p-4 h-100 shadow-sm position-relative">
+      <div class="fs-1 text-primary mb-3">
+        <i class="fas fa-user-edit"></i>
+      </div>
+      <h3 class="h6 fw-bold text-dark mb-2">
+        Paso 1: Datos personales
+        <i class="fas fa-info-circle text-muted ms-1"
+           data-bs-toggle="tooltip"
+           data-bs-placement="top"
+           title="Estos datos nos permiten calcular tu metabolismo basal (TMB) y tu gasto energético total (GET).">
+        </i>
+      </h3>
+      <p class="text-secondary small mb-0">
+        Ingresa tu edad, peso, altura, sexo y nivel de actividad física diaria.
+      </p>
+    </div>
+  </div>
+
+  <!-- Paso 2 -->
+  <div class="col-12 col-md-4">
+    <div class="bg-white border rounded-4 p-4 h-100 shadow-sm position-relative">
+      <div class="fs-1 text-success mb-3">
+        <i class="fas fa-bullseye"></i>
+      </div>
+      <h3 class="h6 fw-bold text-dark mb-2">
+        Paso 2: Define tu objetivo
+        <i class="fas fa-info-circle text-muted ms-1"
+           data-bs-toggle="tooltip"
+           data-bs-placement="top"
+           title="El objetivo afecta las calorías que te asignamos: ganancia muscular, pérdida de grasa o mantenimiento.">
+        </i>
+      </h3>
+      <p class="text-secondary small mb-0">
+        Elige si deseas ganar masa muscular, perder grasa o mantener tu estado actual.
+      </p>
+    </div>
+  </div>
+
+  <!-- Paso 3 -->
+  <div class="col-12 col-md-4">
+    <div class="bg-white border rounded-4 p-4 h-100 shadow-sm position-relative">
+      <div class="fs-1 text-warning mb-3">
+        <i class="fas fa-calculator"></i>
+      </div>
+      <h3 class="h6 fw-bold text-dark mb-2">
+        Paso 3: Calcula tu plan
+        <i class="fas fa-info-circle text-muted ms-1"
+           data-bs-toggle="tooltip"
+           data-bs-placement="top"
+           title="Calcularemos automáticamente tus calorías objetivo y tus macronutrientes diarios recomendados.">
+        </i>
+      </h3>
+      <p class="text-secondary small mb-0">
+        Calculamos tus calorías diarias, proteínas, grasas y carbohidratos.
+      </p>
+    </div>
+  </div>
+</div>
+<script>
+  // Inicializar todos los tooltips en la página
+  document.addEventListener('DOMContentLoaded', function () {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+
+  function scrollToForm() {
+    const form = document.querySelector('form');
+    if (form) {
+      form.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+</script> 
+
 
 <div class="card shadow-sm border-0 rounded-5 p-4">
   <form method="POST" novalidate>
