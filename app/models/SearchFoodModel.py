@@ -6,13 +6,6 @@ def save_food_entry(user_id, food_name, calories, proteins, fats, carbs):
     Guarda una entrada de comida para un usuario en la base de datos
     y actualiza los totales consumidos en la tabla de objetivos del usuario.
 
-    Args:
-        user_id (int): ID del usuario.
-        food_name (str): Nombre del alimento.
-        calories (float): Calorías consumidas.
-        proteins (float): Proteínas consumidas.
-        fats (float): Grasas consumidas.
-        carbs (float): Carbohidratos consumidos.
     """
     current_date = datetime.date.today().strftime('%Y-%m-%d')
     current_timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') # Obtener timestamp actual
