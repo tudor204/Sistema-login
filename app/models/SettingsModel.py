@@ -68,8 +68,49 @@ def calculate_macros(weight, height, age, gender, activity_level, goal):
 
     return round(tdee), round(proteins), round(fats), round(carbs)
 
+def calculate_daily_activity_minutes(activity_level: str, goal: str, age: int = None) -> int:
+    """
+    Devuelve minutos/día recomendados según objetivo y nivel de actividad.
+    Reglas simples y claras (puedes ajustarlas si lo deseas):
+      - Objetivo:
+          - 'lose' (pérdida de peso): base 50 min/día
+          - 'maintain' (mantenimiento): base 35 min/día
+          - 'gain' (hipertrofia): base 30 min/día (más foco en fuerza que en cardio)
+      - Nivel de actividad:
+          - 'low':     +10 min
+          - 'moderate': +0 min
+          - 'high':    -5 min
+      - Ajuste por edad (opcional, suave):
+          - si age y age >= 55: -5 min
+    Se redondea a múltiplos de 5 y se acota entre 20 y 90.
+    """
+    goal_map = {
+        'lose': 50,
+        'maintain': 35,
+        'gain': 30
+    }
+    base = goal_map.get(goal, 35)
+
+    level_adj = {
+        'low': 10,
+        'moderate': 0,
+        'high': -5
+    }.get(activity_level, 0)
+
+    age_adj = -5 if (age is not None and age >= 55) else 0
+
+    minutes = base + level_adj + age_adj
+    minutes = max(20, min(90, minutes))  # clamp
+    # Redondeo a 5
+    minutes = int(round(minutes / 5.0) * 5)
+    return minutes
+
+
 def save_user_initial_settings(user_id, weight, height, age, gender, activity_level, goal):
     calories, proteins, fats, carbs = calculate_macros(weight, height, age, gender, activity_level, goal)
+    with get_db_cursor() as cur:
+            daily_activity = calculate_daily_activity_minutes(activity_level, goal, age)
+
     with get_db_cursor() as cur:
         cur.execute("""
             INSERT OR REPLACE INTO user_goals 
@@ -78,5 +119,7 @@ def save_user_initial_settings(user_id, weight, height, age, gender, activity_le
         """, (
             user_id, weight, height, age, gender, goal,
             calories, proteins, fats, carbs,
-            2.5, 60, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            2.5, daily_activity, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         ))
+
+        

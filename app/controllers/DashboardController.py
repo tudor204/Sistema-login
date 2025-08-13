@@ -96,7 +96,11 @@ def dashboard():
     activity_minutes = get_total_activity_minutes_today(current_user.id)
     today_stats['activity'] = activity_minutes # Añadir al diccionario today_stats
     # Asegúrate de que daily_activity se obtiene de goals, con un valor por defecto si no existe
-    daily_activity = goals.get('daily_activity') or 60 # Default a 60 minutos si no está en goals
+    daily_activity = goals.get('daily_activity')
+    if not daily_activity or daily_activity <= 0:
+    # Fallback ultra defensivo (debería ser raro)
+        daily_activity = 35
+
     activity_percentage = min(100, (activity_minutes / daily_activity) * 100) if daily_activity > 0 else 0
     logging.debug(f"Actividad: {activity_minutes} min, Meta: {daily_activity} min, Porcentaje: {activity_percentage}%")
 

@@ -7,6 +7,7 @@
     <i class="fas fa-search me-2"></i>Encuentra tus alimentos
   </h1>
 </div>
+
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-white border-0">
       <h5 class="mb-0">
@@ -35,6 +36,23 @@
     </div>
 </div>
 
+{# 🔹 NUEVO: Mostrar alimentos registrados hoy #}
+{% if today_foods %}
+<div class="alert alert-success shadow-sm">
+    <strong>Alimentos registrados hoy:</strong>
+    <ul class="mb-0">
+        {% for food in today_foods %}
+            <li>{{ food.nombre }} - {{ food.calorias }} kcal</li>
+        {% endfor %}
+    </ul>
+</div>
+{% else %}
+<div class="alert alert-info shadow-sm">
+    No has registrado alimentos hoy.
+</div>
+{% endif %}
+{# 🔹 FIN NUEVO #}
+
 {% if query %}
     <h5 class="mb-4">Resultados para: <strong>{{ query }}</strong></h5>
 {% endif %}
@@ -55,7 +73,6 @@
                 Grasas: <strong>{{ alimento.grasas }} g</strong><br>
                 Carbohidratos: <strong>{{ alimento.carbohidratos }} g</strong>
               </p>
-              {# ¡IMPORTANTE! Cambiado para pasar solo el 'code' #}
               <a href="{{ url_for('food_detail', code=alimento.code) }}" class="btn btn-outline-primary btn-sm mt-auto">Ver más</a>
             </div>
           </div>

@@ -2,15 +2,25 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app import app
 import requests
-from app.models.SearchFoodModel import save_food_entry, calculate_macros_for_quantity 
+from app.models.SearchFoodModel import save_food_entry, calculate_macros_for_quantity, get_food_entries_for_date
+from datetime import date
 
 
 @app.route('/search_food')
 @login_required
 def search_food():
     query = request.args.get('query', '').strip()
+
+    # 🔹 Obtener alimentos registrados hoy
+    today_foods = get_food_entries_for_date(current_user.id, date.today())
+
     if not query:        
-        return render_template("SearchFood/FoodResults.html", alimentos=[], query="")
+        return render_template(
+            "SearchFood/FoodResults.html",
+            alimentos=[],
+            query="",
+            today_foods=today_foods
+        )
 
     try:
         response = requests.get(
@@ -21,7 +31,7 @@ def search_food():
                 'page_size': 10
             }
         )
-        response.raise_for_status() 
+        response.raise_for_status()
         data = response.json()
         productos = data.get("products", [])
 
@@ -39,7 +49,12 @@ def search_food():
                     'code': product_code
                 })
 
-        return render_template('SearchFood/FoodResults.html', alimentos=alimentos, query=query)
+        return render_template(
+            'SearchFood/FoodResults.html',
+            alimentos=alimentos,
+            query=query,
+            today_foods=today_foods
+        )
 
     except requests.exceptions.RequestException as e:
         flash(f"Error de conexión al buscar alimentos: {str(e)}", "danger")
@@ -47,6 +62,7 @@ def search_food():
     except Exception as e:
         flash(f"Error inesperado al buscar alimentos: {str(e)}", "danger")
         return redirect(url_for('dashboard'))
+
 
 
 @app.route('/food_detail')

@@ -50,3 +50,40 @@ def calculate_macros_for_quantity(original_calories, original_proteins, original
 
     return round(cal, 2), round(prot, 2), round(fat, 2), round(carb, 2)
 
+def get_food_entries_for_date(user_id, target_date=None):
+    """
+    Obtiene todas las entradas de comida de un usuario en una fecha específica.
+    :param user_id: ID del usuario
+    :param target_date: fecha (YYYY-MM-DD). Si es None, se usa hoy.
+    :return: lista de diccionarios con los campos de la comida
+    """
+    if target_date is None:
+        target_date = datetime.date.today().strftime('%Y-%m-%d')
+
+    try:
+        with get_db_cursor() as cursor:
+            cursor.execute('''
+                SELECT food_name, calories, proteins, fats, carbs, created_at
+                FROM food_entries
+                WHERE user_id = ? AND date = ?
+                ORDER BY created_at DESC
+            ''', (user_id, target_date))
+            
+            rows = cursor.fetchall()
+            # Convertir a lista de diccionarios
+            alimentos = [{
+                "nombre": row[0],
+                "calorias": row[1],
+                "proteinas": row[2],
+                "grasas": row[3],
+                "carbohidratos": row[4],
+                "hora": row[5]
+            } for row in rows]
+
+            return alimentos
+
+    except Exception as e:
+        print(f"Error en get_food_entries_for_date: {e}")
+        return []
+
+

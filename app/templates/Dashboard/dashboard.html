@@ -111,11 +111,28 @@
           <i class="fas fa-walking text-secondary fs-3"></i>
         </div>
         {# Usamos activity_minutes directamente del controlador #}
-        <h2 class="fw-bold display-4 mb-1">{{ activity_minutes|default(0) }} <small class="text-muted fs-6">{{ _('min') }}</small></h2>
-        <div class="progress rounded-pill mb-3" style="height: 12px;">
-          <div class="progress-bar bg-secondary" style="width: {{ [activity_percentage|default(0), 100]|min }}%" role="progressbar" aria-valuenow="{{ activity_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+        <h2 class="fw-bold display-4 mb-1">
+          {{ activity_minutes|default(0) }}/{{ goals.daily_activity|default(0) }}
+          <small class="text-muted fs-6">{{ _('min') }}</small>
+        </h2>
+        
+        <div class="progress rounded-pill mb-2" style="height: 12px;">
+          <div class="progress-bar bg-secondary"
+               style="width: {{ [activity_percentage|default(0), 100]|min }}%"
+               role="progressbar"
+               aria-valuenow="{{ activity_percentage }}"
+               aria-valuemin="0"
+               aria-valuemax="100">
+          </div>
         </div>
-        <small class="text-muted">{{ _('Meta diaria:') }} {{ goals.daily_activity|default(0) }} {{ _('min') }}</small>
+        
+        <small class="text-muted">
+          {{ _('Progreso de hoy:') }} {{ activity_percentage|default(0) }}%
+          {% if activity_minutes >= goals.daily_activity %}
+            <span class="badge bg-success ms-2">✅ {{ _('¡Objetivo alcanzado!') }}</span>
+          {% endif %}
+        </small>
+        
       </div>
     </div>
   </div>
