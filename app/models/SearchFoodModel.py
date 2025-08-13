@@ -51,12 +51,7 @@ def calculate_macros_for_quantity(original_calories, original_proteins, original
     return round(cal, 2), round(prot, 2), round(fat, 2), round(carb, 2)
 
 def get_food_entries_for_date(user_id, target_date=None):
-    """
-    Obtiene todas las entradas de comida de un usuario en una fecha específica.
-    :param user_id: ID del usuario
-    :param target_date: fecha (YYYY-MM-DD). Si es None, se usa hoy.
-    :return: lista de diccionarios con los campos de la comida
-    """
+    
     if target_date is None:
         target_date = datetime.date.today().strftime('%Y-%m-%d')
 
