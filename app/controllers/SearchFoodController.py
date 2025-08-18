@@ -28,7 +28,7 @@ def search_food():
             params={
                 'search_terms': query,
                 'json': 1,
-                'page_size': 10
+                'page_size': 100
             }
         )
         response.raise_for_status()
