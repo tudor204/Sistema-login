@@ -2,7 +2,7 @@
 {% block title %}Mis Comidas | NutriTrack Pro{% endblock %}
 
 {% block section %}
-<div class="page-header">
+<div class="page-header mb-4">
   <h1 class="page-title">
     <i class="fas fa-utensils me-2"></i>Mis Comidas
   </h1>
@@ -11,27 +11,33 @@
 <div class="card border-0 shadow-sm">
   <div class="card-body">
     {% if comidas %}
+    <!-- Resumen de calorías y proteínas -->
+    <div class="mb-3 fw-semibold fs-6">
+        Total calorías: {{ total_calorias }} kcal | Total proteínas: {{ total_proteinas }} g
+    </div>
+
+    <!-- Tabla de comidas -->
     <div class="table-responsive">
-      <table class="table table-hover">
-        <thead>
+      <table class="table table-hover table-striped align-middle">
+        <thead class="table-light">
           <tr>
             <th>Alimento</th>
-            <th>Calorías</th>
-            <th>Proteínas</th>
+            <th class="text-center">Calorías</th>
+            <th class="text-center">Proteínas</th>
             <th>Fecha</th>
-            <th>Acciones</th>
+            <th class="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {% for comida in comidas %}
           <tr>
             <td>{{ comida['food_name'] }}</td>
-            <td>{{ comida['calories'] }} kcal</td>
-            <td>{{ comida['proteins'] }}g</td>
-            <td>{{ comida['date'] }}</td>
-            <td>
-              <form method="POST" action="{{ url_for('eliminar_comida', comida_id=comida['id']) }}">
-                <button type="submit" class="btn btn-sm btn-danger">
+            <td class="text-center">{{ comida['calories'] }} kcal</td>
+            <td class="text-center">{{ comida['proteins'] }} g</td>
+            <td>{{ comida['date']}}</td>
+            <td class="text-center">
+              <form method="POST" action="{{ url_for('eliminar_comida_route', comida_id=comida['id']) }}" onsubmit="return confirm('¿Seguro que quieres eliminar esta comida?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar comida">
                   <i class="fas fa-trash"></i>
                 </button>
               </form>
@@ -42,10 +48,14 @@
       </table>
     </div>
     {% else %}
-    <div class="text-center py-5">
-      <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
-      <h5 class="fw-medium">No hay comidas registradas</h5>
-      <p class="text-muted">Busca y añade alimentos para verlos aquí.</p>
+    <!-- Vista vacía con CTA -->
+    <div class="text-center py-5 text-secondary">
+      <i class="fas fa-utensils fa-4x mb-3"></i>
+      <h4 class="fw-semibold">No hay comidas registradas</h4>
+      <p>Agrega tus alimentos y empieza a llevar tu control nutricional.</p>
+      <a href="{{ url_for('agregar_comida_route') }}" class="btn btn-primary mt-2">
+          <i class="fas fa-plus me-1"></i> Añadir comida
+      </a>
     </div>
     {% endif %}
   </div>

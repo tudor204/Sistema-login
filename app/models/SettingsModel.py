@@ -85,9 +85,9 @@ def calculate_daily_activity_minutes(activity_level: str, goal: str, age: int = 
     Se redondea a múltiplos de 5 y se acota entre 20 y 90.
     """
     goal_map = {
-        'lose': 50,
-        'maintain': 35,
-        'gain': 30
+        'lose': 85,
+        'maintain': 60,
+        'gain': 50
     }
     base = goal_map.get(goal, 35)
 
