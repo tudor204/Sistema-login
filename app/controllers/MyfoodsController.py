@@ -9,7 +9,7 @@ from datetime import datetime
 def mis_comidas():
     comidas_raw = get_comidas_by_user(current_user.id)
 
-    # Convertir sqlite3.Row a diccionario y parsear fechas
+    # Convertir sqlite3.Row a diccionario y parsear fechas y datos
     comidas = []
     for comida in comidas_raw:
         comida_dict = dict(comida)
