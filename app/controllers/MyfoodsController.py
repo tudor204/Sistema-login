@@ -18,7 +18,7 @@ def mis_comidas():
         comidas.append(comida_dict)
         
 
-    # Calcular totales
+    # Calcular calorías totales
     total_calorias = sum(comida['calories'] for comida in comidas)
     total_proteinas = sum(comida['proteins'] for comida in comidas)
 
