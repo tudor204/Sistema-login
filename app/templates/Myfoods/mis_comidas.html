@@ -11,9 +11,21 @@
 <div class="card border-0 shadow-sm">
   <div class="card-body">
     {% if comidas %}
-    <!-- Resumen de calorías y proteínas -->
-    <div class="mb-3 fw-semibold fs-6">
-        Total calorías: {{ total_calorias }} kcal | Total proteínas: {{ total_proteinas }} g
+    <!-- Resumen visual -->
+    <div class="d-flex gap-3 mb-4 flex-wrap">
+      <div class="card p-3 shadow-sm" style="min-width:180px;">
+        <small class="text-muted">Calorías</small>
+        <div class="h4 mb-0">{{ total_calorias }} <small class="text-muted">kcal</small></div>
+      </div>
+      <div class="card p-3 shadow-sm" style="min-width:180px;">
+        <small class="text-muted">Proteínas</small>
+        <div class="h4 mb-0">{{ total_proteinas }} <small class="text-muted">g</small></div>
+      </div>
+      <div class="ms-auto">
+        <a href="{{ url_for('agregar_comida_route') }}" class="btn btn-primary">
+          <i class="fas fa-plus me-1"></i> Añadir comida
+        </a>
+      </div>
     </div>
 
     <!-- Tabla de comidas -->
@@ -34,13 +46,19 @@
             <td>{{ comida['food_name'] }}</td>
             <td class="text-center">{{ comida['calories'] }} kcal</td>
             <td class="text-center">{{ comida['proteins'] }} g</td>
-            <td>{{ comida['date']}}</td>
+            <td>{{ comida['date'] }}</td>
             <td class="text-center">
-              <form method="POST" action="{{ url_for('eliminar_comida_route', comida_id=comida['id']) }}" onsubmit="return confirm('¿Seguro que quieres eliminar esta comida?');">
-                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar comida">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </form>
+              <div class="btn-group" role="group">
+                <a href="{{ url_for('editar_comida_route', comida_id=comida['id']) }}" class="btn btn-sm btn-outline-primary" title="Editar comida">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <form method="POST" action="{{ url_for('eliminar_comida_route', comida_id=comida['id']) }}" onsubmit="return confirm('¿Seguro que quieres eliminar esta comida?');" style="display:inline;">
+                  
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar comida">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </div>
             </td>
           </tr>
           {% endfor %}
