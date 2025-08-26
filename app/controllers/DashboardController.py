@@ -24,42 +24,32 @@ def dashboard():
     logging.debug(f"Accediendo a la ruta /dashboard para el usuario: {current_user.id}")
 
     with get_db_cursor() as cur:
-        # Obtener metas del usuario de la base de datos
+        # Obtener metas del usuario
         cur.execute("SELECT * FROM user_goals WHERE user_id = ?", (current_user.id,))
-        goals_raw = cur.fetchone() # Esto devuelve un objeto Row o None
+        goals_raw = cur.fetchone()
 
         logging.debug(f"Datos de 'user_goals' recuperados de la DB (raw): {goals_raw}")
 
-        # Si no hay ninguna fila para el usuario, significa que no ha completado la configuración inicial
         if not goals_raw:
             flash('Por favor, completa tu configuración inicial para empezar.', 'warning')
-            # Redirige a la ruta 'settings' que maneja si es la primera vez o no
             return redirect(url_for('settings'))
 
-        # Convierte el objeto Row de la base de datos a un diccionario para un acceso más fácil
         goals = dict(goals_raw)
         logging.debug(f"Datos de 'user_goals' después de la conversión a dict: {goals}")
 
-        # --- VALIDACIÓN CRÍTICA ---
-        # Validar si faltan campos esenciales de la configuración inicial O las macros calculadas.
-        # Es crucial que estos campos existan y tengan valores válidos (no None o 0) después de la configuración inicial.
         required_fields_for_dashboard = [
             'weight', 'height', 'age', 'gender', 'goal',
             'daily_calories', 'daily_proteins', 'daily_fats', 'daily_carbs',
             'daily_water', 'daily_activity'
         ]
 
-        # Comprueba si alguno de los campos requeridos está ausente o tiene un valor "falso" (None, 0, cadena vacía)
-        # Nota: 'water_consumed' puede ser 0 inicialmente, por eso no está en esta lista de validación estricta.
         if not all(goals.get(k) is not None and goals.get(k) != 0 for k in required_fields_for_dashboard):
             missing_or_zero_fields = [k for k in required_fields_for_dashboard if goals.get(k) is None or goals.get(k) == 0]
-            logging.warning(f"Faltan campos de configuración inicial o macros calculadas para el usuario {current_user.id}. "
-                            f"Campos faltantes/cero: {missing_or_zero_fields}. Redirigiendo a settings.")
+            logging.warning(f"Faltan campos para el usuario {current_user.id}. Campos: {missing_or_zero_fields}")
             flash('Parece que tu configuración inicial o tus metas no están completas. Por favor, revísalas.', 'warning')
-            # Redirige a la ruta 'settings' para que el usuario pueda completar o corregir su perfil
             return redirect(url_for('settings'))
 
-        # Obtener estadísticas de alimentos de hoy
+        # Estadísticas de hoy
         cur.execute("""
             SELECT SUM(calories) as calories,
                    SUM(proteins) as proteins,
@@ -69,12 +59,15 @@ def dashboard():
             WHERE user_id = ? AND date(date) = date('now')
         """, (current_user.id,))
         today_stats = dict(cur.fetchone() or {'calories': 0, 'proteins': 0, 'fats': 0, 'carbs': 0})
-        logging.debug(f"Estadísticas de alimentos de hoy: {today_stats}")
 
-        today_calories = today_stats.get('calories') or 0
-        today_proteins = today_stats.get('proteins') or 0
-        today_fats = today_stats.get('fats') or 0
-        today_carbs = today_stats.get('carbs') or 0
+        # 🔥 Normalizar None → 0 para evitar errores en la plantilla
+        today_stats = {k: (v if v is not None else 0) for k, v in today_stats.items()}
+        logging.debug(f"Estadísticas de alimentos de hoy (normalizadas): {today_stats}")
+
+        today_calories = today_stats.get('calories', 0)
+        today_proteins = today_stats.get('proteins', 0)
+        today_fats = today_stats.get('fats', 0)
+        today_carbs = today_stats.get('carbs', 0)
 
         # Calorías quemadas y netas
         burned_calories = get_total_calories_burned_today(current_user.id)
@@ -94,39 +87,28 @@ def dashboard():
 
     # Actividad física
     activity_minutes = get_total_activity_minutes_today(current_user.id)
-    today_stats['activity'] = activity_minutes # Añadir al diccionario today_stats
-    # Asegúrate de que daily_activity se obtiene de goals, con un valor por defecto si no existe
-    daily_activity = goals.get('daily_activity')
-    if not daily_activity or daily_activity <= 0:
-    # Fallback ultra defensivo (debería ser raro)
-        daily_activity = 35
-
+    today_stats['activity'] = activity_minutes
+    daily_activity = goals.get('daily_activity') or 35
     activity_percentage = min(100, (activity_minutes / daily_activity) * 100) if daily_activity > 0 else 0
-    logging.debug(f"Actividad: {activity_minutes} min, Meta: {daily_activity} min, Porcentaje: {activity_percentage}%")
 
-    # Metas nutricionales (estos valores deberían venir de la configuración inicial guardada)
+    # Metas nutricionales
     daily_calories = goals.get('daily_calories') or 2000
     daily_proteins = goals.get('daily_proteins') or 50
     daily_fats = goals.get('daily_fats') or 60
     daily_carbs = goals.get('daily_carbs') or 250
-    daily_water_ml = (goals.get('daily_water') or 2) * 1000 # Convertir litros a ml
+    daily_water_ml = (goals.get('daily_water') or 2) * 1000
     water_consumed_ml = goals.get('water_consumed') or 0
-    logging.debug(f"Metas diarias: Calorías={daily_calories}, Proteínas={daily_proteins}, Grasas={daily_fats}, Carbs={daily_carbs}, Agua={daily_water_ml}ml")
-    logging.debug(f"Agua consumida: {water_consumed_ml}ml")
 
-    # Porcentajes (añadir comprobación de división por cero para evitar errores)
+    # Porcentajes
     calories_percentage = min(100, (today_calories / daily_calories) * 100) if daily_calories > 0 else 0
     proteins_percentage = min(100, (today_proteins / daily_proteins) * 100) if daily_proteins > 0 else 0
     fats_percentage = min(100, (today_fats / daily_fats) * 100) if daily_fats > 0 else 0
     carbs_percentage = min(100, (today_carbs / daily_carbs) * 100) if daily_carbs > 0 else 0
     water_percentage = min(100, (water_consumed_ml / daily_water_ml) * 100) if daily_water_ml > 0 else 0
-    logging.debug(f"Porcentajes: Calorías={calories_percentage}%, Proteínas={proteins_percentage}%, Grasas={fats_percentage}%, Carbs={carbs_percentage}%, Agua={water_percentage}%")
 
-    # Tips y preferencias
+    # Tips
     prefs = get_user_preferences(current_user.id)
-    # Asegúrate de que prefs no sea None antes de intentar .get()
     tips_to_show = random.sample(nutritional_tips, k=min(2, len(nutritional_tips))) if prefs and prefs.get("auto_suggestions") else []
-    logging.debug(f"Tips a mostrar: {tips_to_show}")
 
     return render_template('Dashboard/dashboard.html',
         goals=goals,
@@ -145,6 +127,7 @@ def dashboard():
         calories_in=today_calories,
         tips=tips_to_show
     )
+
 
 @app.route('/add_water_intake', methods=['POST'])
 @login_required
