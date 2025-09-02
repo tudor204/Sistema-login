@@ -153,3 +153,52 @@ def agregar_comida_route():
 
     return render_template('Myfoods/AgregarComida.html')
 
+
+# Añadir esta ruta a tu archivo de rutas existente
+
+@app.route('/duplicar-comida/<int:comida_id>', methods=['POST'])
+@login_required
+def duplicar_comida_route(comida_id):
+    """Duplica una comida existente y la añade con la fecha de hoy."""
+    try:
+        # Obtener los datos de la comida original
+        comida = get_comida_by_id(current_user.id, comida_id)
+        
+        if not comida:
+            flash('Comida no encontrada.', 'warning')
+            return redirect(url_for('mis_comidas'))
+        
+        # Obtener la fecha del formulario o usar hoy por defecto
+        from datetime import date
+        fecha_nueva = request.form.get('date', date.today().strftime('%Y-%m-%d'))
+        
+        # Validar la fecha
+        try:
+            datetime.strptime(fecha_nueva, '%Y-%m-%d')
+        except ValueError:
+            flash('Fecha inválida.', 'danger')
+            return redirect(url_for('mis_comidas'))
+        
+        # Crear la nueva entrada duplicando los datos
+        from app.models.MyFoodModel import create_comida
+        nueva_comida_id = create_comida(
+            user_id=current_user.id,
+            food_name=comida['food_name'],
+            calories=float(comida['calories']),
+            proteins=float(comida['proteins']),
+            date_iso=fecha_nueva
+        )
+        
+        if nueva_comida_id:
+            # Formatear la fecha para mostrar
+            fecha_display = datetime.strptime(fecha_nueva, '%Y-%m-%d').strftime('%d/%m/%Y')
+            flash(f'"{comida["food_name"]}" añadido para el {fecha_display}.', 'success')
+        else:
+            flash('No se pudo duplicar la comida.', 'danger')
+            
+    except Exception as e:
+        current_app.logger.exception("Error al duplicar comida: %s", e)
+        flash('Error al duplicar la comida.', 'danger')
+    
+    return redirect(url_for('mis_comidas'))
+

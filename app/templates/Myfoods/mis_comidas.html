@@ -49,11 +49,25 @@
             <td>{{ comida['date'] }}</td>
             <td class="text-center">
               <div class="btn-group" role="group">
-                <a href="{{ url_for('editar_comida_route', comida_id=comida['id']) }}" class="btn btn-sm btn-outline-primary" title="Editar comida">
+                <!-- Botón para duplicar/añadir de nuevo -->
+                <button type="button" class="btn btn-sm btn-outline-success" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#duplicarComidaModal" 
+                        data-comida-id="{{ comida['id'] }}"
+                        data-comida-name="{{ comida['food_name'] }}"
+                        title="Añadir de nuevo">
+                  <i class="fas fa-plus"></i>
+                </button>
+                
+                <!-- Botón editar -->
+                <a href="{{ url_for('editar_comida_route', comida_id=comida['id']) }}" 
+                   class="btn btn-sm btn-outline-primary" title="Editar comida">
                   <i class="fas fa-edit"></i>
                 </a>
-                <form method="POST" action="{{ url_for('eliminar_comida_route', comida_id=comida['id']) }}" onsubmit="return confirm('¿Seguro que quieres eliminar esta comida?');" style="display:inline;">
-                  
+                
+                <!-- Botón eliminar -->
+                <form method="POST" action="{{ url_for('eliminar_comida_route', comida_id=comida['id']) }}" 
+                      onsubmit="return confirm('¿Seguro que quieres eliminar esta comida?');" style="display:inline;">
                   <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar comida">
                     <i class="fas fa-trash"></i>
                   </button>
@@ -71,11 +85,63 @@
       <i class="fas fa-utensils fa-4x mb-3"></i>
       <h4 class="fw-semibold">No hay comidas registradas</h4>
       <p>Agrega tus alimentos y empieza a llevar tu control nutricional.</p>
-      <a href="{{ url_for('agregar_comida_route') }}" class="btn btn-primary mt-2">
+      <div class="d-flex justify-content-center">
+        <a href="{{ url_for('agregar_comida_route') }}" class="btn btn-primary mt-2">
           <i class="fas fa-plus me-1"></i> Añadir comida
-      </a>
+        </a>
+      </div>
     </div>
     {% endif %}
   </div>
 </div>
+
+<!-- Modal para seleccionar fecha al duplicar comida -->
+<div class="modal fade" id="duplicarComidaModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Añadir comida</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="duplicarComidaForm" method="POST">
+        <div class="modal-body">
+          <p>¿En qué fecha quieres añadir <strong id="comidaName"></strong>?</p>
+          <div class="mb-3">
+            <label for="fechaDuplicar" class="form-label">Fecha</label>
+            <input type="date" class="form-control" id="fechaDuplicar" name="date" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i> Añadir
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Script para manejar el modal de duplicar comida
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('duplicarComidaModal');
+  const form = document.getElementById('duplicarComidaForm');
+  const nameSpan = document.getElementById('comidaName');
+  const dateInput = document.getElementById('fechaDuplicar');
+  
+  // Establecer fecha de hoy por defecto
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.value = today;
+  
+  modal.addEventListener('show.bs.modal', function(event) {
+    const button = event.relatedTarget;
+    const comidaId = button.getAttribute('data-comida-id');
+    const comidaName = button.getAttribute('data-comida-name');
+    
+    nameSpan.textContent = comidaName;
+    form.action = `/duplicar-comida/${comidaId}`;
+  });
+});
+</script>
 {% endblock %}
