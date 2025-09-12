@@ -100,3 +100,48 @@ def get_total_calories_burned_today(user_id, date=None):
     finally:
         conn.close()
 
+
+def update_activity(activity_id, user_id, activity_name, duration_minutes, calories_burned):
+    """
+    Actualiza una actividad existente.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            UPDATE daily_activities
+            SET activity_name = ?, duration_minutes = ?, calories_burned = ?
+            WHERE id = ? AND user_id = ?
+            """,
+            (activity_name, duration_minutes, calories_burned, activity_id, user_id)
+        )
+        conn.commit()
+        return cursor.rowcount > 0  # True si se actualizó
+    except sqlite3.Error as e:
+        print(f"Error al actualizar actividad: {e}")
+        return False
+    finally:
+        conn.close()
+
+
+def delete_activity(activity_id, user_id):
+    """
+    Elimina una actividad de la base de datos.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "DELETE FROM daily_activities WHERE id = ? AND user_id = ?",
+            (activity_id, user_id)
+        )
+        conn.commit()
+        return cursor.rowcount > 0  # True si se eliminó
+    except sqlite3.Error as e:
+        print(f"Error al eliminar actividad: {e}")
+        return False
+    finally:
+        conn.close()
+
+

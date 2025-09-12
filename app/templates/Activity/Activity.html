@@ -10,7 +10,6 @@
 </div>
 
 <div class="container mt-5">
-    {# EL FORMULARIO PRINCIPAL ENVOLVERÁ TODO AHORA #}
     <form id="activityRegisterForm">
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white border-0">
@@ -53,19 +52,14 @@
                             <option value="Danza">Danza</option>
                             <option value="Surf">Surf</option>
                             <option value="Deportes acuáticos">Deportes acuáticos (general)</option>
-
                         </select>
                     </div>
                 </div>
             </div>
         </div>
 
-        {# This div will be populated dynamically by JavaScript #}
-        <div id="sport_details_container" style="display: none;">
-            {# Dynamic content for sport details will be injected here #}
-        </div>
+        <div id="sport_details_container" style="display: none;"></div>
 
-        {# HIDDEN INPUTS to capture data for form submission #}
         <input type="hidden" id="calories_burned_hidden" name="calories_burned" value="0">
         <input type="hidden" id="duration_hidden" name="duration_minutes" value="0">
 
@@ -81,10 +75,8 @@
         </div>
     </form>
 
-    {# Nuevo contenedor para mensajes flash gestionados por JS #}
     <div id="flash-messages-container" class="mt-3"></div>
 
-    {# Section for displaying registered activities today #}
     <div class="card border-0 shadow-sm mt-4">
         <div class="card-header bg-white border-0">
             <h5 class="mb-0">
@@ -92,19 +84,21 @@
             </h5>
         </div>
         <div class="card-body" id="dailyActivitiesList">
-            {# Este contenido será gestionado por JS, pero Jinja puede poner un valor inicial #}
             {% if activities %}
                 <ul class="list-group list-group-flush">
                     {% for activity in activities %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>{{ activity.activity_name }}</strong> ({{ activity.duration_minutes }} min)
-                                <br>
-                                {# Asegúrate de que activity.timestamp es un string y extrae la hora #}
-                                <small class="text-muted">{{ activity.date_recorded }} - {{ activity.timestamp[11:16] if activity.timestamp else '' }}</small>
-                            </div>
+                    <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ activity.id }}">
+                        <div>
+                            <strong>{{ activity.activity_name }}</strong> ({{ activity.duration_minutes }} min)
+                            <br>
+                            <small class="text-muted">{{ activity.date_recorded }} - {{ activity.timestamp[11:16] if activity.timestamp else '' }}</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-primary rounded-pill">{{ activity.calories_burned|round(0) }} Kcal</span>
-                        </li>
+                            <button class="btn btn-sm btn-warning edit-activity-btn">✏️</button>
+                            <button class="btn btn-sm btn-danger delete-activity-btn">🗑️</button>
+                        </div>
+                    </li>
                     {% endfor %}
                 </ul>
             {% else %}
@@ -112,294 +106,220 @@
             {% endif %}
         </div>
     </div>
-
 </div>
 {% endblock %}
 
 {% block scripts %}
-{{ super() }} {# Importante para mantener scripts de base.html #}
+{{ super() }}
 <script>
-    // Data for sports with image URLs
-    const SPORTS_DATA = {
-        "Fútbol": {"descripcion": "Deporte de equipo con balón, muy popular en España.", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/futbol.jpg') }}"},
-        "Baloncesto": {"descripcion": "Deporte de equipo con canastas, requiere agilidad y precisión.", "calorias_por_hora": 450, "imagen": "{{ url_for('static', filename='images/sports/baloncesto.jpg') }}"},
-        "Tenis": {"descripcion": "Deporte de raqueta individual o dobles, ideal para la coordinación.", "calorias_por_hora": 480, "imagen": "{{ url_for('static', filename='images/sports/tenis.jpg') }}"},
-        "Natación": {"descripcion": "Ejercicio completo en el agua, bajo impacto y mejora la resistencia.", "calorias_por_hora": 500, "imagen": "{{ url_for('static', filename='images/sports/natacion.jpg') }}"},
-        "Running / Correr": {"descripcion": "Actividad cardiovascular de alta intensidad, mejora la salud del corazón.", "calorias_por_hora": 600, "imagen": "{{ url_for('static', filename='images/sports/running.jpg') }}"},
-        "Ciclismo": {"descripcion": "Deporte sobre dos ruedas, excelente para las piernas y la resistencia.", "calorias_por_hora": 550, "imagen": "{{ url_for('static', filename='images/sports/ciclismo.jpg') }}"},
-        "Pádel": {"descripcion": "Deporte de raqueta similar al tenis, muy social y divertido.", "calorias_por_hora": 420, "imagen": "{{ url_for('static', filename='images/sports/padel.jpg') }}"},
-        "Senderismo / Caminar": {"descripcion": "Actividad al aire libre para todos los niveles, ideal para relajarse y mantenerse activo.", "calorias_por_hora": 300, "imagen": "{{ url_for('static', filename='images/sports/senderismo.jpg') }}"},
-        "Fitness / Gimnasio": {"descripcion": "Variedad de ejercicios en un centro, para fuerza, resistencia o flexibilidad.", "calorias_por_hora": 380, "imagen": "{{ url_for('static', filename='images/sports/fitness.jpg') }}"},
-        "Yoga": {"descripcion": "Práctica física y mental que combina posturas, respiración y meditación.", "calorias_por_hora": 200, "imagen": "{{ url_for('static', filename='images/sports/yoga.jpg') }}"},
-        "Pilates": {"descripcion": "Método de ejercicio que busca fuerza, flexibilidad, equilibrio y control corporal.", "calorias_por_hora": 250, "imagen": "{{ url_for('static', filename='images/sports/pilates.jpg') }}"},
-        "Voleibol": {"descripcion": "Deporte de equipo con red, requiere saltos y coordinación.", "calorias_por_hora": 350, "imagen": "{{ url_for('static', filename='images/sports/voleibol.jpg') }}"},
-        "Balonmano": {"descripcion": "Deporte de equipo con balón y portería, dinámico y estratégico.", "calorias_por_hora": 470, "imagen": "{{ url_for('static', filename='images/sports/balonmano.jpg') }}"},
-        "Atletismo": {"descripcion": "Conjunto de disciplinas de pista y campo, desde correr a lanzar.", "calorias_por_hora": 500, "imagen": "{{ url_for('static', filename='images/sports/atletismo.jpg') }}"},
-        "Boxeo": {"descripcion": "Deporte de combate, mejora la fuerza, resistencia y disciplina.", "calorias_por_hora": 650, "imagen": "{{ url_for('static', filename='images/sports/boxeo.jpg') }}"},
-        "Artes Marciales": {"descripcion": "Disciplinas de lucha y defensa personal, fomentan el respeto y la concentración.", "calorias_por_hora": 550, "imagen": "{{ url_for('static', filename='images/sports/artes_marciales.jpg') }}"},
-        "Golf": {"descripcion": "Deporte de precisión con palos y pelota, ideal para el aire libre.", "calorias_por_hora": 280, "imagen": "{{ url_for('static', filename='images/sports/golf.jpg') }}"},
-        "Crossfit": {"descripcion": "Entrenamiento de fuerza y acondicionamiento de alta intensidad.", "calorias_por_hora": 700, "imagen": "{{ url_for('static', filename='images/sports/crossfit.jpg') }}"},
-        "Escalada": {"descripcion": "Ascenso de paredes o rocas, requiere fuerza, técnica y equilibrio.", "calorias_por_hora": 600, "imagen": "{{ url_for('static', filename='images/sports/escalada.jpg') }}"},
-        "Bádminton": {"descripcion": "Deporte de raqueta con volante, rápido y ágil.", "calorias_por_hora": 350, "imagen": "{{ url_for('static', filename='images/sports/badminton.jpg') }}"},
-        "Danza": {"descripcion": "Expresión artística y ejercicio físico, mejora la coordinación y el ritmo.", "calorias_por_hora": 300, "imagen": "{{ url_for('static', filename='images/sports/danza.jpg') }}"},
-        "Surf": {"descripcion": "Deporte acuático sobre olas, combina equilibrio y fuerza.", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/surf.jpg') }}"},
-        "Deportes acuáticos": {"descripcion": "Actividades variadas en el agua (kayak, paddle surf, etc.).", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/deportes_acuaticos.jpg') }}"},
+const SPORTS_DATA = {
+    "Fútbol": {"descripcion": "Deporte de equipo con balón, muy popular en España.", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/futbol.jpg') }}"},
+    "Baloncesto": {"descripcion": "Deporte de equipo con canastas, requiere agilidad y precisión.", "calorias_por_hora": 450, "imagen": "{{ url_for('static', filename='images/sports/baloncesto.jpg') }}"},
+    "Tenis": {"descripcion": "Deporte de raqueta individual o dobles, ideal para la coordinación.", "calorias_por_hora": 480, "imagen": "{{ url_for('static', filename='images/sports/tenis.jpg') }}"},
+    "Natación": {"descripcion": "Ejercicio completo en el agua, bajo impacto y mejora la resistencia.", "calorias_por_hora": 500, "imagen": "{{ url_for('static', filename='images/sports/natacion.jpg') }}"},
+    "Running / Correr": {"descripcion": "Actividad cardiovascular de alta intensidad, mejora la salud del corazón.", "calorias_por_hora": 600, "imagen": "{{ url_for('static', filename='images/sports/running.jpg') }}"},
+    "Ciclismo": {"descripcion": "Deporte sobre dos ruedas, excelente para las piernas y la resistencia.", "calorias_por_hora": 550, "imagen": "{{ url_for('static', filename='images/sports/ciclismo.jpg') }}"},
+    "Pádel": {"descripcion": "Deporte de raqueta similar al tenis, muy social y divertido.", "calorias_por_hora": 420, "imagen": "{{ url_for('static', filename='images/sports/padel.jpg') }}"},
+    "Senderismo / Caminar": {"descripcion": "Actividad al aire libre para todos los niveles, ideal para relajarse y mantenerse activo.", "calorias_por_hora": 300, "imagen": "{{ url_for('static', filename='images/sports/senderismo.jpg') }}"},
+    "Fitness / Gimnasio": {"descripcion": "Variedad de ejercicios en un centro, para fuerza, resistencia o flexibilidad.", "calorias_por_hora": 380, "imagen": "{{ url_for('static', filename='images/sports/fitness.jpg') }}"},
+    "Yoga": {"descripcion": "Práctica física y mental que combina posturas, respiración y meditación.", "calorias_por_hora": 200, "imagen": "{{ url_for('static', filename='images/sports/yoga.jpg') }}"},
+    "Pilates": {"descripcion": "Método de ejercicio que busca fuerza, flexibilidad, equilibrio y control corporal.", "calorias_por_hora": 250, "imagen": "{{ url_for('static', filename='images/sports/pilates.jpg') }}"},
+    "Voleibol": {"descripcion": "Deporte de equipo con red, requiere saltos y coordinación.", "calorias_por_hora": 350, "imagen": "{{ url_for('static', filename='images/sports/voleibol.jpg') }}"},
+    "Balonmano": {"descripcion": "Deporte de equipo con balón y portería, dinámico y estratégico.", "calorias_por_hora": 470, "imagen": "{{ url_for('static', filename='images/sports/balonmano.jpg') }}"},
+    "Atletismo": {"descripcion": "Conjunto de disciplinas de pista y campo, desde correr a lanzar.", "calorias_por_hora": 500, "imagen": "{{ url_for('static', filename='images/sports/atletismo.jpg') }}"},
+    "Boxeo": {"descripcion": "Deporte de combate, mejora la fuerza, resistencia y disciplina.", "calorias_por_hora": 650, "imagen": "{{ url_for('static', filename='images/sports/boxeo.jpg') }}"},
+    "Artes Marciales": {"descripcion": "Disciplinas de lucha y defensa personal, fomentan el respeto y la concentración.", "calorias_por_hora": 550, "imagen": "{{ url_for('static', filename='images/sports/artes_marciales.jpg') }}"},
+    "Golf": {"descripcion": "Deporte de precisión con palos y pelota, ideal para el aire libre.", "calorias_por_hora": 280, "imagen": "{{ url_for('static', filename='images/sports/golf.jpg') }}"},
+    "Crossfit": {"descripcion": "Entrenamiento de fuerza y acondicionamiento de alta intensidad.", "calorias_por_hora": 700, "imagen": "{{ url_for('static', filename='images/sports/crossfit.jpg') }}"},
+    "Escalada": {"descripcion": "Ascenso de paredes o rocas, requiere fuerza, técnica y equilibrio.", "calorias_por_hora": 600, "imagen": "{{ url_for('static', filename='images/sports/escalada.jpg') }}"},
+    "Bádminton": {"descripcion": "Deporte de raqueta con volante, rápido y ágil.", "calorias_por_hora": 350, "imagen": "{{ url_for('static', filename='images/sports/badminton.jpg') }}"},
+    "Danza": {"descripcion": "Expresión artística y ejercicio físico, mejora la coordinación y el ritmo.", "calorias_por_hora": 300, "imagen": "{{ url_for('static', filename='images/sports/danza.jpg') }}"},
+    "Surf": {"descripcion": "Deporte acuático sobre olas, combina equilibrio y fuerza.", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/surf.jpg') }}"},
+    "Deportes acuáticos": {"descripcion": "Actividades variadas en el agua (kayak, paddle surf, etc.).", "calorias_por_hora": 400, "imagen": "{{ url_for('static', filename='images/sports/deportes_acuaticos.jpg') }}"},
+};
 
-    };
+document.addEventListener('DOMContentLoaded', function() {
+    const activitySelect = document.getElementById('activity_select');
+    const sportDetailsContainer = document.getElementById('sport_details_container');
+    const activityRegisterForm = document.getElementById('activityRegisterForm');
+    const caloriesBurnedHidden = document.getElementById('calories_burned_hidden');
+    const durationHidden = document.getElementById('duration_hidden');
+    const registerActivityBtn = document.getElementById('registerActivityBtn');
+    const dailyActivitiesList = document.getElementById('dailyActivitiesList');
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const activitySelect = document.getElementById('activity_select');
-        const sportDetailsContainer = document.getElementById('sport_details_container');
-        const activityRegisterForm = document.getElementById('activityRegisterForm');
-        const caloriesBurnedHidden = document.getElementById('calories_burned_hidden');
-        const durationHidden = document.getElementById('duration_hidden');
-        const registerActivityBtn = document.getElementById('registerActivityBtn');
-        const dailyActivitiesList = document.getElementById('dailyActivitiesList');
-        const loadingActivitySpinner = document.getElementById('loadingActivitySpinner');
+    function showSweetAlertMessage(message, category){
+        Swal.fire({
+            toast:true,
+            position:'top-end',
+            icon: category === 'success' ? 'success':'error',
+            title: message,
+            showConfirmButton:false,
+            timer:4000,
+            timerProgressBar:true
+        });
+    }
 
-        // Función para mostrar mensajes flash de SweetAlert (mejor que Bootstrap alerts para UX)
-        function showSweetAlertMessage(message, category) {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: category === 'success' ? 'success' : 'error',
-                title: message,
-                showConfirmButton: false,
-                timer: 4000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            });
-        }
-
-        // Función para renderizar la lista de actividades
-        function renderActivities(activities) {
-            dailyActivitiesList.innerHTML = ''; // Limpia el contenido actual
-
-            if (activities && activities.length > 0) {
-                const ul = document.createElement('ul');
-                ul.className = 'list-group list-group-flush';
-
-                activities.forEach(activity => {
-                    const li = document.createElement('li');
-                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
-
-                    const timePart = activity.timestamp ? activity.timestamp.substring(11, 16) : '';
-
-                    li.innerHTML = `
-                        <div>
-                            <strong>${activity.activity_name}</strong> (${activity.duration_minutes} min)
-                            <br>
-                            <small class="text-muted">${activity.date_recorded} - ${timePart}</small>
-                        </div>
+    function renderActivities(activities){
+        dailyActivitiesList.innerHTML = '';
+        if(activities.length>0){
+            const ul = document.createElement('ul');
+            ul.className='list-group list-group-flush';
+            activities.forEach(activity=>{
+                const li=document.createElement('li');
+                li.className='list-group-item d-flex justify-content-between align-items-center';
+                li.dataset.id=activity.id;
+                const timePart = activity.timestamp ? activity.timestamp.substring(11,16) : '';
+                li.innerHTML=`
+                    <div>
+                        <strong>${activity.activity_name}</strong> (${activity.duration_minutes} min)
+                        <br>
+                        <small class="text-muted">${activity.date_recorded} - ${timePart}</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-primary rounded-pill">${parseFloat(activity.calories_burned).toFixed(0)} Kcal</span>
-                    `;
-                    ul.appendChild(li);
-                });
-                dailyActivitiesList.appendChild(ul);
-            } else {
-                dailyActivitiesList.innerHTML = '<p class="text-muted" id="noActivitiesMessage">No hay actividades registradas para hoy.</p>';
-            }
-        }
-
-        // --- Función para mostrar y actualizar detalles del deporte (parte existente) ---
-        function showSportDetails(sportName) {
-            const sportInfo = SPORTS_DATA[sportName];
-
-            if (sportInfo) {
-                sportDetailsContainer.style.display = 'block';
-
-                sportDetailsContainer.innerHTML = `
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h2 class="mb-0">${sportName}</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="row align-items-center mb-3">
-                                <div class="col-md-4">
-                                    <img src="${sportInfo.imagen}" class="img-fluid rounded shadow-sm" alt="Imagen de ${sportName}">
-                                </div>
-                                <div class="col-md-8">
-                                    <p class="lead">${sportInfo.descripcion}</p>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="mb-3">
-                                <h5 class="mb-2">Calorías quemadas estimadas:</h5>
-                                <p class="fs-4">
-                                    <span id="calories_display_current">${sportInfo.calorias_por_hora}</span> Kcal por hora
-                                </p>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="duration_input" class="form-label fw-medium">Cambiar tiempo de ejercicio (minutos):</label>
-                                <input
-                                    type="number"
-                                    class="form-control"
-                                    id="duration_input"
-                                    value="60"
-                                    min="1"
-                                    step="1"
-                                    placeholder="Minutos"
-                                >
-                                <small class="form-text text-muted">Introduce el número de minutos para recalcular las calorías.</small>
-                            </div>
-
-                            <div class="alert alert-info" role="alert">
-                                Calorías para <span id="current_duration">60</span> minutos: <strong id="calculated_calories">${sportInfo.calorias_por_hora}</strong> Kcal
-                            </div>
-                        </div>
+                        <button class="btn btn-sm btn-warning edit-activity-btn">✏️</button>
+                        <button class="btn btn-sm btn-danger delete-activity-btn">🗑️</button>
                     </div>
                 `;
-
-                // Configura el recalculador de calorías después de que el HTML ha sido inyectado
-                const durationInput = document.getElementById('duration_input');
-                const calculatedCaloriesDisplay = document.getElementById('calculated_calories');
-                const currentDurationDisplay = document.getElementById('current_duration');
-
-                function recalculateCalories() {
-                    let durationMinutes = parseInt(durationInput.value);
-                    if (isNaN(durationMinutes) || durationMinutes < 1) {
-                        durationMinutes = 0;
-                    }
-
-                    const calories = (sportInfo.calorias_por_hora / 60) * durationMinutes;
-                    calculatedCaloriesDisplay.textContent = calories.toFixed(0); // Muestra sin decimales
-                    currentDurationDisplay.textContent = durationMinutes;
-
-                    // Actualiza los campos ocultos del formulario principal
-                    caloriesBurnedHidden.value = calories.toFixed(2); // Guarda con 2 decimales para precisión
-                    durationHidden.value = durationMinutes;
-
-                    // Habilita el botón de registro si los datos son válidos
-                    if (durationMinutes > 0 && calories > 0) {
-                        registerActivityBtn.disabled = false;
-                    } else {
-                        registerActivityBtn.disabled = true;
-                    }
-                }
-
-                durationInput.addEventListener('input', recalculateCalories);
-                recalculateCalories(); // Realiza el cálculo inicial para asegurar valores correctos al cargar el deporte
-
-            } else {
-                sportDetailsContainer.style.display = 'none'; // Oculta si no se encuentra el deporte o se selecciona la opción por defecto
-                registerActivityBtn.disabled = true; // Deshabilita el botón si no hay deporte seleccionado
-                caloriesBurnedHidden.value = "0";
-                durationHidden.value = "0";
-            }
+                ul.appendChild(li);
+            });
+            dailyActivitiesList.appendChild(ul);
+        } else {
+            dailyActivitiesList.innerHTML = '<p class="text-muted" id="noActivitiesMessage">No hay actividades registradas para hoy.</p>';
         }
+    }
 
-        // Event listener para el cambio en el desplegable
-        activitySelect.addEventListener('change', function() {
-            const selectedSport = this.value;
-            if (selectedSport) {
-                showSportDetails(selectedSport);
-            } else {
-                sportDetailsContainer.style.display = 'none'; // Oculta si se elige la opción "Selecciona una actividad..."
-                registerActivityBtn.disabled = true; // Deshabilita el botón
-                caloriesBurnedHidden.value = "0";
-                durationHidden.value = "0";
+    function showSportDetails(sportName){
+        const sportInfo = SPORTS_DATA[sportName];
+        if(!sportInfo){ sportDetailsContainer.style.display='none'; registerActivityBtn.disabled=true; caloriesBurnedHidden.value="0"; durationHidden.value="0"; return; }
+
+        sportDetailsContainer.style.display='block';
+        sportDetailsContainer.innerHTML=`
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">${sportName}</h2>
+                </div>
+                <div class="card-body">
+                    <p>${sportInfo.descripcion}</p>
+                    <label for="duration_input" class="form-label">Duración (minutos):</label>
+                    <input type="number" id="duration_input" class="form-control" value="60" min="1">
+                    <div class="mt-2">Calorías estimadas: <strong id="calculated_calories">${sportInfo.calorias_por_hora}</strong> Kcal</div>
+                </div>
+            </div>
+        `;
+        const durationInput=document.getElementById('duration_input');
+        const calculatedCaloriesDisplay=document.getElementById('calculated_calories');
+
+        function recalc(){
+            let dur=parseInt(durationInput.value);
+            if(isNaN(dur)||dur<1) dur=0;
+            const cal=(sportInfo.calorias_por_hora/60)*dur;
+            calculatedCaloriesDisplay.textContent=cal.toFixed(0);
+            caloriesBurnedHidden.value=cal.toFixed(2);
+            durationHidden.value=dur;
+            registerActivityBtn.disabled=!(dur>0 && cal>0);
+        }
+        durationInput.addEventListener('input', recalc);
+        recalc();
+    }
+
+    activitySelect.addEventListener('change', ()=>showSportDetails(activitySelect.value));
+
+    activityRegisterForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        const activityName = activitySelect.value;
+        const duration = parseFloat(durationHidden.value);
+        const calories = parseFloat(caloriesBurnedHidden.value);
+        if(!activityName || duration<=0 || calories<=0){ showSweetAlertMessage('Selecciona actividad y duración válida','error'); return; }
+        Swal.fire({
+            title:`Registrar ${activityName}?`,
+            text:`Duración: ${duration} min, Calorías: ${calories.toFixed(0)}`,
+            icon:'question',
+            showCancelButton:true,
+            confirmButtonText:'Sí, registrar'
+        }).then(result=>{
+            if(result.isConfirmed){
+                const formData = new FormData(activityRegisterForm);
+                fetch('{{ url_for("register_activity") }}',{method:'POST', body:formData})
+                .then(r=>r.json())
+                .then(data=>{
+                    if(data.success){
+                        showSweetAlertMessage(data.message,'success');
+                        renderActivities(data.activities);
+                        activityRegisterForm.reset();
+                        sportDetailsContainer.style.display='none';
+                        registerActivityBtn.disabled=true;
+                    } else showSweetAlertMessage(data.message,'error');
+                });
             }
         });
+    });
 
-        // --- Lógica para enviar el formulario a Flask (cuando se hace clic en "Registrar Actividad Diaria") ---
-        activityRegisterForm.addEventListener('submit', function(event) {
-            event.preventDefault(); // Evita el envío por defecto del formulario (recarga de página)
+    document.addEventListener('click', function(e){
+        const li=e.target.closest('li');
+        if(!li) return;
+        const id=li.dataset.id;
+        if(e.target.classList.contains('edit-activity-btn')){
+            const currentName = li.querySelector('strong').textContent;
+            const currentDuration = parseInt(li.querySelector('strong').nextSibling.textContent.match(/\((\d+) min\)/)[1]);
+            const currentCalories = parseFloat(li.querySelector('.badge').textContent.replace(' Kcal',''));
+            const sportInfo = SPORTS_DATA[currentName] || {calorias_por_hora: currentCalories*60/currentDuration};
 
-            // Validar los datos antes de mostrar la confirmación
-            const activityName = activitySelect.value;
-            const duration = parseFloat(durationHidden.value);
-            const calories = parseFloat(caloriesBurnedHidden.value);
-
-            if (!activityName || activityName === "" || isNaN(duration) || duration <= 0 || isNaN(calories) || calories <= 0) {
-                showSweetAlertMessage('Por favor, selecciona una actividad válida e introduce una duración mayor a 0 para calcular las calorías.', 'error');
-                return; // Detiene el proceso si los datos no son válidos
-            }
-
-            // Mostrar SweetAlert para confirmación
             Swal.fire({
-                title: '¿Registrar esta actividad?',
-                text: `Vas a registrar ${activityName} durante ${duration} minutos, quemando ${calories.toFixed(0)} Kcal. ¿Estás seguro?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, registrar',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // El usuario confirmó, ahora mostramos el spinner y deshabilitamos el botón
-                    loadingActivitySpinner.style.display = 'flex'; // Muestra el spinner
-                    registerActivityBtn.disabled = true; // Deshabilita el botón
-                    registerActivityBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registrando...';
-
-                    // --- NUEVO: Simular el tiempo de carga mínimo con setTimeout ---
-                    const startTime = Date.now(); // Marca el tiempo de inicio
-                    const MIN_LOADING_TIME = 3000; // 3 segundos
-
-                    const formData = new FormData(activityRegisterForm);
-
-                    fetch('{{ url_for("register_activity") }}', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(errorData => {
-                                throw new Error(errorData.message || 'Error desconocido del servidor.');
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Calcular el tiempo transcurrido y cuánto falta para los 3 segundos
-                        const elapsedTime = Date.now() - startTime;
-                        const remainingTime = MIN_LOADING_TIME - elapsedTime;
-
-                        // Asegurarse de que el spinner se muestre al menos MIN_LOADING_TIME
-                        return new Promise(resolve => {
-                            setTimeout(() => {
-                                if (data.success) {
-                                    showSweetAlertMessage(data.message, 'success');
-                                    renderActivities(data.activities);
-                                    activityRegisterForm.reset();
-                                    sportDetailsContainer.style.display = 'none';
-                                    activitySelect.value = "";
-                                    registerActivityBtn.disabled = true;
-                                } else {
-                                    showSweetAlertMessage(data.message, 'error');
-                                }
-                                resolve(); // Resuelve la promesa interna para que .finally() se ejecute
-                            }, Math.max(0, remainingTime)); // Espera el tiempo restante o 0 si ya pasó
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error al registrar la actividad:', error);
-                        showSweetAlertMessage(error.message || 'Hubo un problema de conexión o un error inesperado al registrar la actividad.', 'error');
-                    })
-                    .finally(() => {
-                        // Oculta el spinner y restaura el botón al finalizar (éxito o error)
-                        // Esto se ejecutará después del setTimeout, garantizando la duración mínima
-                        loadingActivitySpinner.style.display = 'none';
-                        registerActivityBtn.innerHTML = '<i class="fas fa-save me-2"></i>Registrar Actividad Diaria';
-                        // El botón ya estará disabled si el formulario se resetea o si la validación falla
-                        // Si quieres re-habilitarlo en caso de error para que puedan reintentar:
-                        // if (!data || !data.success) { // Re-habilita solo si hubo un error o no hubo éxito
-                        //     registerActivityBtn.disabled = false;
-                        // }
+                title:'Editar actividad',
+                html:`
+                    <input id="swal_name" class="swal2-input" placeholder="Nombre" value="${currentName}">
+                    <input id="swal_duration" type="number" id="swal_duration" class="swal2-input" placeholder="Duración" value="${currentDuration}">
+                    <div id="swal_calories_container">Calorías: <strong id="swal_calories">${currentCalories}</strong></div>
+                `,
+                didOpen: ()=>{
+                    const durInput=document.getElementById('swal_duration');
+                    const calDisplay=document.getElementById('swal_calories');
+                    durInput.addEventListener('input', ()=>{
+                        let dur=parseInt(durInput.value); if(isNaN(dur)||dur<1) dur=0;
+                        const cal=(sportInfo.calorias_por_hora/60)*dur;
+                        calDisplay.textContent=cal.toFixed(0);
+                    });
+                },
+                preConfirm: ()=>{
+                    return {
+                        activity_name: document.getElementById('swal_name').value,
+                        duration_minutes: document.getElementById('swal_duration').value,
+                        calories_burned: document.getElementById('swal_calories').textContent
+                    }
+                }
+            }).then(res=>{
+                if(res.isConfirmed){
+                    fetch(`/activity/edit/${id}`,{
+                        method:'POST',
+                        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                        body: new URLSearchParams(res.value)
+                    }).then(r=>r.json()).then(data=>{
+                        if(data.success){ showSweetAlertMessage(data.message,'success'); renderActivities(data.activities); }
+                        else showSweetAlertMessage(data.message,'error');
                     });
                 }
             });
-        });
-
-        // Inicializa el estado del botón al cargar la página
-        registerActivityBtn.disabled = true;
-
-        // Renderiza las actividades existentes al cargar la página
-        renderActivities({{ activities | tojson }});
+        } else if(e.target.classList.contains('delete-activity-btn')){
+            Swal.fire({
+                title:'¿Eliminar actividad?',
+                icon:'warning',
+                showCancelButton:true,
+                confirmButtonText:'Sí, eliminar'
+            }).then(result=>{
+                if(result.isConfirmed){
+                    fetch(`/activity/delete/${id}`,{method:'POST'}).then(r=>r.json()).then(data=>{
+                        if(data.success){ showSweetAlertMessage(data.message,'success'); renderActivities(data.activities); }
+                        else showSweetAlertMessage(data.message,'error');
+                    });
+                }
+            });
+        }
     });
+
+    renderActivities({{ activities | tojson }});
+    registerActivityBtn.disabled=true;
+});
 </script>
 {% endblock %}
+

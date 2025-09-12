@@ -4,7 +4,9 @@ from app import app
 from app.models.ActivityModel import (
     save_daily_activity,
     get_daily_activities_for_user,
-    get_total_activity_minutes_today
+    get_total_activity_minutes_today,
+    update_activity,
+    delete_activity
 )
 from datetime import datetime
 
@@ -12,8 +14,6 @@ from datetime import datetime
 def row_to_dict(row):
     if row is None:
         return None
-    # Convierte sqlite3.Row a un diccionario.
-    # Esto asegura que el filtro tojson de Jinja y jsonify puedan manejarlo.
     return dict(row)
 
 @app.route('/activity')
@@ -21,17 +21,9 @@ def row_to_dict(row):
 def activity():
     user_id = current_user.id
     today_date = datetime.now().strftime('%Y-%m-%d')
-    
-    # Obtener actividades como objetos Row
     activities_row_objects = get_daily_activities_for_user(user_id, date=today_date)
-    
-    # Convertir cada objeto Row a un diccionario
     activities_for_template = [row_to_dict(activity) for activity in activities_row_objects]
-
-    # Obtener total de minutos realizados hoy
     total_minutes_today = get_total_activity_minutes_today(user_id, date=today_date)
-
-    # Pasar las actividades y el total de minutos a la plantilla
     return render_template('Activity/Activity.html', activities=activities_for_template, total_minutes_today=total_minutes_today)
 
 @app.route('/register_activity', methods=['POST'])
@@ -48,26 +40,19 @@ def register_activity():
 
     if save_daily_activity(user_id, activity_name, duration_minutes, calories_burned):
         today_date = datetime.now().strftime('%Y-%m-%d')
-        
-        # Obtener actividades actualizadas como objetos Row
         updated_activities_row_objects = get_daily_activities_for_user(user_id, date=today_date)
-
-        # Convertir cada objeto Row a un diccionario para la respuesta JSON
         formatted_activities = []
         for activity in updated_activities_row_objects:
-            # Asegurarse de que el timestamp sea un string, si no lo es ya
             timestamp_str = activity['timestamp'] if isinstance(activity['timestamp'], str) else str(activity['timestamp'])
             formatted_activities.append({
+                'id': activity['id'],
                 'activity_name': activity['activity_name'],
                 'duration_minutes': activity['duration_minutes'],
                 'calories_burned': round(activity['calories_burned'], 2),
                 'date_recorded': activity['date_recorded'],
                 'timestamp': timestamp_str
             })
-
-        # Obtener minutos totales actualizados
         total_minutes_today = get_total_activity_minutes_today(user_id, date=today_date)
-
         return jsonify({
             "success": True,
             "message": f"Actividad '{activity_name}' ({duration_minutes} min) registrada exitosamente!",
@@ -76,3 +61,58 @@ def register_activity():
         })
     else:
         return jsonify({"success": False, "message": "Hubo un error al registrar la actividad. Inténtalo de nuevo."}), 500
+
+# 📌 Editar actividad
+@app.route('/activity/edit/<int:activity_id>', methods=['POST'])
+@login_required
+def edit_activity(activity_id):
+    activity_name = request.form.get('activity_name')
+    duration_minutes = request.form.get('duration_minutes', type=int)
+    calories_burned = request.form.get('calories_burned', type=float)
+    user_id = current_user.id
+
+    if update_activity(activity_id, user_id, activity_name, duration_minutes, calories_burned):
+        # Obtener todas las actividades actualizadas
+        today_date = datetime.now().strftime('%Y-%m-%d')
+        activities_row_objects = get_daily_activities_for_user(user_id, date=today_date)
+        formatted_activities = []
+        for activity in activities_row_objects:
+            timestamp_str = activity['timestamp'] if isinstance(activity['timestamp'], str) else str(activity['timestamp'])
+            formatted_activities.append({
+                'id': activity['id'],
+                'activity_name': activity['activity_name'],
+                'duration_minutes': activity['duration_minutes'],
+                'calories_burned': round(activity['calories_burned'], 2),
+                'date_recorded': activity['date_recorded'],
+                'timestamp': timestamp_str
+            })
+        total_minutes_today = get_total_activity_minutes_today(user_id, date=today_date)
+        return jsonify({"success": True, "message": "Actividad actualizada correctamente.", "activities": formatted_activities, "total_minutes_today": total_minutes_today})
+    else:
+        return jsonify({"success": False, "message": "Error al actualizar la actividad."}), 400
+
+# 📌 Eliminar actividad
+@app.route('/activity/delete/<int:activity_id>', methods=['POST'])
+@login_required
+def delete_activity_route(activity_id):
+    user_id = current_user.id
+
+    if delete_activity(activity_id, user_id):
+        # Obtener todas las actividades actualizadas
+        today_date = datetime.now().strftime('%Y-%m-%d')
+        activities_row_objects = get_daily_activities_for_user(user_id, date=today_date)
+        formatted_activities = []
+        for activity in activities_row_objects:
+            timestamp_str = activity['timestamp'] if isinstance(activity['timestamp'], str) else str(activity['timestamp'])
+            formatted_activities.append({
+                'id': activity['id'],
+                'activity_name': activity['activity_name'],
+                'duration_minutes': activity['duration_minutes'],
+                'calories_burned': round(activity['calories_burned'], 2),
+                'date_recorded': activity['date_recorded'],
+                'timestamp': timestamp_str
+            })
+        total_minutes_today = get_total_activity_minutes_today(user_id, date=today_date)
+        return jsonify({"success": True, "message": "Actividad eliminada correctamente.", "activities": formatted_activities, "total_minutes_today": total_minutes_today})
+    else:
+        return jsonify({"success": False, "message": "Error al eliminar la actividad."}), 400
