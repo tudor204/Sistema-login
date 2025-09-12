@@ -30,6 +30,14 @@ body {
   z-index: 1100;
 }
 
+.modal-dialog {
+  margin: 0 auto;              /* centra horizontal */
+  display: flex;
+  align-items: center;         /* centra vertical */
+  min-height: 100vh;           /* ocupa toda la pantalla */
+}
+
+
 /* --- Layout Principal: Sidebar y Contenido --- */
 /* El .container-fluid que envuelve el .row */
 .container-fluid.flex-grow-1 {
