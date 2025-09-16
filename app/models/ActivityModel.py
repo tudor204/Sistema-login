@@ -46,7 +46,7 @@ def get_daily_activities_for_user(user_id, date=None):
         query += " AND date_recorded = ?"
         params.append(date)
         
-    query += " ORDER BY timestamp DESC" # Ordena por la más reciente primero
+    query += " ORDER BY timestamp DESC" # Ordena por la mas reciente primero
     
     cursor.execute(query, params)
     activities = cursor.fetchall() # Obtiene todos los resultados
