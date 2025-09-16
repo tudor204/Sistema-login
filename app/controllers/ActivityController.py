@@ -72,7 +72,7 @@ def edit_activity(activity_id):
     user_id = current_user.id
 
     if update_activity(activity_id, user_id, activity_name, duration_minutes, calories_burned):
-        # Obtener todas las actividades actualizadas
+        # Obtener todas las actividades actualizadas al momento
         today_date = datetime.now().strftime('%Y-%m-%d')
         activities_row_objects = get_daily_activities_for_user(user_id, date=today_date)
         formatted_activities = []
@@ -91,14 +91,14 @@ def edit_activity(activity_id):
     else:
         return jsonify({"success": False, "message": "Error al actualizar la actividad."}), 400
 
-# 📌 Eliminar actividad
+#  Eliminar actividad
 @app.route('/activity/delete/<int:activity_id>', methods=['POST'])
 @login_required
 def delete_activity_route(activity_id):
     user_id = current_user.id
 
     if delete_activity(activity_id, user_id):
-        # Obtener todas las actividades actualizadas
+        # Obtener todas las actividades actualizadas al momento
         today_date = datetime.now().strftime('%Y-%m-%d')
         activities_row_objects = get_daily_activities_for_user(user_id, date=today_date)
         formatted_activities = []

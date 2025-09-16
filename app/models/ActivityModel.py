@@ -34,7 +34,7 @@ def save_daily_activity(user_id, activity_name, duration_minutes, calories_burne
 
 def get_daily_activities_for_user(user_id, date=None):
     """
-    Recupera las actividades diarias de un usuario, opcionalmente filtrando por fecha.
+    Recupera las actividades diarias de un usuario en concreto, opcionalmente filtrando por fecha.
     """
     conn = get_db_connection()
     cursor = conn.cursor()
