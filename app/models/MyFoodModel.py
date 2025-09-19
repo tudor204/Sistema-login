@@ -1,5 +1,4 @@
-# app/models/MyFoodModel.py
-from datetime import datetime
+from datetime import datetime, date
 from app.conexion import get_db_cursor
 
 def _format_date_display(date_str):
@@ -26,7 +25,7 @@ def serialize_comida(row):
     }
 
 def get_comidas_by_user(user_id, limit=None, offset=None):
-    """Obtener comidas del usuario, ya serializadas. Soporta limit/offset opcional."""
+    """Obtener todas las comidas del usuario (histórico completo)."""
     with get_db_cursor() as cur:
         sql = """
             SELECT id, food_name, calories, proteins, fats, carbs, date
@@ -41,9 +40,26 @@ def get_comidas_by_user(user_id, limit=None, offset=None):
             if offset is not None:
                 sql += " OFFSET ?"
                 params.append(offset)
+
         cur.execute(sql, tuple(params))
         rows = cur.fetchall()
         return [serialize_comida(r) for r in rows]
+
+def get_totales_diarios(user_id):
+    """Devuelve los totales (calorías y proteínas) solo para el día actual."""
+    with get_db_cursor() as cur:
+        cur.execute("""
+            SELECT 
+                COALESCE(SUM(calories), 0) AS total_calorias,
+                COALESCE(SUM(proteins), 0) AS total_proteinas
+            FROM food_entries
+            WHERE user_id = ? AND date = ?
+        """, (user_id, date.today().isoformat()))
+        row = cur.fetchone()
+        return {
+            "total_calorias": int(row["total_calorias"] or 0),
+            "total_proteinas": int(row["total_proteinas"] or 0)
+        }
 
 def get_comida_by_id(user_id, comida_id):
     """Devuelve una comida serializada o None."""

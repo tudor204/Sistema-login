@@ -49,31 +49,40 @@
             <td>{{ comida['date'] }}</td>
             <td class="text-center">
               <div class="btn-group" role="group">
-                <!-- Botón para duplicar/añadir de nuevo -->
-                <button type="button" class="btn btn-sm btn-outline-success" 
+                <!-- Duplicar -->
+                <button type="button" class="btn btn-sm btn-primary" 
                         data-bs-toggle="modal" 
                         data-bs-target="#duplicarComidaModal" 
                         data-comida-id="{{ comida['id'] }}"
-                        data-comida-name="{{ comida['food_name'] }}"
-                        title="Añadir de nuevo">
+                        data-comida-name="{{ comida['food_name'] }}">
                   <i class="fas fa-plus"></i>
                 </button>
-                
-                <!-- Botón editar -->
-                <a href="{{ url_for('editar_comida_route', comida_id=comida['id']) }}" 
-                   class="btn btn-sm btn-outline-primary" title="Editar comida">
+            
+                <!-- Editar -->
+                <button type="button" class="btn btn-sm btn-warning"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editarComidaModal"
+                        data-comida-id="{{ comida['id'] }}"
+                        data-comida-name="{{ comida['food_name'] }}"
+                        data-comida-calories="{{ comida['calories'] }}"
+                        data-comida-carbs="{{ comida['carbs'] }}"
+                        data-comida-fats="{{ comida['fats'] }}"
+                        data-comida-proteins="{{ comida['proteins'] }}"
+                        data-comida-date="{{ comida['date_iso'] }}">
                   <i class="fas fa-edit"></i>
-                </a>
-                
-                <!-- Botón eliminar -->
-                <form method="POST" action="{{ url_for('eliminar_comida_route', comida_id=comida['id']) }}" 
-                      onsubmit="return confirm('¿Seguro que quieres eliminar esta comida?');" style="display:inline;">
-                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar comida">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </form>
+                </button>
+            
+                <!-- Eliminar -->
+                <button type="button" class="btn btn-sm btn-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#eliminarComidaModal"
+                        data-comida-id="{{ comida['id'] }}"
+                        data-comida-name="{{ comida['food_name'] }}">
+                  <i class="fas fa-trash"></i>
+                </button>
               </div>
             </td>
+            
           </tr>
           {% endfor %}
         </tbody>
@@ -121,27 +130,118 @@
     </div>
   </div>
 </div>
+<!-- Modal para  editar comida-->
+<div class="modal fade" id="editarComidaModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="editarComidaForm" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar comida</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="foodName" class="form-label">Alimento</label>
+            <input type="text" class="form-control" id="foodName" name="food_name" required>
+          </div>
+          <div class="mb-3">
+            <label for="calories" class="form-label">Calorías</label>
+            <input type="number" class="form-control" id="calories" name="calories" required>
+          </div>
+          <div class="mb-3">
+            <label for="proteins" class="form-label">Proteínas</label>
+            <input type="number" class="form-control" id="proteins" name="proteins" required>
+          </div>
+          <div class="mb-3">
+            <label for="carbs" class="form-label">Carbohidratos</label>
+            <input type="number" class="form-control" id="carbs" name="carbs" required>
+          </div>
+          <div class="mb-3">
+            <label for="fats" class="form-label">Grasas</label>
+            <input type="number" class="form-control" id="fats" name="fats" required>
+          </div>
+          <div class="mb-3">
+            <label for="dateEdit" class="form-label">Fecha</label>
+            <input type="date" class="form-control" id="dateEdit" name="date" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-save me-1"></i> Guardar cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para  eliminar comida-->
+<div class="modal fade" id="eliminarComidaModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="eliminarComidaForm" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Eliminar comida</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>¿Seguro que quieres eliminar <strong id="eliminarComidaName"></strong>?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash me-1"></i> Eliminar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <script>
-// Script para manejar el modal de duplicar comida
-document.addEventListener('DOMContentLoaded', function() {
-  const modal = document.getElementById('duplicarComidaModal');
-  const form = document.getElementById('duplicarComidaForm');
-  const nameSpan = document.getElementById('comidaName');
-  const dateInput = document.getElementById('fechaDuplicar');
+  document.addEventListener('DOMContentLoaded', function() {
+    // === Duplicar comida ===
+    const duplicarModal = document.getElementById('duplicarComidaModal');
+    const duplicarForm = document.getElementById('duplicarComidaForm');
+    const duplicarNameSpan = document.getElementById('comidaName');
+    const dateInput = document.getElementById('fechaDuplicar');
+    dateInput.value = new Date().toISOString().split('T')[0];
+    duplicarModal.addEventListener('show.bs.modal', function(event) {
+      const button = event.relatedTarget;
+      const comidaId = button.getAttribute('data-comida-id');
+      const comidaName = button.getAttribute('data-comida-name');
+      duplicarNameSpan.textContent = comidaName;
+      duplicarForm.action = `/duplicar-comida/${comidaId}`;
+    });
   
-  // Establecer fecha de hoy por defecto
-  const today = new Date().toISOString().split('T')[0];
-  dateInput.value = today;
+    // === Editar comida ===
+    const editarModal = document.getElementById('editarComidaModal');
+    const editarForm = document.getElementById('editarComidaForm');
+    editarModal.addEventListener('show.bs.modal', function(event) {
+      const button = event.relatedTarget;
+      const comidaId = button.getAttribute('data-comida-id');
+      editarForm.action = `/editar-comida/${comidaId}`;
+      document.getElementById('foodName').value = button.getAttribute('data-comida-name');
+      document.getElementById('calories').value = button.getAttribute('data-comida-calories');
+      document.getElementById('proteins').value = button.getAttribute('data-comida-proteins');
+      document.getElementById('carbs').value = button.getAttribute('data-comida-carbs');
+      document.getElementById('fats').value = button.getAttribute('data-comida-fats');
+      document.getElementById('dateEdit').value = button.getAttribute('data-comida-date');
+    });
   
-  modal.addEventListener('show.bs.modal', function(event) {
-    const button = event.relatedTarget;
-    const comidaId = button.getAttribute('data-comida-id');
-    const comidaName = button.getAttribute('data-comida-name');
-    
-    nameSpan.textContent = comidaName;
-    form.action = `/duplicar-comida/${comidaId}`;
+    // === Eliminar comida ===
+    const eliminarModal = document.getElementById('eliminarComidaModal');
+    const eliminarForm = document.getElementById('eliminarComidaForm');
+    const eliminarNameSpan = document.getElementById('eliminarComidaName');
+    eliminarModal.addEventListener('show.bs.modal', function(event) {
+      const button = event.relatedTarget;
+      const comidaId = button.getAttribute('data-comida-id');
+      const comidaName = button.getAttribute('data-comida-name');
+      eliminarNameSpan.textContent = comidaName;
+      eliminarForm.action = `/eliminar-comida/${comidaId}`;
+    });
   });
-});
-</script>
+  </script>
+  
 {% endblock %}

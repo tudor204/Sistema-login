@@ -5,7 +5,8 @@ from app import app
 from datetime import date
 from app.models.MyFoodModel import (
     get_comidas_by_user, delete_comida,
-    get_comida_by_id, update_comida
+    get_comida_by_id, update_comida,
+    get_totales_diarios
 )
 from datetime import datetime
 
@@ -13,21 +14,23 @@ from datetime import datetime
 @login_required
 def mis_comidas():
     try:
+        # Histórico completo de comidas
         comidas = get_comidas_by_user(current_user.id)
+
+        # Totales solo de hoy
+        totales = get_totales_diarios(current_user.id)
+
     except Exception as e:
         current_app.logger.exception("Error al obtener comidas: %s", e)
         flash("Error al cargar tus comidas. Intenta de nuevo más tarde.", "danger")
         comidas = []
-
-    # Sumar con tolerancia por si valores vienen como strings o None
-    total_calorias = sum(float(c.get('calories') or 0) for c in comidas)
-    total_proteinas = sum(float(c.get('proteins') or 0) for c in comidas)
+        totales = {"total_calorias": 0, "total_proteinas": 0}
 
     return render_template(
         'Myfoods/mis_comidas.html',
         comidas=comidas,
-        total_calorias=int(total_calorias),
-        total_proteinas=int(total_proteinas)
+        total_calorias=totales["total_calorias"],
+        total_proteinas=totales["total_proteinas"]
     )
 
 @app.route('/eliminar-comida/<int:comida_id>', methods=['POST'])
@@ -63,42 +66,25 @@ def editar_comida_route(comida_id):
         date_iso = request.form.get('date', '').strip()
 
         errors = []
+        # Validaciones básicas
         if not food_name:
             errors.append("El nombre del alimento no puede estar vacío.")
 
-        # Calorías
-        try:
-            calories_val = float(calories)
-            if calories_val < 0:
-                errors.append("Las calorías no pueden ser negativas.")
-        except ValueError:
-            errors.append("Introduce un número válido para las calorías.")
+        def validar_float(valor, nombre):
+            try:
+                val = float(valor)
+                if val < 0:
+                    errors.append(f"{nombre} no pueden ser negativos.")
+                return val
+            except ValueError:
+                errors.append(f"Introduce un número válido para {nombre.lower()}.")
+                return None
 
-        # Proteínas
-        try:
-            proteins_val = float(proteins)
-            if proteins_val < 0:
-                errors.append("Las proteínas no pueden ser negativas.")
-        except ValueError:
-            errors.append("Introduce un número válido para las proteínas.")
+        calories_val = validar_float(calories, "Calorías")
+        proteins_val = validar_float(proteins, "Proteínas")
+        fats_val = validar_float(fats, "Grasas")
+        carbs_val = validar_float(carbs, "Carbohidratos")
 
-        # Grasas
-        try:
-            fats_val = float(fats)
-            if fats_val < 0:
-                errors.append("Las grasas no pueden ser negativas.")
-        except ValueError:
-            errors.append("Introduce un número válido para las grasas.")
-
-        # Carbohidratos
-        try:
-            carbs_val = float(carbs)
-            if carbs_val < 0:
-                errors.append("Los carbohidratos no pueden ser negativos.")
-        except ValueError:
-            errors.append("Introduce un número válido para los carbohidratos.")
-
-        # Fecha
         try:
             datetime.strptime(date_iso, '%Y-%m-%d')
         except ValueError:
@@ -107,20 +93,15 @@ def editar_comida_route(comida_id):
         if errors:
             for e in errors:
                 flash(e, 'danger')
-            comida_tmp = {
-                'id': comida_id,
-                'food_name': food_name,
-                'calories': calories,
-                'proteins': proteins,
-                'fats': fats,
-                'carbs': carbs,
-                'date_iso': date_iso,
-                'date': datetime.strptime(date_iso, '%Y-%m-%d').strftime('%d/%m/%Y') if date_iso else comida['date']
-            }
-            return render_template('Myfoods/editar_comida.html', comida=comida_tmp)
+            # 👇 En modal, simplemente rediriges de nuevo a mis_comidas
+            return redirect(url_for('mis_comidas'))
 
         try:
-            updated = update_comida(current_user.id, comida_id, food_name, calories_val, proteins_val, fats_val, carbs_val, date_iso)
+            updated = update_comida(
+                current_user.id, comida_id,
+                food_name, calories_val, proteins_val,
+                fats_val, carbs_val, date_iso
+            )
             if updated:
                 flash('Comida actualizada correctamente.', 'success')
             else:
@@ -131,7 +112,9 @@ def editar_comida_route(comida_id):
 
         return redirect(url_for('mis_comidas'))
 
+    # Si accedes por GET, sigues mostrando la plantilla standalone
     return render_template('Myfoods/editar_comida.html', comida=comida)
+
 
 
 @app.route('/agregar-comida', methods=['GET', 'POST'])
