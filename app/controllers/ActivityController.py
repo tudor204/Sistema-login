@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, redirect, url_for
 from flask_login import login_required, current_user
 from app import app
 from app.models.ActivityModel import (
@@ -6,7 +6,8 @@ from app.models.ActivityModel import (
     get_daily_activities_for_user,
     get_total_activity_minutes_today,
     update_activity,
-    delete_activity
+    delete_activity,
+    save_custom_activity
 )
 from datetime import datetime
 
@@ -116,3 +117,47 @@ def delete_activity_route(activity_id):
         return jsonify({"success": True, "message": "Actividad eliminada correctamente.", "activities": formatted_activities, "total_minutes_today": total_minutes_today})
     else:
         return jsonify({"success": False, "message": "Error al eliminar la actividad."}), 400
+
+
+# Añadir actividad manualmente
+
+@app.route('/activity/add', methods=['GET', 'POST'])
+@login_required
+def add_custom_activity():
+    if request.method == 'POST':
+        activity_name = request.form.get('activity_name')
+        date_recorded = request.form.get('date_recorded')
+        duration_minutes = request.form.get('duration_minutes', type=int)
+        calories_burned = request.form.get('calories_burned', type=float)
+
+        # Validación
+        if not all([activity_name, date_recorded, duration_minutes, calories_burned]):
+            return render_template(
+                'Activity/AddCustomActivity.html',
+                error="Todos los campos son obligatorios.",
+                datetime=datetime
+            )
+
+        # Si no hay fecha, poner la actual
+        if not date_recorded:
+            date_recorded = datetime.now().strftime('%Y-%m-%d')
+
+        success = save_custom_activity(
+            current_user.id,
+            activity_name,
+            duration_minutes,
+            calories_burned,
+            date_recorded
+        )
+
+        if success:
+            return redirect(url_for('activity'))
+        else:
+            return render_template(
+                'Activity/AddCustomActivity.html',
+                error="Hubo un error al guardar la actividad.",
+                datetime=datetime
+            )
+
+    # GET → mostrar formulario vacío
+    return render_template('Activity/AddCustomActivity.html', datetime=datetime)

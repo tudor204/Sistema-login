@@ -145,3 +145,25 @@ def delete_activity(activity_id, user_id):
         conn.close()
 
 
+def save_custom_activity(user_id, activity_name, duration_minutes, calories_burned, date_recorded):
+    """
+    Guarda una actividad manual en la base de datos, permitiendo indicar fecha.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            INSERT INTO daily_activities 
+            (user_id, activity_name, duration_minutes, calories_burned, date_recorded) 
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (user_id, activity_name, duration_minutes, calories_burned, date_recorded)
+        )
+        conn.commit()
+        return True
+    except sqlite3.Error as e:
+        print(f"Error al guardar actividad manual: {e}")
+        return False
+    finally:
+        conn.close()

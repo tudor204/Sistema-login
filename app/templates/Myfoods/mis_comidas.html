@@ -2,246 +2,209 @@
 {% block title %}Mis Comidas | NutriTrack Pro{% endblock %}
 
 {% block section %}
-<div class="page-header mb-4">
+<div class="page-header mb-4 d-flex justify-content-between align-items-center">
   <h1 class="page-title">
-    <i class="fas fa-utensils me-2"></i>Mis Comidas
+    <i class="fas fa-utensils me-2"></i> Mis Comidas
   </h1>
+  <a href="{{ url_for('agregar_comida_route') }}" class="btn btn-primary">
+    <i class="fas fa-plus me-1"></i> Añadir comida
+  </a>
 </div>
 
 <div class="card border-0 shadow-sm">
   <div class="card-body">
     {% if comidas %}
-    <!-- Resumen visual -->
-    <div class="d-flex gap-3 mb-4 flex-wrap">
-      <div class="card p-3 shadow-sm" style="min-width:180px;">
-        <small class="text-muted">Calorías</small>
-        <div class="h4 mb-0">{{ total_calorias }} <small class="text-muted">kcal</small></div>
+      <!-- Resumen visual -->
+      <div class="d-flex gap-3 mb-4 flex-wrap">
+        <div class="card p-3 shadow-sm" style="min-width:180px;">
+          <small class="text-muted">Calorías</small>
+          <div class="h4 mb-0">{{ total_calorias }} <small class="text-muted">kcal</small></div>
+        </div>
+        <div class="card p-3 shadow-sm" style="min-width:180px;">
+          <small class="text-muted">Proteínas</small>
+          <div class="h4 mb-0">{{ total_proteinas }} <small class="text-muted">g</small></div>
+        </div>
       </div>
-      <div class="card p-3 shadow-sm" style="min-width:180px;">
-        <small class="text-muted">Proteínas</small>
-        <div class="h4 mb-0">{{ total_proteinas }} <small class="text-muted">g</small></div>
-      </div>
-      <div class="ms-auto">
-        <a href="{{ url_for('agregar_comida_route') }}" class="btn btn-primary">
-          <i class="fas fa-plus me-1"></i> Añadir comida
-        </a>
-      </div>
-    </div>
 
-    <!-- Tabla de comidas -->
-    <div class="table-responsive">
-      <table class="table table-hover table-striped align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>Alimento</th>
-            <th class="text-center">Calorías</th>
-            <th class="text-center">Proteínas</th>
-            <th>Fecha</th>
-            <th class="text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for comida in comidas %}
-          <tr>
-            <td>{{ comida['food_name'] }}</td>
-            <td class="text-center">{{ comida['calories'] }} kcal</td>
-            <td class="text-center">{{ comida['proteins'] }} g</td>
-            <td>{{ comida['date'] }}</td>
-            <td class="text-center">
-              <div class="btn-group" role="group">
-                <!-- Duplicar -->
-                <button type="button" class="btn btn-sm btn-primary" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#duplicarComidaModal" 
-                        data-comida-id="{{ comida['id'] }}"
-                        data-comida-name="{{ comida['food_name'] }}">
-                  <i class="fas fa-plus"></i>
-                </button>
-            
-                <!-- Editar -->
-                <button type="button" class="btn btn-sm btn-warning"
-                        data-bs-toggle="modal"
-                        data-bs-target="#editarComidaModal"
-                        data-comida-id="{{ comida['id'] }}"
-                        data-comida-name="{{ comida['food_name'] }}"
-                        data-comida-calories="{{ comida['calories'] }}"
-                        data-comida-carbs="{{ comida['carbs'] }}"
-                        data-comida-fats="{{ comida['fats'] }}"
-                        data-comida-proteins="{{ comida['proteins'] }}"
-                        data-comida-date="{{ comida['date_iso'] }}">
-                  <i class="fas fa-edit"></i>
-                </button>
-            
-                <!-- Eliminar -->
-                <button type="button" class="btn btn-sm btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#eliminarComidaModal"
-                        data-comida-id="{{ comida['id'] }}"
-                        data-comida-name="{{ comida['food_name'] }}">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-            
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+      <!-- Tabla de comidas -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Alimento</th>
+              <th class="text-center">Calorías</th>
+              <th class="text-center">Proteínas</th>
+              <th>Fecha</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for comida in comidas %}
+            <tr>
+              <td><strong>{{ comida['food_name'] }}</strong></td>
+              <td class="text-center">{{ comida['calories'] }} kcal</td>
+              <td class="text-center">{{ comida['proteins'] }} g</td>
+              <td>{{ comida['date'] }}</td>
+              <td class="text-center">
+                <div class="btn-group">
+                  <!-- Duplicar -->
+                  <button type="button" class="btn btn-sm btn-primary"
+                          onclick="duplicarComida('{{ comida['id'] }}','{{ comida['food_name'] }}')">
+                    <i class="fas fa-plus"></i>
+                  </button>
+
+                  <!-- Editar -->
+                  <button type="button" class="btn btn-sm btn-warning"
+                          onclick="editarComida('{{ comida['id'] }}','{{ comida['food_name'] }}','{{ comida['calories'] }}','{{ comida['proteins'] }}','{{ comida['carbs'] }}','{{ comida['fats'] }}','{{ comida['date_iso'] }}')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+
+                  <!-- Eliminar -->
+                  <button type="button" class="btn btn-sm btn-danger"
+                          onclick="eliminarComida('{{ comida['id'] }}','{{ comida['food_name'] }}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% else %}
-    <!-- Vista vacía con CTA -->
-    <div class="text-center py-5 text-secondary">
-      <i class="fas fa-utensils fa-4x mb-3"></i>
-      <h4 class="fw-semibold">No hay comidas registradas</h4>
-      <p>Agrega tus alimentos y empieza a llevar tu control nutricional.</p>
-      <div class="d-flex justify-content-center">
+      <!-- Vista vacía -->
+      <div class="text-center py-5 text-secondary">
+        <i class="fas fa-utensils fa-4x mb-3"></i>
+        <h4 class="fw-semibold">No hay comidas registradas</h4>
+        <p>Agrega tus alimentos y empieza a llevar tu control nutricional.</p>
         <a href="{{ url_for('agregar_comida_route') }}" class="btn btn-primary mt-2">
           <i class="fas fa-plus me-1"></i> Añadir comida
         </a>
       </div>
-    </div>
     {% endif %}
   </div>
 </div>
+{% endblock %}
 
-<!-- Modal para seleccionar fecha al duplicar comida -->
-<div class="modal fade" id="duplicarComidaModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Añadir comida</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form id="duplicarComidaForm" method="POST">
-        <div class="modal-body">
-          <p>¿En qué fecha quieres añadir <strong id="comidaName"></strong>?</p>
-          <div class="mb-3">
-            <label for="fechaDuplicar" class="form-label">Fecha</label>
-            <input type="date" class="form-control" id="fechaDuplicar" name="date" required>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-success">
-            <i class="fas fa-plus me-1"></i> Añadir
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<!-- Modal para  editar comida-->
-<div class="modal fade" id="editarComidaModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <form id="editarComidaForm" method="POST">
-        <div class="modal-header">
-          <h5 class="modal-title">Editar comida</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="foodName" class="form-label">Alimento</label>
-            <input type="text" class="form-control" id="foodName" name="food_name" required>
-          </div>
-          <div class="mb-3">
-            <label for="calories" class="form-label">Calorías</label>
-            <input type="number" class="form-control" id="calories" name="calories" required>
-          </div>
-          <div class="mb-3">
-            <label for="proteins" class="form-label">Proteínas</label>
-            <input type="number" class="form-control" id="proteins" name="proteins" required>
-          </div>
-          <div class="mb-3">
-            <label for="carbs" class="form-label">Carbohidratos</label>
-            <input type="number" class="form-control" id="carbs" name="carbs" required>
-          </div>
-          <div class="mb-3">
-            <label for="fats" class="form-label">Grasas</label>
-            <input type="number" class="form-control" id="fats" name="fats" required>
-          </div>
-          <div class="mb-3">
-            <label for="dateEdit" class="form-label">Fecha</label>
-            <input type="date" class="form-control" id="dateEdit" name="date" required>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-success">
-            <i class="fas fa-save me-1"></i> Guardar cambios
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Modal para  eliminar comida-->
-<div class="modal fade" id="eliminarComidaModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <form id="eliminarComidaForm" method="POST">
-        <div class="modal-header">
-          <h5 class="modal-title text-danger">Eliminar comida</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <p>¿Seguro que quieres eliminar <strong id="eliminarComidaName"></strong>?</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-danger">
-            <i class="fas fa-trash me-1"></i> Eliminar
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // === Duplicar comida ===
-    const duplicarModal = document.getElementById('duplicarComidaModal');
-    const duplicarForm = document.getElementById('duplicarComidaForm');
-    const duplicarNameSpan = document.getElementById('comidaName');
-    const dateInput = document.getElementById('fechaDuplicar');
-    dateInput.value = new Date().toISOString().split('T')[0];
-    duplicarModal.addEventListener('show.bs.modal', function(event) {
-      const button = event.relatedTarget;
-      const comidaId = button.getAttribute('data-comida-id');
-      const comidaName = button.getAttribute('data-comida-name');
-      duplicarNameSpan.textContent = comidaName;
-      duplicarForm.action = `/duplicar-comida/${comidaId}`;
+  // 🔹 Duplicar comida
+  function duplicarComida(id, name) {
+    Swal.fire({
+      title: "Duplicar comida",
+      html: `
+        <p>¿En qué fecha quieres añadir <strong>${name}</strong>?</p>
+        <input type="date" id="fechaDuplicar" class="form-control">`,
+      showCancelButton: true,
+      confirmButtonText: "Añadir",
+      cancelButtonText: "Cancelar",
+      preConfirm: () => {
+        const fecha = document.getElementById("fechaDuplicar").value;
+        if (!fecha) {
+          Swal.showValidationMessage("Debes seleccionar una fecha");
+          return false;
+        }
+        return { fecha };
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = `/comidas/duplicar/${id}`;
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "date";
+        input.value = result.value.fecha;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+      }
     });
-  
-    // === Editar comida ===
-    const editarModal = document.getElementById('editarComidaModal');
-    const editarForm = document.getElementById('editarComidaForm');
-    editarModal.addEventListener('show.bs.modal', function(event) {
-      const button = event.relatedTarget;
-      const comidaId = button.getAttribute('data-comida-id');
-      editarForm.action = `/editar-comida/${comidaId}`;
-      document.getElementById('foodName').value = button.getAttribute('data-comida-name');
-      document.getElementById('calories').value = button.getAttribute('data-comida-calories');
-      document.getElementById('proteins').value = button.getAttribute('data-comida-proteins');
-      document.getElementById('carbs').value = button.getAttribute('data-comida-carbs');
-      document.getElementById('fats').value = button.getAttribute('data-comida-fats');
-      document.getElementById('dateEdit').value = button.getAttribute('data-comida-date');
-    });
-  
-    // === Eliminar comida ===
-    const eliminarModal = document.getElementById('eliminarComidaModal');
-    const eliminarForm = document.getElementById('eliminarComidaForm');
-    const eliminarNameSpan = document.getElementById('eliminarComidaName');
-    eliminarModal.addEventListener('show.bs.modal', function(event) {
-      const button = event.relatedTarget;
-      const comidaId = button.getAttribute('data-comida-id');
-      const comidaName = button.getAttribute('data-comida-name');
-      eliminarNameSpan.textContent = comidaName;
-      eliminarForm.action = `/eliminar-comida/${comidaId}`;
-    });
+  }
+
+  // 🔹 Editar comida
+  function editarComida(id, name, calories, proteins, carbs, fats, date) {
+  Swal.fire({
+    title: "Editar comida",
+    html: `
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="width:120px;">Alimento:</label>
+          <input type="text" id="foodName" class="form-control" value="${name}" placeholder="Alimento">
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="width:120px;">Calorías:</label>
+          <input type="number" id="calories" class="form-control" value="${calories}" placeholder="Calorías">
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="width:120px;">Proteínas:</label>
+          <input type="number" id="proteins" class="form-control" value="${proteins}" placeholder="Proteínas">
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="width:120px;">Carbohidratos:</label>
+          <input type="number" id="carbs" class="form-control" value="${carbs}" placeholder="Carbohidratos">
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="width:120px;">Grasas:</label>
+          <input type="number" id="fats" class="form-control" value="${fats}" placeholder="Grasas">
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="width:120px;">Fecha:</label>
+          <input type="date" id="dateEdit" class="form-control" value="${date}">
+        </div>
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: "Guardar",
+    cancelButtonText: "Cancelar",
+    preConfirm: () => {
+      return {
+        food_name: document.getElementById("foodName").value,
+        calories: document.getElementById("calories").value,
+        proteins: document.getElementById("proteins").value,
+        carbs: document.getElementById("carbs").value,
+        fats: document.getElementById("fats").value,
+        date: document.getElementById("dateEdit").value,
+      };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = `/comidas/editar/${id}`;
+      for (const key in result.value) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = result.value[key];
+        form.appendChild(input);
+      }
+      document.body.appendChild(form);
+      form.submit();
+    }
   });
-  </script>
-  
+}
+
+  // 🔹 Eliminar comida
+  function eliminarComida(id, name) {
+    Swal.fire({
+      title: "Eliminar comida",
+      html: `<p>¿Seguro que quieres eliminar <strong>${name}</strong>?</p>`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#d33"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = `/comidas/eliminar/${id}`;
+        document.body.appendChild(form);
+        form.submit();
+      }
+    });
+  }
+</script>
 {% endblock %}

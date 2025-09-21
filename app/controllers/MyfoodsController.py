@@ -33,7 +33,7 @@ def mis_comidas():
         total_proteinas=totales["total_proteinas"]
     )
 
-@app.route('/eliminar-comida/<int:comida_id>', methods=['POST'])
+@app.route('/comidas/eliminar/<int:comida_id>', methods=['POST'])
 @login_required
 def eliminar_comida_route(comida_id):
     try:
@@ -49,7 +49,7 @@ def eliminar_comida_route(comida_id):
         flash('No se encontró la comida o no tienes permiso para eliminarla.', 'warning')
     return redirect(url_for('mis_comidas'))
 
-@app.route('/editar-comida/<int:comida_id>', methods=['GET', 'POST'])
+@app.route('/comidas/editar/<int:comida_id>', methods=['GET', 'POST'])
 @login_required
 def editar_comida_route(comida_id):
     comida = get_comida_by_id(current_user.id, comida_id)
@@ -176,7 +176,7 @@ def agregar_comida_route():
     return render_template('Myfoods/AgregarComida.html', today=date.today().strftime('%Y-%m-%d'))
 
 
-@app.route('/duplicar-comida/<int:comida_id>', methods=['POST'])
+@app.route('/comidas/duplicar/<int:comida_id>', methods=['POST'])
 @login_required
 def duplicar_comida_route(comida_id):
     try:
