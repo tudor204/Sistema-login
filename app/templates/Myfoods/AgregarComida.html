@@ -4,45 +4,111 @@
 {% block section %}
 <div class="page-header mb-4">
   <h1 class="page-title">
-    <i class="fas fa-plus me-2"></i>Añadir comida
+    <i class="fas fa-plus me-2"></i>Añadir comida manualmente
   </h1>
 </div>
+
+<!-- BLOQUE INFORMATIVO PARA AÑADIR COMIDA -->
+<div class="alert alert-info shadow-sm rounded-4 border-start border-4 border-info p-4 mb-5">
+  <h2 class="h5 fw-bold text-info mb-3">
+    <i class="fas fa-info-circle me-2"></i>¿Cómo añadir un alimento manualmente?
+  </h2>
+  <p class="mb-2">
+    Si no encuentras tu alimento en nuestra base de datos, puedes añadirlo manualmente. Te recomendamos seguir estos pasos:
+  </p>
+  <ul class="mb-0 small">
+    <li><strong>Introduce el nombre del alimento</strong> en el campo correspondiente.</li>
+    <li><strong>Si conoces los macronutrientes</strong>puedes introducirlos manaulmente.</li>
+    <li><strong>Si no conoces los datos, usa el botón "Buscar valores nutricionales en Google"</strong> para abrir una búsqueda rápida de los macronutrientes por 100 g del alimento.</li>
+    <li><strong>Rellena los campos de calorías, proteínas, grasas y carbohidratos</strong> según los datos que encuentres.</li>
+    <li><strong>Ajusta la cantidad en gramos</strong> si no quieres registrar los 100 g por defecto; los macros se recalcularán automáticamente.</li>
+    <li><strong>Guarda el alimento</strong> para añadirlo a tus registros diarios.</li>
+  </ul>
+  <p class="mt-3 text-secondary small">
+    ✅ Esta información se usará solo para calcular tus consumos diarios y macronutrientes. No será compartida con terceros.
+  </p>
+</div>
+
 
 <div class="card border-0 shadow-sm">
   <div class="card-body">
     <form method="POST" action="{{ url_for('agregar_comida_route') }}">
       <div class="mb-3">
-        <label class="form-label">Alimento</label>
-        <input type="text" name="food_name" class="form-control" required>
-      </div>
-      <div class="row">
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Calorías (kcal)</label>
-          <input type="number" name="calories" class="form-control" step="0.1" min="0" required>
-        </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Proteínas (g)</label>
-          <input type="number" name="proteins" class="form-control" step="0.1" min="0" required>
-        </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Grasas (g)</label>
-          <input type="number" name="fats" class="form-control" step="0.1" min="0" required>
-        </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Carbohidratos (g)</label>
-          <input type="number" name="carbs" class="form-control" step="0.1" min="0" required>
-        </div>
-      </div>
-      <div class="mb-3">
         <label class="form-label">Fecha</label>
         <input type="date" name="date" class="form-control" value="{{ today }}" required>
       </div>
-      
-      <div class="d-flex gap-2">
-        <button class="btn btn-primary" type="submit"><i class="fas fa-check me-1"></i> Guardar</button>
-        <a href="{{ url_for('mis_comidas') }}" class="btn btn-secondary">Cancelar</a>
+      <div class="mb-3">
+          <label for="food_name" class="form-label">Nombre del alimento</label>
+          <input type="text" class="form-control" id="food_name" name="food_name" required>
       </div>
+  
+      <button type="button" class="btn btn-secondary mb-3" id="btn_search_nutrition">
+          🔍 Buscar valores nutricionales en Google
+      </button>
+  
+      <div class="mb-3">
+          <label for="quantity" class="form-label">Cantidad (g)</label>
+          <input type="number" class="form-control" id="quantity" name="quantity" value="100" min="1">
+      </div>
+  
+      <div class="mb-3">
+          <label class="form-label">Macros por la cantidad indicada</label>
+          <div class="input-group mb-2">
+              <span class="input-group-text">Calorías</span>
+              <input type="number" class="form-control" id="calories" name="calories" value="0" min="0">
+          </div>
+          <div class="input-group mb-2">
+              <span class="input-group-text">Proteínas</span>
+              <input type="number" class="form-control" id="proteins" name="proteins" value="0" min="0">
+          </div>
+          <div class="input-group mb-2">
+              <span class="input-group-text">Grasas</span>
+              <input type="number" class="form-control" id="fats" name="fats" value="0" min="0">
+          </div>
+          <div class="input-group mb-2">
+              <span class="input-group-text">Carbohidratos</span>
+              <input type="number" class="form-control" id="carbs" name="carbs" value="0" min="0">
+          </div>
+      </div>
+  
+      <button type="submit" class="btn btn-primary">Guardar alimento</button>
     </form>
+  
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const btnSearch = document.getElementById('btn_search_nutrition');
+    const foodNameInput = document.getElementById('food_name');
+    const quantityInput = document.getElementById('quantity');
+    const caloriesInput = document.getElementById('calories');
+    const proteinsInput = document.getElementById('proteins');
+    const fatsInput = document.getElementById('fats');
+    const carbsInput = document.getElementById('carbs');
+
+    // Botón que abre Google en nueva pestaña
+    btnSearch.addEventListener('click', () => {
+        const query = encodeURIComponent(foodNameInput.value + ' macronutrientes 100 gramos');
+        window.open(`https://www.google.com/search?q=${query}`, '_blank');
+    });
+
+    // Recalcula los macros según la cantidad (proporcional)
+    quantityInput.addEventListener('input', () => {
+        const factor = quantityInput.value / 100;
+
+        caloriesInput.value = Math.round(caloriesInput.dataset.base * factor || 0);
+        proteinsInput.value = Math.round(proteinsInput.dataset.base * factor || 0);
+        fatsInput.value = Math.round(fatsInput.dataset.base * factor || 0);
+        carbsInput.value = Math.round(carbsInput.dataset.base * factor || 0);
+    });
+
+    // Guardar los valores base al ingresar manualmente
+    [caloriesInput, proteinsInput, fatsInput, carbsInput].forEach(input => {
+        input.addEventListener('input', () => {
+            input.dataset.base = input.value;
+        });
+    });
+});
+</script>
 {% endblock %}
