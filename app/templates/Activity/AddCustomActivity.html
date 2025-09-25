@@ -9,41 +9,116 @@
   </h1>
 </div>
 
+<!-- BLOQUE INFORMATIVO PARA AÑADIR ACTIVIDAD -->
+<div class="alert alert-info shadow-sm rounded-4 border-start border-4 border-info p-4 mb-5">
+  <h2 class="h5 fw-bold text-info mb-3">
+    <i class="fas fa-info-circle me-2"></i>¿Cómo añadir una actividad manualmente?
+  </h2>
+  <p class="mb-2">
+    Si realizas un ejercicio que no está registrado automáticamente, puedes añadirlo manualmente siguiendo estos pasos:
+  </p>
+  <ul class="mb-0 small">
+    <li><strong>Introduce el nombre del ejercicio</strong> en el campo correspondiente (ej. correr, bicicleta, nadar).</li>
+    <li><strong>Especifica las calorías por hora</strong> que quemas en ese ejercicio. Si no lo sabes, usa el botón "Buscar calorías del ejercicio en Google" para encontrar un valor aproximado.</li>
+    <li><strong>Indica la duración en minutos</strong> que realizaste el ejercicio.</li>
+    <li><strong>Se calcularán automáticamente las calorías quemadas</strong> en función de las calorías por hora y la duración.</li>
+    <li><strong>Opcional:</strong> Puedes ajustar manualmente las calorías calculadas si sabes un valor más exacto.</li>
+    <li><strong>Guarda la actividad</strong> para añadirla a tus registros diarios.</li>
+  </ul>
+  <p class="mt-3 text-secondary small">
+    ✅ Esta información se utilizará para calcular tu gasto calórico diario y ayudarte a gestionar mejor tu nutrición y actividad física. No será compartida con terceros.
+  </p>
+</div>
+
+
 <div class="card border-0 shadow-sm">
   <div class="card-body">
-    {% if error %}
-      <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
-
-    <form method="POST">
+    <form method="POST" action="{{ url_for('add_custom_activity') }}">
+      <!-- Fecha -->
       <div class="mb-3">
-        <label class="form-label">Nombre de la actividad</label>
-        <input type="text" class="form-control" name="activity_name" required>
+        <label class="form-label" for="date">Fecha</label>
+        <input type="date" id="date_recorded" name="date_recorded" class="form-control" value="{{ today }}" required>
       </div>
 
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Fecha</label>
-          <input type="date" class="form-control" name="date_recorded"
-                 value="{{ datetime.utcnow().strftime('%Y-%m-%d') }}" required>
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Duración (minutos)</label>
-          <input type="number" class="form-control" name="duration_minutes" min="1" required>
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Calorías quemadas</label>
-          <input type="number" class="form-control" name="calories_burned" min="1" required>
-        </div>
+      <!-- Nombre del ejercicio -->
+      <div class="mb-3">
+        <label for="activity_name" class="form-label">Nombre del ejercicio</label>
+        <input type="text" class="form-control" id="activity_name" name="activity_name" placeholder="Ej. correr, bicicleta, nadar..." required>
       </div>
 
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary">
-          <i class="fas fa-check me-1"></i> Guardar
-        </button>
-        <a href="{{ url_for('activity') }}" class="btn btn-secondary">Cancelar</a>
+      <!-- Botón búsqueda Google -->
+      <button type="button" class="btn btn-secondary mb-3" id="btn_search_activity">
+        🔍 Buscar calorías del ejercicio en Google
+      </button>
+
+      <!-- Calorías por hora -->
+      <div class="mb-3">
+        <label for="calories_per_hour" class="form-label">Calorías por hora</label>
+        <input type="number" class="form-control" id="calories_per_hour" name="calories_per_hour" placeholder="Ej. 500" min="1" required>
+        <small class="form-text text-muted">💡 Introduce las calorías que se queman en 1 hora de este ejercicio.</small>
       </div>
+
+      <!-- Duración -->
+      <div class="mb-3">
+        <label for="duration_minutes" class="form-label">Duración (minutos)</label>
+        <input type="number" class="form-control" id="duration_minutes" name="duration_minutes" value="60" min="1" required>
+      </div>
+
+      <!-- Calorías calculadas -->
+      <div class="mb-3">
+        <label class="form-label" for="calories_burned">Calorías quemadas</label>
+        <div class="input-group mb-2">
+          <span class="input-group-text">🔥</span>
+          <input type="number" class="form-control" id="calories_burned" name="calories_burned" value="0" min="0" readonly>
+        </div>
+        <small class="form-text text-muted">Se calcula automáticamente según las calorías por hora y la duración.</small>
+      </div>
+
+      <!-- Botón submit -->
+      <button type="submit" class="btn btn-primary">Guardar actividad</button>
     </form>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const btnSearch = document.getElementById('btn_search_activity');
+  const activityInput = document.getElementById('activity_name');
+  const caloriesPerHourInput = document.getElementById('calories_per_hour');
+  const durationInput = document.getElementById('duration_minutes');
+  const caloriesBurnedInput = document.getElementById('calories_burned');
+
+  // Botón: abrir Google con la búsqueda del ejercicio
+  btnSearch.addEventListener('click', () => {
+    const activity = activityInput.value.trim();
+    if (!activity) {
+      alert("Por favor, escribe un ejercicio antes de buscar.");
+      return;
+    }
+    const query = encodeURIComponent(activity + ' calorías quemadas por hora');
+    window.open(`https://www.google.com/search?q=${query}`, '_blank');
+  });
+
+  // Función para calcular calorías quemadas
+  function calculateCalories() {
+    const caloriesPerHour = parseFloat(caloriesPerHourInput.value) || 0;
+    const minutes = parseFloat(durationInput.value) || 0;
+
+    const totalCalories = (caloriesPerHour / 60) * minutes;
+    caloriesBurnedInput.value = Math.round(totalCalories);
+  }
+
+  // Eventos
+  caloriesPerHourInput.addEventListener('input', calculateCalories);
+  durationInput.addEventListener('input', calculateCalories);
+});
+
+// Guardar valores base al ingresar manualmente
+[, caloriesBurnedInput].forEach(input => {
+  input.addEventListener('input', () => {
+    input.dataset.base = input.value;
+  });
+});
+
+</script>
 {% endblock %}

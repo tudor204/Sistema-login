@@ -115,11 +115,12 @@ def editar_comida_route(comida_id):
     # Si accedes por GET, sigues mostrando la plantilla standalone
     return render_template('Myfoods/editar_comida.html', comida=comida)
 
-
+#Agregar comida manualmente
 
 @app.route('/agregar-comida', methods=['GET', 'POST'])
 @login_required
 def agregar_comida_route():
+    today_str = date.today().strftime('%Y-%m-%d')  # Definimos hoy al inicio
     if request.method == 'POST':
         food_name = request.form.get('food_name', '').strip()
         calories = request.form.get('calories', '').strip()
@@ -163,7 +164,8 @@ def agregar_comida_route():
 
         if errors:
             for e in errors: flash(e, 'danger')
-            return render_template('Myfoods/AgregarComida.html')
+            # Pasamos `today` también en caso de error
+            return render_template('Myfoods/AgregarComida.html', today=today_str)
 
         from app.models.MyFoodModel import create_comida
         created_id = create_comida(current_user.id, food_name, calories_val, proteins_val, fats_val, carbs_val, date_iso)
@@ -173,7 +175,8 @@ def agregar_comida_route():
             flash("No se pudo agregar la comida.", "danger")
         return redirect(url_for('mis_comidas'))
 
-    return render_template('Myfoods/AgregarComida.html', today=date.today().strftime('%Y-%m-%d'))
+    # GET → mostrar formulario vacío
+    return render_template('Myfoods/AgregarComida.html', today=today_str)
 
 
 @app.route('/comidas/duplicar/<int:comida_id>', methods=['POST'])

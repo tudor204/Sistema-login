@@ -1,6 +1,7 @@
 from flask import render_template, request, jsonify, redirect, url_for
 from flask_login import login_required, current_user
 from app import app
+from datetime import datetime
 from app.models.ActivityModel import (
     save_daily_activity,
     get_daily_activities_for_user,
@@ -132,10 +133,11 @@ def add_custom_activity():
 
         # Validación
         if not all([activity_name, date_recorded, duration_minutes, calories_burned]):
+            today = datetime.now().strftime('%Y-%m-%d')
             return render_template(
                 'Activity/AddCustomActivity.html',
                 error="Todos los campos son obligatorios.",
-                datetime=datetime
+                today=today
             )
 
         # Si no hay fecha, poner la actual
@@ -153,11 +155,13 @@ def add_custom_activity():
         if success:
             return redirect(url_for('activity'))
         else:
+            today = datetime.now().strftime('%Y-%m-%d')
             return render_template(
                 'Activity/AddCustomActivity.html',
                 error="Hubo un error al guardar la actividad.",
-                datetime=datetime
+                today=today
             )
 
     # GET → mostrar formulario vacío
-    return render_template('Activity/AddCustomActivity.html', datetime=datetime)
+    today = datetime.now().strftime('%Y-%m-%d')
+    return render_template('Activity/AddCustomActivity.html', today=today)
