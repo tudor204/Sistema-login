@@ -369,5 +369,5 @@ body {
   }
   /* Asegúrate de que los SweetAlerts siempre estén encima de todo */
 .swal2-container {
-  z-index: 9999 !important; /* Un valor alto para asegurar que esté por encima de la navbar */
+  z-index: 9999 !important; /* Un valor alto para asegurar que este por encima de la navbar */
 }
