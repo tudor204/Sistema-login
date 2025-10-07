@@ -3,211 +3,203 @@
 
 {% block section %}
 <div class="page-header">
-  <h1 class="page-title">
-    <i class="fas fa-utensils me-2"></i> Mis Comidas
-  </h1>
-</div>
-<div class="ms-auto">
-  <a href="{{ url_for('agregar_comida_route') }}" class="btn btn-primary">
-    <i class="fas fa-plus me-1"></i> Añadir comida
-  </a>
+    <h1 class="page-title">
+        <i class="fas fa-utensils me-2"></i> Mis Comidas
+    </h1>
+    <a href="{{ url_for('agregar_comida_route') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Añadir comida
+    </a>
 </div>
 
 
 <div class="card border-0 shadow-sm">
-  <div class="card-body">
-    {% if comidas %}
-      <!-- Resumen visual -->
-      <div class="d-flex gap-3 mb-4 flex-wrap">
-        <div class="card p-3 shadow-sm" style="min-width:180px;">
-          <small class="text-muted">Calorías</small>
-          <div class="h4 mb-0">{{ total_calorias }} <small class="text-muted">kcal</small></div>
+    <div class="card-body">
+      {% if comidas %}
+        <div class="d-flex gap-3 mb-4 flex-wrap">
+          <div class="card p-3 shadow-sm" style="min-width:180px;">
+            <small class="text-muted">Calorías</small>
+            <div class="h4 mb-0">{{ total_calorias }} <small class="text-muted">kcal</small></div>
+          </div>
+          <div class="card p-3 shadow-sm" style="min-width:180px;">
+            <small class="text-muted">Proteínas</small>
+            <div class="h4 mb-0">{{ total_proteinas }} <small class="text-muted">g</small></div>
+          </div>
         </div>
-        <div class="card p-3 shadow-sm" style="min-width:180px;">
-          <small class="text-muted">Proteínas</small>
-          <div class="h4 mb-0">{{ total_proteinas }} <small class="text-muted">g</small></div>
+  
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Alimento</th>
+                <th class="text-center">Calorías</th>
+                <th class="text-center">Proteínas</th>
+                <th>Fecha</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for comida in comidas %}
+              <tr>
+                <td><strong>{{ comida['food_name'] }}</strong></td>
+                <td class="text-center">{{ comida['calories'] }} kcal</td>
+                <td class="text-center">{{ comida['proteins'] }} g</td>
+                <td>{{ comida['date'] }}</td>
+                <td class="text-center">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-primary"
+                                onclick="duplicarComida('{{ comida['id'] }}','{{ comida['food_name'] }}')">
+                      <i class="fas fa-plus"></i>
+                    </button>
+  
+                    <button type="button" class="btn btn-sm btn-warning"
+                                onclick="editarComida('{{ comida['id'] }}','{{ comida['food_name'] }}','{{ comida['calories'] }}','{{ comida['proteins'] }}','{{ comida['carbs'] }}','{{ comida['fats'] }}','{{ comida['date_iso'] }}')">
+                      <i class="fas fa-edit"></i>
+                    </button>
+  
+                    <button type="button" class="btn btn-sm btn-danger"
+                                onclick="eliminarComida('{{ comida['id'] }}','{{ comida['food_name'] }}')">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-      </div>
-
-      <!-- Tabla de comidas -->
-      <div class="table-responsive">
-        <table class="table table-hover align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>Alimento</th>
-              <th class="text-center">Calorías</th>
-              <th class="text-center">Proteínas</th>
-              <th>Fecha</th>
-              <th class="text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for comida in comidas %}
-            <tr>
-              <td><strong>{{ comida['food_name'] }}</strong></td>
-              <td class="text-center">{{ comida['calories'] }} kcal</td>
-              <td class="text-center">{{ comida['proteins'] }} g</td>
-              <td>{{ comida['date'] }}</td>
-              <td class="text-center">
-                <div class="btn-group">
-                  <!-- Duplicar -->
-                  <button type="button" class="btn btn-sm btn-primary"
-                          onclick="duplicarComida('{{ comida['id'] }}','{{ comida['food_name'] }}')">
-                    <i class="fas fa-plus"></i>
-                  </button>
-
-                  <!-- Editar -->
-                  <button type="button" class="btn btn-sm btn-warning"
-                          onclick="editarComida('{{ comida['id'] }}','{{ comida['food_name'] }}','{{ comida['calories'] }}','{{ comida['proteins'] }}','{{ comida['carbs'] }}','{{ comida['fats'] }}','{{ comida['date_iso'] }}')">
-                    <i class="fas fa-edit"></i>
-                  </button>
-
-                  <!-- Eliminar -->
-                  <button type="button" class="btn btn-sm btn-danger"
-                          onclick="eliminarComida('{{ comida['id'] }}','{{ comida['food_name'] }}')">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    {% else %}
-      <!-- Vista vacía -->
-      <div class="text-center py-5 text-secondary">
-        <i class="fas fa-utensils fa-4x mb-3"></i>
-        <h4 class="fw-semibold">No hay comidas registradas</h4>
-        <p>Agrega tus alimentos y empieza a llevar tu control nutricional.</p>
-        <a href="{{ url_for('agregar_comida_route') }}" class="btn btn-primary mt-2">
-          <i class="fas fa-plus me-1"></i> Añadir comida
-        </a>
-      </div>
-    {% endif %}
-  </div>
+      {% else %}
+        <div class="text-center py-5 text-secondary">
+          <i class="fas fa-utensils fa-4x mb-3"></i>
+          <h4 class="fw-semibold">No hay comidas registradas</h4>
+          <p>Agrega tus alimentos y empieza a llevar tu control nutricional.</p>
+          <a href="{{ url_for('agregar_comida_route') }}" class="btn btn-primary mt-2">
+            <i class="fas fa-plus me-1"></i> Añadir comida
+          </a>
+        </div>
+      {% endif %}
+    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  // 🔹 Duplicar comida
-  function duplicarComida(id, name) {
-    Swal.fire({
-      title: "Duplicar comida",
-      html: `
-        <p>¿En qué fecha quieres añadir <strong>${name}</strong>?</p>
-        <input type="date" id="fechaDuplicar" class="form-control">`,
-      showCancelButton: true,
-      confirmButtonText: "Añadir",
-      cancelButtonText: "Cancelar",
-      preConfirm: () => {
-        const fecha = document.getElementById("fechaDuplicar").value;
-        if (!fecha) {
-          Swal.showValidationMessage("Debes seleccionar una fecha");
-          return false;
+    // 🔹 Duplicar comida
+    function duplicarComida(id, name) {
+      Swal.fire({
+        title: "Duplicar comida",
+        html: `
+          <p>¿En qué fecha quieres añadir <strong>${name}</strong>?</p>
+          <input type="date" id="fechaDuplicar" class="form-control">`,
+        showCancelButton: true,
+        confirmButtonText: "Añadir",
+        cancelButtonText: "Cancelar",
+        preConfirm: () => {
+          const fecha = document.getElementById("fechaDuplicar").value;
+          if (!fecha) {
+            Swal.showValidationMessage("Debes seleccionar una fecha");
+            return false;
+          }
+          return { fecha };
         }
-        return { fecha };
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = `/comidas/duplicar/${id}`;
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = "date";
-        input.value = result.value.fecha;
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
-      }
-    });
-  }
-
-  // 🔹 Editar comida
-  function editarComida(id, name, calories, proteins, carbs, fats, date) {
-  Swal.fire({
-    title: "Editar comida",
-    html: `
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <label style="width:120px;">Alimento:</label>
-          <input type="text" id="foodName" class="form-control" value="${name}" placeholder="Alimento">
-        </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <label style="width:120px;">Calorías:</label>
-          <input type="number" id="calories" class="form-control" value="${calories}" placeholder="Calorías">
-        </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <label style="width:120px;">Proteínas:</label>
-          <input type="number" id="proteins" class="form-control" value="${proteins}" placeholder="Proteínas">
-        </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <label style="width:120px;">Carbohidratos:</label>
-          <input type="number" id="carbs" class="form-control" value="${carbs}" placeholder="Carbohidratos">
-        </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <label style="width:120px;">Grasas:</label>
-          <input type="number" id="fats" class="form-control" value="${fats}" placeholder="Grasas">
-        </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <label style="width:120px;">Fecha:</label>
-          <input type="date" id="dateEdit" class="form-control" value="${date}">
-        </div>
-      </div>
-    `,
-    showCancelButton: true,
-    confirmButtonText: "Guardar",
-    cancelButtonText: "Cancelar",
-    preConfirm: () => {
-      return {
-        food_name: document.getElementById("foodName").value,
-        calories: document.getElementById("calories").value,
-        proteins: document.getElementById("proteins").value,
-        carbs: document.getElementById("carbs").value,
-        fats: document.getElementById("fats").value,
-        date: document.getElementById("dateEdit").value,
-      };
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = `/comidas/duplicar/${id}`;
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = "date";
+          input.value = result.value.fecha;
+          form.appendChild(input);
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
     }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = `/comidas/editar/${id}`;
-      for (const key in result.value) {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = result.value[key];
-        form.appendChild(input);
-      }
-      document.body.appendChild(form);
-      form.submit();
-    }
-  });
-}
 
-  // 🔹 Eliminar comida
-  function eliminarComida(id, name) {
-    Swal.fire({
-      title: "Eliminar comida",
-      html: `<p>¿Seguro que quieres eliminar <strong>${name}</strong>?</p>`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Eliminar",
-      cancelButtonText: "Cancelar",
-      confirmButtonColor: "#d33"
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = `/comidas/eliminar/${id}`;
-        document.body.appendChild(form);
-        form.submit();
-      }
-    });
-  }
+    // 🔹 Editar comida
+    function editarComida(id, name, calories, proteins, carbs, fats, date) {
+      Swal.fire({
+        title: "Editar comida",
+        html: `
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <label style="width:120px;">Alimento:</label>
+              <input type="text" id="foodName" class="form-control" value="${name}" placeholder="Alimento">
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <label style="width:120px;">Calorías:</label>
+              <input type="number" id="calories" class="form-control" value="${calories}" placeholder="Calorías">
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <label style="width:120px;">Proteínas:</label>
+              <input type="number" id="proteins" class="form-control" value="${proteins}" placeholder="Proteínas">
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <label style="width:120px;">Carbohidratos:</label>
+              <input type="number" id="carbs" class="form-control" value="${carbs}" placeholder="Carbohidratos">
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <label style="width:120px;">Grasas:</label>
+              <input type="number" id="fats" class="form-control" value="${fats}" placeholder="Grasas">
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <label style="width:120px;">Fecha:</label>
+              <input type="date" id="dateEdit" class="form-control" value="${date}">
+            </div>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: "Guardar",
+        cancelButtonText: "Cancelar",
+        preConfirm: () => {
+          return {
+            food_name: document.getElementById("foodName").value,
+            calories: document.getElementById("calories").value,
+            proteins: document.getElementById("proteins").value,
+            carbs: document.getElementById("carbs").value,
+            fats: document.getElementById("fats").value,
+            date: document.getElementById("dateEdit").value,
+          };
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = `/comidas/editar/${id}`;
+          for (const key in result.value) {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = result.value[key];
+            form.appendChild(input);
+          }
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    }
+
+    // 🔹 Eliminar comida
+    function eliminarComida(id, name) {
+      Swal.fire({
+        title: "Eliminar comida",
+        html: `<p>¿Seguro que quieres eliminar <strong>${name}</strong>?</p>`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#d33"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = `/comidas/eliminar/${id}`;
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    }
 </script>
 {% endblock %}
