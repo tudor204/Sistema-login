@@ -12,7 +12,7 @@ body {
   background-color: #f5f7ff;
   color: #333;
   min-height: 100vh;
-  display: flex; /* Body como flex container para el sticky footer */
+  display: flex;
   flex-direction: column;
   overflow-x: hidden;
 }
@@ -31,30 +31,32 @@ body {
 }
 
 .modal-dialog {
-  margin: 0 auto;              /* centra horizontal */
+  margin: 0 auto;
   display: flex;
-  align-items: center;         /* centra vertical */
-  min-height: 100vh;           /* ocupa toda la pantalla */
+  align-items: center;
+  min-height: 100vh;
 }
 
 
 /* --- Layout Principal: Sidebar y Contenido --- */
 /* El .container-fluid que envuelve el .row */
 .container-fluid.flex-grow-1 {
-    display: flex; 
+    display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 72px - 70px); /* Ajusta 70px a la altura de tu footer */
+    /* Ajusta 70px a la altura de tu footer, asumiendo 72px de navbar */
+    min-height: calc(100vh - 72px - 70px); 
     padding-left: 0;
     padding-right: 0;
 }
 
 .row.h-100 { /* El row que contiene sidebar y main-content */
-    display: flex; /* CRUCIAL: hace que sidebar y main-content sean flex items */
+    display: flex;
     flex-grow: 1; 
-    flex-wrap: nowrap; /* Evita que los items se envuelvan */
+    flex-wrap: nowrap; 
     margin-left: 0; 
     margin-right: 0;
-    width: 100%; 
+    /* CORRECCIÓN CLAVE: Oculta el desbordamiento causado por el sidebar fijo */
+    overflow: hidden; 
 }
 
 
@@ -72,7 +74,7 @@ body {
   flex-direction: column;
   flex-shrink: 0; /* Evita que el sidebar se encoja */
   height: calc(100vh - 72px); /* Ocupa la altura restante del viewport */
-  padding: 1rem; /* Mantener el padding siempre para que el contenido del sidebar se vea bien */
+  padding: 1rem;
 }
 
 .sidebar.collapsed {
@@ -129,9 +131,9 @@ body {
 
 /* --- Main Content Styles --- */
 .main-content {
-  flex-grow: 1;   /* Ocupa todo el espacio horizontal restante */
-  flex-basis: 0;  /* Permite que flex-grow: 1 funcione de manera óptima */
-  padding: 2rem 2.5rem; /* Padding base */
+  flex-grow: 1; 
+  flex-basis: 0; 
+  padding: 2rem 2.5rem; 
   background-color: #f5f7ff;
   overflow-y: auto; 
 }
@@ -167,7 +169,7 @@ body {
   .main-content {
     padding: 1.5rem; 
     flex-grow: 1; 
-    flex-basis: auto; /* Restablecer para móvil si el sidebar es superpuesto */
+    flex-basis: auto; 
   }
   
   .show-sidebar-btn {
@@ -183,43 +185,43 @@ body {
 
 /* --- Estilos para las tarjetas de alimentos --- */
 .card-img-top-container {
-    height: 180px; /* Altura fija para el contenedor de la imagen */
+    height: 180px;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Oculta cualquier parte de la imagen que se desborde */
-    background-color: #f0f0f0; /* Fondo gris claro si la imagen es pequeña o transparente */
+    overflow: hidden;
+    background-color: #f0f0f0;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
 }
 
 .card-img-custom {
-    max-width: 100%; /* Asegura que la imagen no se salga del contenedor */
-    max-height: 100%; /* Asegura que la imagen no se salga del contenedor */
-    object-fit: contain; /* Redimensiona la imagen para que encaje en el contenedor sin recortarse, manteniendo su aspecto */
-    display: block; /* Elimina cualquier espacio extra debajo de la imagen */
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
 }
 
 
 /* Ajustes para el cuerpo de la tarjeta */
 .card-body {
-    padding: 1.25rem; /* Espaciado interno estándar de Bootstrap */
+    padding: 1.25rem;
 }
 
 .card-title {
-    font-size: 1.1rem; /* Tamaño de fuente para el título */
+    font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 0.75rem;
-    height: 3rem; /* Altura fija para el título si quieres asegurar que todas las tarjetas tengan la misma altura visual en el título */
-    overflow: hidden; /* Oculta el texto que se desborde */
-    text-overflow: ellipsis; /* Añade puntos suspensivos si el texto se corta */
+    height: 3rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Limita el título a 2 líneas */
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
 .card-text {
-    font-size: 0.875rem; /* Tamaño de fuente para el texto nutricional */
+    font-size: 0.875rem;
     line-height: 1.4;
     margin-bottom: 1rem;
 }
@@ -230,7 +232,7 @@ body {
     flex-direction: column;
 }
 .card-body {
-    flex-grow: 1; /* Permite que el cuerpo de la tarjeta crezca y empuje el botón hacia abajo */
+    flex-grow: 1;
 }
 
 /* Resto de estilos (cards, tables, etc.) */
@@ -325,28 +327,27 @@ body {
 }
 /* Estilos para el espiral de carga */
 .loading-spinner {
-    display: none; /* Asegura que esté oculto por defecto */
-    align-items: center; /* Centra verticalmente el spinner y el texto */
-    justify-content: flex-start; /* Alinea al inicio si es parte de un flujo horizontal */
-    gap: 10px; /* Espacio entre el spinner y el texto */
-    margin-top: 15px; /* Mismo margen superior que en tu HTML */
-    padding: 8px 0; /* Un poco de padding para dar "aire" */
-    color: var(--bs-primary); /* Usa la variable de color primario de Bootstrap */
-    font-size: 0.95rem; /* Un poco más pequeño */
-    opacity: 0; /* Iniciamos con opacidad 0 para la transición */
-    transition: opacity 0.3s ease-in-out; /* Transición suave para la aparición */
+    display: none;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 8px 0;
+    color: var(--bs-primary);
+    font-size: 0.95rem;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
 }
 
 /* Estado cuando el spinner es visible */
 .loading-spinner[style*="display: flex"] {
-    opacity: 1; /* Hacemos que aparezca con una transición */
+    opacity: 1;
 }
 
 /* Opcional: Estilos para el botón cuando está deshabilitado y cargando */
 #addFoodButton[disabled] {
-    opacity: 0.7; /* Reduce un poco la opacidad */
-    cursor: not-allowed; /* Cambia el cursor */
-    /* Puedes añadir más estilos como un color de fondo diferente si quieres */
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 [data-bs-theme="dark"] {
   background-color: #121212;
@@ -369,5 +370,5 @@ body {
   }
   /* Asegúrate de que los SweetAlerts siempre estén encima de todo */
 .swal2-container {
-z-index: 9999 !important; /* Un valor alto para asegurar que este por encima de la navbar */
+z-index: 9999 !important;
 }
