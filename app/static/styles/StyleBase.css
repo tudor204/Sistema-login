@@ -41,68 +41,55 @@ body {
 /* --- Layout Principal: Sidebar y Contenido --- */
 /* El .container-fluid que envuelve el .row */
 .container-fluid.flex-grow-1 {
-    display: flex;
-    flex-direction: column;
-    /* Ajusta 70px a la altura de tu footer, asumiendo 72px de navbar */
-    min-height: calc(100vh - 72px - 70px); 
-    padding-left: 0;
-    padding-right: 0;
+  display: flex;
+  flex-direction: column;
+  /* Ajusta 70px a la altura de tu footer, asumiendo 72px de navbar */
+  min-height: calc(100vh - 72px - 70px); 
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .row.h-100 { /* El row que contiene sidebar y main-content */
-    display: flex;
-    flex-grow: 1; 
-    flex-wrap: nowrap; 
-    margin-left: 0; 
-    margin-right: 0;
-    /* CORRECCIÓN CLAVE: Oculta el desbordamiento causado por el sidebar fijo */
-    overflow: hidden; 
+  display: flex;
+  flex-grow: 1; 
+  flex-wrap: nowrap; 
+  margin-left: 0; 
+  margin-right: 0;
+  /* Oculta el desbordamiento causado por el sidebar fijo */
+  overflow: hidden; 
 }
 
 
-/* --- Sidebar Styles --- */
+/* --- Sidebar Styles (Escritorio) --- */
 .sidebar {
   width: 280px; /* Ancho fijo cuando está abierto */
   background: white;
-  position: sticky;
+  position: sticky; /* Sticky para escritorio */
   top: 72px; 
   border-right: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 1px 0 10px rgba(0, 0, 0, 0.02);
   transition: all 0.3s ease;
-  z-index: 100;
+  z-index: 100; /* Z-index bajo para escritorio */
   display: flex;
   flex-direction: column;
-  flex-shrink: 0; /* Evita que el sidebar se encoja */
-  height: calc(100vh - 72px); /* Ocupa la altura restante del viewport */
+  flex-shrink: 0; 
+  height: calc(100vh - 72px); 
   padding: 1rem;
 }
 
 .sidebar.collapsed {
-  width: 0; /* Se colapsa a 0 ancho */
+  /* Estado colapsado de ESCRITORIO */
+  width: 0; 
   padding-left: 0; 
   padding-right: 0; 
   transform: translateX(-100%); /* Lo mueve fuera de la vista */
   opacity: 0;
   visibility: hidden;
+  /* Transición específica para que el width desaparezca rápido */
   transition: all 0.3s ease, width 0s 0.3s, opacity 0.3s ease, padding 0.3s ease;
 }
 
-/* Botones para el Sidebar */
-#toggleSidebarDesktop { 
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-#toggleSidebarDesktop:hover {
-  background: var(--secondary-color);
-}
-
+/* Botones para el Sidebar Flotante (sólo Escritorio) */
 .show-sidebar-btn {
   position: fixed;
   left: 0;
@@ -124,11 +111,6 @@ body {
   padding: 12px 12px 12px 8px;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-50%) translateX(-10px); }
-  to { opacity: 1; transform: translateY(-50%) translateX(0); }
-}
-
 /* --- Main Content Styles --- */
 .main-content {
   flex-grow: 1; 
@@ -139,100 +121,105 @@ body {
 }
 
 
-/* --- Responsive Styles --- */
-@media (max-width: 992px) {
+/* --- Responsive Styles (Móvil/Tablet: max-width 991.98px) --- */
+@media (max-width: 991.98px) {
   .sidebar {
-    position: fixed;
-    left: -280px; 
-    top: 72px;
-    height: calc(100vh - 72px);
-    z-index: 1000;
-    width: 280px;
-    transform: none; 
-    opacity: 1;
-    visibility: visible;
-    padding: 1rem; 
+      position: fixed; /* Fijo para móvil, superponiéndose al contenido */
+      left: -280px; /* **CORRECCIÓN:** Estado oculto por defecto */
+      top: 72px;
+      height: calc(100vh - 72px);
+      z-index: 1050; /* **CORRECCIÓN:** Z-index alto para estar sobre el main-content */
+      width: 280px;
+      /* Sobrescribir las reglas de escritorio */
+      transform: none; 
+      opacity: 1; 
+      visibility: visible;
+      padding: 1rem; 
+      /* **CORRECCIÓN:** Solo transicionar la propiedad 'left' */
+      transition: left 0.3s ease; 
   }
   
   .sidebar.show { 
-    left: 0; 
+      /* **CORRECCIÓN:** Estado visible en móvil, activado por #sidebarToggle */
+      left: 0; 
   }
   
   .sidebar.collapsed { 
-    left: -280px;
-    transform: none; 
-    opacity: 1; 
-    visibility: visible;
-    padding: 1rem; 
+      /* Neutralizamos la regla de .collapsed en móvil. 
+         La clase .sidebar principal ya lo oculta. */
+      left: -280px;
   }
   
   .main-content {
-    padding: 1.5rem; 
-    flex-grow: 1; 
-    flex-basis: auto; 
+      padding: 1.5rem; 
+      flex-grow: 1; 
+      flex-basis: auto; 
   }
   
+  /* El botón flotante de escritorio no debe mostrarse en móvil */
   .show-sidebar-btn {
-    display: none !important; 
+      display: none !important; 
   }
-
-  /* Para que el row y el container-fluid no interfieran con el layout de sidebar en móvil */
+  
+  /* Asegura que el layout principal permita el scroll de la página en móvil */
   .container-fluid.flex-grow-1, .row.h-100 {
       flex-direction: column;
       flex-wrap: wrap; 
   }
 }
 
-/* --- Estilos para las tarjetas de alimentos --- */
+
+/* --- Estilos para las tarjetas de alimentos y otros componentes (SIN CAMBIOS) --- */
+
 .card-img-top-container {
-    height: 180px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    background-color: #f0f0f0;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 
 .card-img-custom {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 
 /* Ajustes para el cuerpo de la tarjeta */
 .card-body {
-    padding: 1.25rem;
+  padding: 1.25rem;
 }
 
 .card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    height: 3rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  height: 3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .card-text {
-    font-size: 0.875rem;
-    line-height: 1.4;
-    margin-bottom: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
 }
 
 /* Asegura que los botones al final de la tarjeta se alineen */
 .card.h-100 {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 .card-body {
-    flex-grow: 1;
+  flex-grow: 1;
 }
 
 /* Resto de estilos (cards, tables, etc.) */
@@ -327,27 +314,27 @@ body {
 }
 /* Estilos para el espiral de carga */
 .loading-spinner {
-    display: none;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
-    margin-top: 15px;
-    padding: 8px 0;
-    color: var(--bs-primary);
-    font-size: 0.95rem;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
+  display: none;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 8px 0;
+  color: var(--bs-primary);
+  font-size: 0.95rem;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
 }
 
 /* Estado cuando el spinner es visible */
 .loading-spinner[style*="display: flex"] {
-    opacity: 1;
+  opacity: 1;
 }
 
 /* Opcional: Estilos para el botón cuando está deshabilitado y cargando */
 #addFoodButton[disabled] {
-    opacity: 0.7;
-    cursor: not-allowed;
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 [data-bs-theme="dark"] {
   background-color: #121212;
@@ -368,7 +355,7 @@ body {
 .swal2-styled.swal2-cancel:hover {
   background-color: #5a6268 !important;
   }
-  /* Asegúrate de que los SweetAlerts siempre estén encima de todo */
+/* Asegúrate de que los SweetAlerts siempre estén encima de todo */
 .swal2-container {
 z-index: 9999 !important;
 }
