@@ -7,6 +7,7 @@ from flask_babel import Babel, gettext as _
 
 load_dotenv()
 
+
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
@@ -21,12 +22,10 @@ google = oauth.register(
     name='google',
     client_id=os.getenv('GOOGLE_OAUTH_CLIENT_ID'),
     client_secret=os.getenv('GOOGLE_OAUTH_CLIENT_SECRET'),
-    access_token_url='https://accounts.google.com/o/oauth2/token',
-    authorize_url='https://accounts.google.com/o/oauth2/auth',
-    api_base_url='https://www.googleapis.com/oauth2/v1/',
-    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',
-    client_kwargs={'scope': 'openid email profile'},
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
 )
 
 # Configuración de Flask-Babel para internacionalización

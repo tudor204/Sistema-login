@@ -72,37 +72,45 @@ def login():
 @app.route('/login/google')
 def login_google():
     redirect_uri = url_for('authorize_google', _external=True)
+           
     return google.authorize_redirect(redirect_uri)
 
 @app.route('/authorize/google')
 def authorize_google():
-    claims_options = {
-        "iss": {
-            "values": ["https://accounts.google.com", "accounts.google.com"]
-        }
-    }
-    token = google.authorize_access_token(claims_options=claims_options)
-    resp = google.get('userinfo')
-    user_info = resp.json()
+       
+  
+    token = google.authorize_access_token()   
+    user_info = token.get('userinfo')
     
-    # Extraemos email y nombre
-    email = user_info['email']
-    username = user_info.get('name', email.split('@')[0])
+    if not user_info:
+       
+        resp = google.get('userinfo')
+        resp.raise_for_status() 
+        user_info = resp.json()
 
-    # Buscar usuario en BD por email
+    email = user_info['email']    
+    username = user_info.get('name', email.split('@')[0])
+    
+    # Busca al usuario en tu base de datos por su email
     user = User.get_by_email(email)
     
     if not user:
-        # Crear usuario nuevo si no existe
-        # Asegúrate de que User.create pueda manejar la creación sin contraseña si es necesario para Google
-        User.create(username, email) 
-        user = User.get_by_email(email)
+        # Si el usuario no existe, lo creamos
+        # Asegúrate de que User.create maneje el caso de google_id
+        user_id = User.create(username=username, email=email, google_id=user_info.get('sub'))
+        user = User.get_by_id(user_id) # Obtenemos el objeto User recién creado
 
-    # Loguear usuario
-    login_user(user)
-    flash(f'Has iniciado sesión como {user.username} con Google', 'success')    
-    if user_has_settings(user.id):
-        return redirect(url_for('dashboard'))
+    # Inicia sesión con el usuario (existente o nuevo)
+    if user:
+        login_user(user)
+        flash(f'Has iniciado sesión como {user.username} con Google', 'success')
+        
+        if user_has_settings(user.id):
+            return redirect(url_for('dashboard'))
+        else:
+            return redirect(url_for('settings'))
     else:
-        return redirect(url_for('settings'))
+        flash('Hubo un error al intentar iniciar sesión con Google.', 'danger')
+        return redirect(url_for('login'))
+
 
