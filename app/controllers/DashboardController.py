@@ -9,7 +9,7 @@ import random
 import os
 import sys
 import logging # Importa el módulo logging
-from app.utils.nocache import nocache
+
 
 # Configura el logging al inicio del archivo o en tu archivo principal de la aplicación (app.py)
 # Asegúrate de que el nivel sea DEBUG para ver todos los mensajes.
@@ -21,7 +21,6 @@ from app.utils.tips import nutritional_tips
 
 @app.route('/dashboard')
 @login_required
-@nocache
 def dashboard():
     logging.debug(f"Accediendo a la ruta /dashboard para el usuario: {current_user.id}")
 
@@ -133,7 +132,6 @@ def dashboard():
 
 @app.route('/add_water_intake', methods=['POST'])
 @login_required
-@nocache
 def add_water_intake():
     water_quantity_ml = request.form.get('water-quantity', type=float)
 

@@ -11,7 +11,6 @@ from app.models.ActivityModel import (
     save_custom_activity
 )
 from datetime import datetime
-from app.utils.nocache import nocache
 
 # Función de ayuda para convertir objetos sqlite3.Row a diccionarios
 def row_to_dict(row):
@@ -21,7 +20,7 @@ def row_to_dict(row):
 
 @app.route('/activity')
 @login_required
-@nocache
+
 def activity():
     user_id = current_user.id
     today_date = datetime.now().strftime('%Y-%m-%d')
@@ -32,7 +31,6 @@ def activity():
 
 @app.route('/register_activity', methods=['POST'])
 @login_required
-@nocache
 def register_activity():
     activity_name = request.form.get('activity_name')
     duration_minutes = request.form.get('duration_minutes', type=int)
@@ -70,7 +68,6 @@ def register_activity():
 # 📌 Editar actividad
 @app.route('/activity/edit/<int:activity_id>', methods=['POST'])
 @login_required
-@nocache
 def edit_activity(activity_id):
     activity_name = request.form.get('activity_name')
     duration_minutes = request.form.get('duration_minutes', type=int)
@@ -100,7 +97,6 @@ def edit_activity(activity_id):
 #  Eliminar actividad
 @app.route('/activity/delete/<int:activity_id>', methods=['POST'])
 @login_required
-@nocache
 def delete_activity_route(activity_id):
     user_id = current_user.id
 
@@ -129,7 +125,6 @@ def delete_activity_route(activity_id):
 
 @app.route('/activity/add', methods=['GET', 'POST'])
 @login_required
-@nocache
 def add_custom_activity():
     if request.method == 'POST':
         activity_name = request.form.get('activity_name')

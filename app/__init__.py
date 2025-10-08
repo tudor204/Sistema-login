@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, request, session
+from flask import Flask, request, session, make_response
 from flask_login import LoginManager
 from authlib.integrations.flask_client import OAuth
 from flask_babel import Babel, gettext as _
@@ -47,6 +47,24 @@ from app.models.LoginGoogleModel import User
 @login_manager.user_loader
 def load_user(user_id):
     return User.get_by_id(user_id)
+
+@app.after_request
+def add_security_headers(response):
+    """
+    Añade los encabezados de no-caché a TODAS las respuestas de la aplicación.
+    Esto garantiza que, tras un logout, el navegador debe recargar.
+    """
+    # Encabezados estándar para prevenir la caché
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    
+    # Otro encabezado útil para prevenir que la página sea almacenada en el historial
+    # y re-renderizada sin consulta al servidor.
+    response.headers['X-Content-Type-Options'] = 'nosniff' 
+    
+    return response
+
 
 from app.controllers import (
     LoginGoogleController,

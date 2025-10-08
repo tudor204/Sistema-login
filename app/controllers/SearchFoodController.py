@@ -4,12 +4,11 @@ from app import app
 import requests
 from app.models.SearchFoodModel import save_food_entry, calculate_macros_for_quantity, get_food_entries_for_date
 from datetime import date
-from app.utils.nocache import nocache
+
 
 
 @app.route('/search_food')
 @login_required
-@nocache
 def search_food():
     query = request.args.get('query', '').strip()
 
@@ -69,7 +68,6 @@ def search_food():
 
 @app.route('/food_detail')
 @login_required
-@nocache
 def food_detail():
     product_code = request.args.get('code') 
 
@@ -115,7 +113,6 @@ def food_detail():
 
 @app.route('/save_food', methods=['POST'])
 @login_required
-@nocache
 def save_food():
     food_name = request.form.get('food_name')
     calories_100g = request.form.get('calories_per_100g', type=float)

@@ -5,11 +5,10 @@ from app.models.SettingsModel import (
     get_user_goals,
     save_user_initial_settings,
 )
-from app.utils.nocache import nocache
+
 
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
-@nocache
 def settings():
     # Obtener las metas del usuario para mostrarlas en el formulario
     goals = get_user_goals(current_user.id)
