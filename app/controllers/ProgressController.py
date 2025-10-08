@@ -4,10 +4,12 @@ from app import app
 from app.conexion import get_db_cursor
 from app.models.ProgressModel import obtener_dias_registrados, obtener_resumen_dia
 import datetime
+from app.utils.nocache import nocache
 
 @app.route('/progreso')
 @app.route('/progreso/<fecha>')
 @login_required
+@nocache
 def progreso(fecha=None):
     # Usar día actual si no se especifica fecha
     if not fecha:

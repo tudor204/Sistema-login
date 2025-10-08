@@ -3,7 +3,7 @@ from flask_login import logout_user, login_required, current_user
 from app import app
 from werkzeug.utils import secure_filename
 import os
-
+from app.utils.nocache import nocache
 
 from app.models.UsersModel import (
     allowed_file,
@@ -28,6 +28,7 @@ def inject_prefs():
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
+@nocache
 def profile():
     if request.method == 'POST':
         full_name = request.form.get('full_name', '').strip()
@@ -88,6 +89,7 @@ def profile():
 
 @app.route('/configuracion', methods=['GET', 'POST'])
 @login_required
+@nocache
 def configuracion():
     if request.method == 'POST':
         preferencias = {
@@ -110,6 +112,7 @@ def configuracion():
 
 @app.route('/cambiar-password', methods=['GET', 'POST'])
 @login_required
+@nocache
 def cambiar_password():
     if request.method == 'POST':
         current_password = request.form.get('current_password', '')
@@ -132,6 +135,7 @@ def cambiar_password():
 
 @app.route('/cambiar-email', methods=['GET', 'POST'])
 @login_required
+@nocache
 def cambiar_email():
     if request.method == 'POST':
         nuevo_email = request.form.get('nuevo_email', '').strip()
@@ -150,6 +154,7 @@ def cambiar_email():
 
 @app.route('/eliminar-cuenta', methods=['GET', 'POST'])
 @login_required
+@nocache
 def eliminar_cuenta():
     if request.method == 'POST':
         password = request.form.get('password', '')
@@ -170,6 +175,7 @@ def eliminar_cuenta():
 
 @app.route('/logout')
 @login_required
+@nocache
 def logout():
     logout_user()
     flash('Sesión cerrada', 'info')

@@ -9,9 +9,11 @@ from app.models.MyFoodModel import (
     get_totales_diarios
 )
 from datetime import datetime
+from app.utils.nocache import nocache
 
 @app.route('/mis-comidas')
 @login_required
+@nocache
 def mis_comidas():
     try:
         # Histórico completo de comidas
@@ -35,6 +37,7 @@ def mis_comidas():
 
 @app.route('/comidas/eliminar/<int:comida_id>', methods=['POST'])
 @login_required
+@nocache
 def eliminar_comida_route(comida_id):
     try:
         deleted = delete_comida(current_user.id, comida_id)
@@ -51,6 +54,7 @@ def eliminar_comida_route(comida_id):
 
 @app.route('/comidas/editar/<int:comida_id>', methods=['GET', 'POST'])
 @login_required
+@nocache
 def editar_comida_route(comida_id):
     comida = get_comida_by_id(current_user.id, comida_id)
     if not comida:
@@ -119,6 +123,7 @@ def editar_comida_route(comida_id):
 
 @app.route('/agregar-comida', methods=['GET', 'POST'])
 @login_required
+@nocache
 def agregar_comida_route():
     today_str = date.today().strftime('%Y-%m-%d')  # Definimos hoy al inicio
     if request.method == 'POST':
@@ -181,6 +186,7 @@ def agregar_comida_route():
 
 @app.route('/comidas/duplicar/<int:comida_id>', methods=['POST'])
 @login_required
+@nocache
 def duplicar_comida_route(comida_id):
     try:
         comida = get_comida_by_id(current_user.id, comida_id)
