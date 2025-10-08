@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user
 from app import app, google
-from app.models.LoginGoogleModel import User
+from app.models.LoginGoogleModel import User, UserExistsError
 from app.conexion import get_db_cursor
 from app.models.SettingsModel import get_user_goals
 
@@ -18,27 +18,31 @@ def register():
         password = request.form['password']
         email = request.form.get('email')
 
-        if not username or not password:
-            flash('Usuario y contraseña son obligatorios', 'danger')
+        if not username or not password or not email: # Asegurar que email también sea obligatorio
+            flash('Usuario, email y contraseña son obligatorios', 'danger')
             return redirect(url_for('register'))
 
         try:
-            with get_db_cursor() as cur:
-                cur.execute("SELECT id FROM loggin WHERE username = ? OR email = ?", 
-                            (username, email))
-                if cur.fetchone():
-                    flash('Usuario o email ya registrado', 'warning')
-                    return redirect(url_for('register'))
-                
-                hashed_password = generate_password_hash(password)
-                user_id = User.create(username, email, hashed_password)
-                
-                flash('Registro exitoso. Por favor inicia sesión', 'success')
-                return redirect(url_for('login'))
+            # 1. CENTRALIZACIÓN DE LA LÓGICA: Llama al modelo para verificar duplicados
+            User.check_for_duplicates(username, email) 
+            
+            # 2. Si no hay excepción (no hay duplicados), procedemos a crear
+            hashed_password = generate_password_hash(password)
+            user_id = User.create(username, email, hashed_password)
+            
+            flash('Registro exitoso. Por favor, inicia sesión', 'success')
+            return redirect(url_for('login'))
         
+        except UserExistsError as e:
+            # 3. Captura la excepción específica y notifica al usuario
+            flash(str(e), 'warning') # str(e) contiene el mensaje detallado (Ej: "El email ya está en uso.")
+            return redirect(url_for('register'))
+            
         except Exception as e:
+            # 4. Captura cualquier otro error (problemas de conexión, etc.)
             flash(f'Error al registrar: {str(e)}', 'danger')
-    
+            return render_template('LoginGoogle/register.html')
+            
     return render_template('LoginGoogle/register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
