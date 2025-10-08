@@ -107,10 +107,11 @@ def calculate_daily_activity_minutes(activity_level: str, goal: str, age: int = 
 
 
 def save_user_initial_settings(user_id, weight, height, age, gender, activity_level, goal):
+    # Los cálculos no necesitan la BBDD, se hacen primero
     calories, proteins, fats, carbs = calculate_macros(weight, height, age, gender, activity_level, goal)
-    with get_db_cursor() as cur:
-            daily_activity = calculate_daily_activity_minutes(activity_level, goal, age)
+    daily_activity = calculate_daily_activity_minutes(activity_level, goal, age)
 
+    # Ahora, una sola conexión para guardar todo
     with get_db_cursor() as cur:
         cur.execute("""
             INSERT OR REPLACE INTO user_goals 
@@ -121,5 +122,4 @@ def save_user_initial_settings(user_id, weight, height, age, gender, activity_le
             calories, proteins, fats, carbs,
             2.5, daily_activity, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         ))
-
         
