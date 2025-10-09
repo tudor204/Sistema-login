@@ -87,7 +87,21 @@ def food_detail():
             flash("Producto no encontrado o datos incompletos.", "danger")
             return redirect(url_for('search_food'))
 
-        nombre = product.get('product_name', 'Sin nombre')
+        nombre = product.get('product_name', 'Sin nombre')        
+        
+        # 🟢 LÓGICA DE EXTRACCIÓN DEL PESO NETO
+        raw_quantity = product.get('quantity', '') 
+        package_grams = 0
+        
+        if isinstance(raw_quantity, str):
+            try:                
+                parts = raw_quantity.split()
+                if parts and parts[0].replace('.', '', 1).isdigit():                    
+                    package_grams = int(float(parts[0]))
+            except:
+                package_grams = 0 
+        
+        
         nutriments = product.get('nutriments', {})
         calorias = nutriments.get('energy-kcal_100g', 'N/D')
         proteinas = nutriments.get('proteins_100g', 'N/D')
@@ -101,15 +115,16 @@ def food_detail():
                                proteinas=proteinas,
                                grasas=grasas,
                                carbohidratos=carbohidratos,
-                               imagen=imagen)
-
+                               imagen=imagen,                               
+                               package_grams=package_grams,
+                               raw_quantity=raw_quantity) 
+    
     except requests.exceptions.RequestException as e:
         flash(f"Error de conexión al obtener detalles del alimento: {str(e)}", "danger")
         return redirect(url_for('search_food'))
     except Exception as e:
         flash(f"Error inesperado al obtener detalles del alimento: {str(e)}", "danger")
         return redirect(url_for('search_food'))
-
 
 @app.route('/save_food', methods=['POST'])
 @login_required

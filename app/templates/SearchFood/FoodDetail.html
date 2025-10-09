@@ -15,21 +15,25 @@
   <div class="card shadow-sm">
     <div class="row g-0">
       <div class="col-md-4 text-center p-3">
-        {# Usamos url_for para el fallback y el onerror para depuración #}
+        {# AJUSTE VISUAL: Estilos para que la imagen se ajuste y no se deforme #}
         <img src="{{ imagen or url_for('static', filename='default-food.jpg') }}"
-             alt="Imagen de {{ nombre }}"
-             class="img-fluid rounded"
-             onerror="this.onerror=null;this.src='{{ url_for('static', filename='default-food.jpg') }}'; console.error('Error al cargar la imagen: ' + this.src);">
+        alt="Imagen de {{ nombre }}"
+        class="img-fluid rounded"
+        onerror="this.onerror=null;this.src='{{ url_for('static', filename='default-food.jpg') }}'; console.error('Error al cargar la imagen: ' + this.src);">
       </div>
       <div class="col-md-8">
         <div class="card-body">
           <h2 class="card-title">{{ nombre }}</h2>
+          
+          {# 🟢 MOSTRAR LA CANTIDAD DEL PAQUETE #}
+          <p class="card-text"><strong>Cantidad del paquete:</strong> {{ raw_quantity or 'N/D' }}</p>
+
           <p class="card-text"><strong>Calorías por 100g:</strong> {{ calorias }} kcal</p>
           <p class="card-text"><strong>Proteínas por 100g:</strong> {{ proteinas }} g</p>
           <p class="card-text"><strong>Grasas por 100g:</strong> {{ grasas }} g</p>
           <p class="card-text"><strong>Carbohidratos por 100g:</strong> {{ carbohidratos }} g</p>
 
-          <form method="POST" action="{{ url_for('save_food') }}" id="foodForm">
+          <form action="{{ url_for('save_food') }}" id="foodForm">
             <input type="hidden" name="food_name" value="{{ nombre }}">
             <input type="hidden" name="calories_per_100g" value="{{ calorias if calorias != 'N/D' else 0 }}">
             <input type="hidden" name="proteins_per_100g" value="{{ proteinas if proteinas != 'N/D' else 0 }}">
@@ -37,23 +41,30 @@
             <input type="hidden" name="carbs_per_100g" value="{{ carbohidratos if carbohidratos != 'N/D' else 0 }}">
 
             <div class="mb-3">
-              <label for="quantity" class="form-label">Cantidad (gramos)</label>
-              <input type="number" min="1" step="1" id="quantity" name="quantity" class="form-control" value="100" required>
+              <label for="quantity" class="form-label">Cantidad a consumir (gramos)</label>
+              <input 
+                type="number" 
+                min="1" 
+                step="1" 
+                id="quantity" 
+                name="quantity" 
+                class="form-control" 
+                {# 🟢 PRE-RELLENAR con el peso del paquete (package_grams) si está disponible #}
+                value="{{ package_grams if package_grams and package_grams > 0 else 100 }}" 
+                required
+              >
               <div class="form-text">Introduce la cantidad en gramos para calcular los macros.</div>
             </div>
 
+            {# BOTÓN CON SPINNER INTEGRADO #}
             <button
-              class="btn btn-primary" {# Cambiamos la clase a btn-primary o tu botón principal #}
+              class="btn btn-primary"
               type="submit"
               id="addFoodButton">
-              Añadir alimento
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: none;"></span>
+              <span class="button-text"><i class="fas fa-plus me-1"></i>Añadir alimento</span>
             </button>
-            <div id="loadingSpinner" class="loading-spinner">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-              </div>
-              <span class="ms-2">Añadiendo alimento...</span>
-            </div>
+            
           </form>
         </div>
       </div>
@@ -63,26 +74,38 @@
 {% endblock %}
 
 {% block scripts %}
-  {{ super() }} {# ¡IMPORTANTE! Esto hereda los scripts de base.html #}
+  {{ super() }} 
   <script>
+    function showSweetAlertMessage(message, category){
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: category === 'success' ? 'success' : 'error',
+            title: message,
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       const form = document.getElementById('foodForm');
       const addButton = document.getElementById('addFoodButton');
-      const loadingSpinner = document.getElementById('loadingSpinner');
+      const btnSpinner = addButton.querySelector('.spinner-border');
+      const btnText = addButton.querySelector('.button-text');
+      const quantityInput = document.getElementById('quantity');
+      
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
 
-      // Eliminamos la clase 'confirm-action' si el botón la tiene, para manejar la lógica aquí
-      if (addButton.classList.contains('confirm-action')) {
-          addButton.classList.remove('confirm-action');
-      }
+        if (parseInt(quantityInput.value) <= 0) {
+            showSweetAlertMessage('La cantidad debe ser mayor a cero.','error');
+            return;
+        }
 
-      // Añadimos nuestro propio evento de click al botón
-      addButton.addEventListener('click', function(event) {
-        event.preventDefault(); // Detenemos el envío del formulario inicial
-
-        // SweetAlert para la confirmación
         Swal.fire({
-            title: this.dataset.confirmText || "¿Estás seguro que quieres añadir este alimento?",
-            icon: 'question', // Cambiado a 'question' o 'info' para ser menos alarmante
+            title: "¿Estás seguro que quieres añadir este alimento?",
+            icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Sí, añadir',
             cancelButtonText: 'Cancelar',
@@ -90,15 +113,53 @@
             cancelButtonColor: '#d33',
         }).then((result) => {
             if (result.isConfirmed) {
-                // Si el usuario confirma, mostramos el spinner y deshabilitamos el botón
-                loadingSpinner.style.display = 'flex'; // Usamos 'flex' para centrar si aplicamos CSS
+                // INICIO DE CARGA
                 addButton.disabled = true;
-                addButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Añadiendo...';
+                btnSpinner.style.display = 'inline-block';
+                btnText.style.display = 'none';
+
+                const formData = new FormData(form);
                 
-                // Simular el tiempo de carga antes de enviar el formulario
-                setTimeout(function() {
-                    form.submit(); // Envía el formulario después del retraso
-                }, 2000); // 3000 milisegundos = 3 segundos
+                // ENVÍO ASÍNCRONO (AJAX)
+                fetch(form.action, {
+                    method: 'POST', 
+                    body: formData
+                })
+                .then(response => {
+                    // Manejo de redirección (si el backend responde con un redirect)
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.success) {
+                        showSweetAlertMessage(data.message || 'Alimento añadido con éxito.', 'success');
+                        
+                        if (data.redirect_url) {
+                            setTimeout(() => {
+                                window.location.href = data.redirect_url;
+                            }, 500);
+                        }
+                    } else if (data && data.message) {
+                         showSweetAlertMessage(data.message, 'error');
+                         addButton.disabled = false;
+                    } else {
+                        showSweetAlertMessage('Error desconocido al guardar.','error');
+                        addButton.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en la petición:', error);
+                    showSweetAlertMessage('Error de conexión o del servidor. Inténtalo de nuevo.','error');
+                    addButton.disabled = false;
+                })
+                .finally(() => {
+                    // FIN DE CARGA
+                    btnSpinner.style.display = 'none';
+                    btnText.style.display = 'inline-block';
+                });
             }
         });
       });
