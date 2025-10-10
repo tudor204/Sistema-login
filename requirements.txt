@@ -11,6 +11,7 @@ dance==0.0.1
 flask==3.0.3
 flask-babel==4.0.0
 Flask-Login==0.6.3
+flask-wtf==1.2.1
 gunicorn==23.0.0
 idna==3.10
 importlib-metadata==8.5.0
@@ -28,4 +29,5 @@ requests-oauthlib==2.0.0
 urllib3==2.2.3
 URLObject==2.4.3
 werkzeug==3.0.6
+wtforms==3.1.2
 zipp==3.20.2

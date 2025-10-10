@@ -1,305 +1,198 @@
+/* --- 1. Variables y Configuración Base (Tema Enfoque Profundo) --- */
 :root {
-    --primary-color: #4361ee;
-    --secondary-color: #3f37c9;
-    --accent-color: #4cc9f0;
-    --dark-color: #1a1a2e;
-    --light-color: #f8f9fa;
-    --success-color: #4bb543;
+    /* Paleta de colores principal */
+    --primary-color: #00E676;       /* Verde Neón (Acento) */
+    --primary-darker: #00C853;      /* Verde más oscuro para hover */
+    --frame-bg-color: #1D2A39;      /* Azul Pizarra Oscuro (Navbar/Sidebar) */
+    --frame-text-color: #EAEBF0;    /* Texto claro para el frame */
+    --frame-text-muted: #A8B1BD;    /* Texto más apagado para el frame */
+    --content-bg-color: #F4F6F9;    /* Gris claro para el fondo del contenido */
+    --surface-color: #FFFFFF;       /* Blanco para las tarjetas */
+    --content-text-color: #1D2A39;  /* Texto oscuro para el contenido */
+    --border-color: #E5E9F2;        /* Color de borde muy sutil */
+    
+    /* Variables de UI */
+    --font-main: 'Figtree', sans-serif;
+    --border-radius: 10px;
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.04);
+    --shadow-medium: 0 6px 20px rgba(0, 0, 0, 0.07);
+    --transition-speed: 0.2s;
 }
 
-/* --- Base Universal (Reset y Fuentes) --- */
 body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background-color: #f5f7ff;
-    color: #333;
+    font-family: var(--font-main);
+    background-color: var(--content-bg-color);
+    color: var(--content-text-color);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow-x: hidden; /* Previene el scroll horizontal no deseado */
+    overflow-x: hidden;
 }
 
-/* --- Estructura Global y Navbar --- */
-.navbar-brand {
-    font-weight: 700;
-    font-size: 1.5rem;
-    letter-spacing: -0.5px;
-}
+/* --- 2. Layout y Contenedores --- */
+.container-fluid.flex-grow-1 { display: flex; flex-direction: column; padding: 0; }
+.row.h-100 { display: flex; flex-grow: 1; flex-wrap: nowrap; margin: 0; overflow: hidden; }
 
+/* --- 3. Encabezado (Navbar) --- */
 .navbar {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    background: white !important;
-    position: sticky; /* Asegura que la barra de navegación se mantenga fija en el tope */
+    background-color: var(--frame-bg-color) !important;
+    position: sticky;
     top: 0;
     z-index: 1100;
+    height: 65px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Contenedor principal de la aplicación */
-.container-fluid.flex-grow-1 {
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - 72px - 70px); /* Ajuste basado en navbar(72px) y footer (estimado 70px) */
-    padding-left: 0;
-    padding-right: 0;
+.navbar-brand {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--frame-text-color) !important;
+}
+.navbar-brand .fa-leaf {
+    color: var(--primary-color);
 }
 
-.row.h-100 { 
-    display: flex;
-    flex-grow: 1; 
-    flex-wrap: nowrap; 
-    margin-left: 0; 
-    margin-right: 0;
-    overflow: hidden; 
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
+.user-photo {
+    width: 40px; height: 40px; object-fit: cover;
+    border: 2px solid var(--primary-color);
+}
+.user-name {
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    color: var(--frame-text-color) !important;
+}
+.dropdown-menu {
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-medium);
+    margin-top: 0.5rem !important;
+}
 
-/* --- Sidebar Styles (Desktop: >= 992px) --- */
+/* --- 4. Menú Lateral (Sidebar) --- */
 .sidebar {
-    width: 280px; 
-    background: white;
+    width: 250px; 
+    background: var(--frame-bg-color);
     position: sticky; 
-    top: 72px; 
-    border-right: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 1px 0 10px rgba(0, 0, 0, 0.02);
-    transition: all 0.3s ease;
+    top: 65px;
+    transition: all var(--transition-speed) ease-out;
     z-index: 100; 
     display: flex;
     flex-direction: column;
     flex-shrink: 0; 
-    height: calc(100vh - 72px); 
+    height: calc(100vh - 65px); 
     padding: 1rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.sidebar.collapsed {
-    /* Estado colapsado de ESCRITORIO (ancho cero con traslación) */
-    width: 0; 
-    padding: 0; 
-    transform: translateX(-100%); 
-    opacity: 0;
-    visibility: hidden;
-    /* Optimización de transición: evita el 'width' para una mejor performance */
-    transition: transform 0.3s ease, opacity 0.3s ease, width 0s 0.3s, padding 0.3s ease;
+.sidebar-title { color: var(--frame-text-muted); text-transform: uppercase; font-size: 0.75rem; font-weight: 700; }
+#closeSidebarBtn { background-color: rgba(255,255,255,0.1); border: none; color: white; }
+
+.sidebar .nav-link {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 16px; margin-bottom: 4px;
+    border-radius: 8px; font-weight: 500; font-size: 0.95rem;
+    color: var(--frame-text-muted);
+    transition: all var(--transition-speed) ease-out;
 }
 
-/* Botón flotante para Escritorio (solo visible cuando el sidebar está colapsado) */
-.show-sidebar-btn {
-    position: fixed;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 1050;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 0 5px 5px 0;
-    padding: 12px 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+.sidebar .nav-link .fa-fw { font-size: 1.1em; width: 20px; text-align: center; }
+
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--frame-text-color);
 }
 
-.show-sidebar-btn:hover {
-    background: var(--secondary-color);
-    padding: 12px 12px 12px 8px;
+.sidebar .nav-link.active {
+    background-color: var(--primary-color);
+    color: var(--content-text-color); /* Texto oscuro sobre el fondo verde */
+    font-weight: 700;
 }
+.sidebar .nav-link.active .fa-fw { color: var(--content-text-color); }
 
-/* --- Main Content Styles --- */
+.sidebar .border-top { border-color: rgba(255, 255, 255, 0.1) !important; }
+.sidebar .text-muted { color: var(--frame-text-muted) !important; }
+
+.sidebar.collapsed { width: 0; padding: 0; transform: translateX(-250px); opacity: 0; border: none; }
+.show-sidebar-btn { display: none; /* Simplificado para este diseño */ }
+
+/* --- 5. Contenido Principal (Main Content) --- */
 .main-content {
-    flex-grow: 1; 
-    flex-basis: 0; 
-    padding: 2rem 2.5rem; 
-    background-color: #f5f7ff;
+    flex-grow: 1; flex-basis: 0; 
+    padding: 2.5rem; 
     overflow-y: auto; 
 }
 
-/* --- Media Queries para Responsividad Total --- */
+/* --- 6. Componentes UI Reutilizables --- */
+.page-title { font-weight: 800; font-size: 2rem; color: var(--content-text-color); }
 
-/* 1. MÓVIL PEQUEÑO (max-width: 576px) */
-@media (max-width: 576px) {
-    .main-content {
-        padding: 1rem; /* Reduce el padding en pantallas muy pequeñas */
-    }
-    .page-header {
-        flex-direction: column; /* Apila el título y el botón */
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-    .page-title {
-        font-size: 1.5rem; /* Reduce el tamaño del título */
-    }
-}
-
-/* 2. MÓVIL y TABLETA (max-width: 991.98px) */
-@media (max-width: 991.98px) {
-    .row.h-100 {
-        /* Permite que el contenido fluya verticalmente en móvil */
-        flex-direction: column;
-        flex-wrap: wrap; 
-        overflow: visible; /* Permitimos el scroll de la página completa */
-    }
-
-    .sidebar {
-        position: fixed; 
-        /* Usamos unidades relativas en móvil para mayor adaptabilidad */
-        width: 80vw; /* El sidebar ocupa el 80% del ancho del viewport */
-        max-width: 280px; /* Pero nunca más de 280px */
-        left: -100vw; /* **Optimización:** Oculto completamente fuera del viewport */
-        top: 72px;
-        height: calc(100vh - 72px);
-        z-index: 1050; 
-        padding: 1rem; 
-        transition: left 0.3s ease; 
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada en móvil */
-    }
-    
-    .sidebar.show { 
-        left: 0; /* **Activado:** Se mueve a la posición visible */
-    }
-    
-    .sidebar.collapsed { 
-        /* Neutralizado en móvil */
-        left: -100vw; 
-    }
-    
-    .main-content {
-        /* Asegura que ocupe todo el ancho */
-        width: 100%;
-        padding: 1.5rem; 
-        flex-grow: 1; 
-        flex-basis: auto; 
-    }
-    
-    .show-sidebar-btn {
-        display: none !important; 
-    }
-}
-
-
-/* --- Componentes UI --- */
-
-/* Header de página */
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.page-title {
-    font-weight: 700;
-    color: var(--dark-color);
-    margin: 0;
-}
-
-/* Cards (Tarjetas) */
 .card {
     border: none;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    transition: transform var(--transition-speed) ease-out, box-shadow var(--transition-speed) ease-out;
 }
-
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-}
-
+.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-medium); }
 .card-header {
-    background-color: white;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    font-weight: 600;
-    border-radius: 12px 12px 0 0 !important;
+    background-color: var(--surface-color);
+    font-weight: 700;
+    color: var(--content-text-color);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
 }
+.card-body { padding: 1.5rem; }
 
-.card-img-top-container {
-    height: 180px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    background-color: #f0f0f0;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-}
-
-.card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    height: 3rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-}
-
-
-/* Botones y Formulario */
 .btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
-    font-weight: 500;
-    padding: 8px 20px;
-    border-radius: 8px;
-}
-
-.btn-primary:hover {
-    background-color: var(--secondary-color);
-    border-color: var(--secondary-color);
-}
-
-.table > thead {
-    background-color: rgba(67, 97, 238, 0.1);
-    color: var(--primary-color);
-}
-
-/* Avatar del Usuario */
-.user-avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    color: var(--content-text-color); /* Texto oscuro */
     font-weight: 700;
-    font-size: 1.1rem;
-    user-select: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    transition: all var(--transition-speed) ease-out;
+}
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--primary-darker);
+    border-color: var(--primary-darker);
+    color: var(--content-text-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
 }
 
-/* Estilos para Modo Oscuro */
+/* --- 7. Responsividad --- */
+@media (max-width: 991.98px) {
+    .row.h-100 { flex-direction: column; flex-wrap: wrap; overflow: visible; }
+    .sidebar {
+        position: fixed; width: 280px; left: -280px; top: 65px;
+        height: calc(100vh - 65px); z-index: 1050; 
+        box-shadow: 0 0 40px rgba(0,0,0,0.2);
+        transform: translateX(0);
+        border: none;
+    }
+    .sidebar.show { transform: translateX(280px); }
+    .main-content { width: 100%; padding: 1.5rem; }
+}
+@media (max-width: 576px) {
+    .main-content { padding: 1rem; }
+    .page-title { font-size: 1.8rem; }
+}
+
+/* --- 8. Modo Oscuro (adaptado al nuevo diseño) --- */
 [data-bs-theme="dark"] {
-    background-color: #121212;
-    color: #eee;
+    --frame-bg-color: #111927;
+    --content-bg-color: #0B101B;
+    --surface-color: #1D2A39;
+    --content-text-color: #F0F2F5;
+    --border-color: #313D4C;
 }
-
-[data-bs-theme="dark"] .card, [data-bs-theme="dark"] .sidebar, [data-bs-theme="dark"] .navbar {
-    background-color: #1e1e1e !important;
-    border-color: #333 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-[data-bs-theme="dark"] .card-header, [data-bs-theme="dark"] .main-content {
-    background-color: #121212 !important;
-}
-
-[data-bs-theme="dark"] .text-muted {
-    color: #aaa !important;
-}
-
-/* SweetAlert y Componentes Flotantes */
-.swal2-container {
-    z-index: 9999 !important;
-}
-
-.swal2-styled.swal2-confirm {
-    background-color: var(--primary-color) !important;
-}
-.swal2-styled.swal2-confirm:hover {
-    background-color: var(--secondary-color) !important;
-}
-.swal2-styled.swal2-cancel {
-    background-color: #6c757d !important;
+[data-bs-theme="dark"] footer, [data-bs-theme="dark"] footer a {
+    color: var(--frame-text-muted) !important;
 }
