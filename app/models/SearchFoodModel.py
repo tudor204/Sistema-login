@@ -65,7 +65,7 @@ def get_food_entries_for_date(user_id, target_date=None):
             ''', (user_id, target_date))
             
             rows = cursor.fetchall()
-            # Convertir a lista de diccionarios
+            # Convertir a lista de diccionario 
             alimentos = [{
                 "nombre": row[0],
                 "calorias": row[1],
