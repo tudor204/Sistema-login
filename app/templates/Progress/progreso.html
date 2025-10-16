@@ -2,202 +2,438 @@
 {% block title %}Mi Progreso | NutriTrack Pro{% endblock %}
 
 {% block section %}
-<div class="container py-4">
-  <!-- Título y selector de fecha -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">
-      <i class="fas fa-chart-line me-2 text-primary"></i>
-      Seguimiento de Progreso
-    </h1>
-    <form id="datepickerForm" class="d-flex gap-2">
-      <input 
-        type="text" 
-        class="form-control" 
-        id="datepicker" 
-        autocomplete="off" 
-        placeholder="Selecciona una fecha" 
-        value="{{ fecha_seleccionada }}"
-        aria-label="Selector de fecha"
-      >
-      <button type="button" id="btnVerFecha" class="btn btn-outline-primary">
-        Ver
-      </button>
-    </form>
-  </div>
+<!-- 
+======================================================
+ESTILOS PERSONALIZADOS: PALETA Y DISEÑO PROFESIONAL
+======================================================
+-->
+<style>
+    /* 1. Definición de Variables de Color (Paleta "Aura Health") */
+    :root {
+        --color-primary-dark: #1e88e5; /* Azul Fuerte (para texto principal) */
+        --color-accent: #00bcd4;     /* Cyan Vibrante (para acciones y progreso) */
+        --color-success: #43a047;    /* Verde Saludable (para consumo) */
+        --color-danger: #f4511e;     /* Naranja Coral (para calorías quemadas) */
+        --color-secondary: #7e57c2;  /* Violeta Suave (para balance/meta) */
+        --color-bg-light: #fdfdfd;   /* Fondo muy claro */
+        --color-gray-light: #eceff1; /* Gris claro para fondos de tarjetas */
+        --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
 
-  <!-- Gráficos de calorías y macros -->
-  <div class="row">
-    <div class="col-lg-8 mb-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-white border-bottom">
-          <h5 class="mb-0 text-primary">Calorías consumidas (últimos 7 días)</h5>
-        </div>
-        <div class="card-body">
-          <canvas id="caloriasChart" height="150"></canvas>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-4 mb-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-white border-bottom">
-          <h5 class="mb-0 text-primary">Distribución de Macronutrientes</h5>
-        </div>
-        <div class="card-body">
-          <canvas id="macrosChart" height="200"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
+    /* 2. Estilos Globales y de Tarjeta (Cards) */
+    .card {
+        border: none !important;
+        border-radius: 1rem !important;
+        box-shadow: var(--shadow-soft) !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background-color: white; /* Limpieza */
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover) !important;
+    }
 
-  <!-- Resumen diario -->
-  <div class="row">
-    <!-- Alimentos -->
-    <div class="col-md-6 mb-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-white border-bottom">
-          <h5 class="mb-0 text-success">Alimentos registrados ({{ fecha_seleccionada }})</h5>
-        </div>
-        <div class="card-body">
-          {% if resumen_dia.alimentos %}
-            <ul class="list-group list-group-flush">
-              {% for item in resumen_dia.alimentos %}
-              <li class="list-group-item px-0">
-                <div class="d-flex justify-content-between">
-                  <strong>{{ item.name }}</strong>
-                  <span class="text-muted">{{ '%.1f'|format(item.calories) }} kcal</span>
+    /* 3. Estilo para la Navegación Lateral (Días) */
+    .day-nav-link {
+        border-radius: 0.75rem; /* Más redondeado */
+        transition: background-color 0.2s, color 0.2s, transform 0.1s;
+        padding: 0.75rem 1rem;
+        display: block;
+        color: var(--color-primary-dark);
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+    .day-nav-link:hover {
+        background-color: var(--color-gray-light);
+        transform: translateX(3px); /* Pequeño desplazamiento en hover */
+    }
+    .day-nav-link.active {
+        background-color: var(--color-accent) !important; 
+        color: white !important;
+        font-weight: 700;
+        box-shadow: 0 4px 10px rgba(0, 188, 212, 0.4); /* Sombra acentuada */
+    }
+
+    /* 4. Estilos de las Métricas (Tarjetas de Resumen Diario) */
+    .metric-box {
+        background-color: var(--color-bg-light); 
+        border: 1px solid var(--color-gray-light);
+        border-radius: 0.75rem;
+        padding: 1.5rem !important; /* Más espacio */
+        transition: all 0.3s ease;
+        cursor: default;
+    }
+    .metric-box:hover {
+        transform: scale(1.02);
+        background-color: white;
+    }
+    .summary-card-metric {
+        font-size: 2rem; /* Más grande y legible */
+        font-weight: 800;
+        line-height: 1.1;
+    }
+    .text-custom-primary { color: var(--color-primary-dark) !important; }
+    .text-custom-accent { color: var(--color-accent) !important; }
+    .text-custom-success { color: var(--color-success) !important; }
+    .text-custom-danger { color: var(--color-danger) !important; }
+    .text-custom-secondary { color: var(--color-secondary) !important; }
+
+    /* 5. Barras de Progreso Personalizadas (para el detalle de alimentos/actividades) */
+    .macro-badge {
+        font-size: 0.75rem;
+        padding: 0.3em 0.7em;
+        border-radius: 1rem;
+        font-weight: 600;
+        transition: background-color 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .bg-macro-prot { background-color: #bbdefb; color: var(--color-primary-dark); }
+    .bg-macro-fat { background-color: #ffccbc; color: var(--color-danger); }
+    .bg-macro-carb { background-color: #fff9c4; color: #ffab00; }
+
+</style>
+
+<div class="container-fluid py-5" style="background-color: var(--color-gray-light);">
+    <div class="row">
+        <!-- Columna de Navegación Lateral (Días Registrados) -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-2">
+                    <h5 class="mb-0 text-custom-primary fw-bold">Días con Registro</h5>
                 </div>
-                <div class="text-muted small">
-                  {{ '%.1f'|format(item.proteins) }}g proteínas ·
-                  {{ '%.1f'|format(item.carbs) }}g carbos ·
-                  {{ '%.1f'|format(item.fats) }}g grasas
+                <div class="card-body p-3">
+                    <p class="text-muted small px-3">
+                        Día Seleccionado: <strong>{{ fecha_obj.strftime('%d de %B') }}</strong>
+                    </p>
+                    <div class="list-group list-group-flush">
+                        {% for dia in dias_disponibles %}
+                        <a href="{{ url_for('progreso', fecha=dia.fecha) }}" 
+                           class="list-group-item list-group-item-action border-0 day-nav-link 
+                                  {% if dia.fecha == fecha_seleccionada %}active{% endif %}">
+                            <span class="fw-bold">{{ dia.dia_semana }}</span>
+                            <span class="float-end">{{ dia.fecha.split('-')|join('/') }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
                 </div>
-              </li>
-              {% endfor %}
-            </ul>
-          {% else %}
-            <p class="text-muted mb-0">No hay alimentos registrados para este día.</p>
-          {% endif %}
+            </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Actividades -->
-    <div class="col-md-6 mb-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-white border-bottom">
-          <h5 class="mb-0 text-danger">Actividades registradas ({{ fecha_seleccionada }})</h5>
+        <!-- Contenido Principal -->
+        <div class="col-lg-9 col-md-8">
+            <h1 class="h3 mb-5 fw-light">
+                <i class="fas fa-chart-line me-3 text-custom-primary"></i>
+                Progreso para el día: <span class="fw-bold text-custom-accent">{{ fecha_obj.strftime('%A, %d de %B') }}</span>
+            </h1>
+
+            <!-- Dashboard de Resumen Diario -->
+            <div class="row mb-5">
+                <!-- Tarjeta de Resumen Principal -->
+                <div class="col-lg-12">
+                    <div class="card p-3">
+                        <div class="card-body p-1">
+                            <h4 class="card-title mb-4 fw-bold text-custom-primary">Balance de Calorías</h4>
+                            <div class="row text-center">
+                                <!-- Tarjeta de Calorías Consumidas -->
+                                <div class="col-md-3 col-6 mb-3">
+                                    <div class="metric-box">
+                                        <i class="fas fa-utensils text-custom-success fa-2x mb-2"></i>
+                                        <div class="summary-card-metric text-custom-success">{{ '%.0f'|format(resumen_dia.totales.total_calorias_in) }}</div>
+                                        <div class="text-muted small fw-bold">Calorías Consumidas</div>
+                                    </div>
+                                </div>
+                                <!-- Tarjeta de Calorías Quemadas -->
+                                <div class="col-md-3 col-6 mb-3">
+                                    <div class="metric-box">
+                                        <i class="fas fa-fire-alt text-custom-danger fa-2x mb-2"></i>
+                                        <div class="summary-card-metric text-custom-danger">-{{ '%.0f'|format(resumen_dia.totales.total_quemadas) }}</div>
+                                        <div class="text-muted small fw-bold">Calorías Quemadas</div>
+                                    </div>
+                                </div>
+                                <!-- Tarjeta de Calorías Netas -->
+                                <div class="col-md-3 col-6 mb-3">
+                                    <div class="metric-box">
+                                        <i class="fas fa-balance-scale text-custom-accent fa-2x mb-2"></i>
+                                        <div class="summary-card-metric text-custom-accent">{{ '%.0f'|format(resumen_dia.totales.calorias_netas) }}</div>
+                                        <div class="text-muted small fw-bold">Calorías Netas</div>
+                                    </div>
+                                </div>
+                                <!-- Tarjeta de Meta -->
+                                <div class="col-md-3 col-6 mb-3">
+                                    <div class="metric-box" style="border: 2px dashed var(--color-secondary);">
+                                        <i class="fas fa-bullseye text-custom-secondary fa-2x mb-2"></i>
+                                        <div class="summary-card-metric text-custom-secondary">{{ metas.calorias }}</div>
+                                        <div class="text-muted small fw-bold">Meta Diaria (kcal)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos: Calorías 7 Días y Macros Diarios (Intake vs Goal) -->
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-2">
+                            <h5 class="mb-0 text-custom-primary fw-bold">Tendencia de Calorías (7 días)</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Altura fija para el gráfico en pantallas grandes -->
+                            <div style="height: 300px;">
+                                <canvas id="caloriasChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-2">
+                            <h5 class="mb-0 text-custom-primary fw-bold">Macros del Día</h5>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-center">
+                            <!-- Altura fija para el gráfico en pantallas grandes -->
+                            <div style="height: 300px; width: 100%;">
+                                <canvas id="macrosChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen detallado: Alimentos y Actividades -->
+            <div class="row">
+                <!-- Alimentos -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-2">
+                            <h5 class="mb-0 text-custom-success fw-bold"><i class="fas fa-apple-alt me-2"></i>Alimentos Registrados</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if resumen_dia.alimentos %}
+                                <ul class="list-group list-group-flush">
+                                {% for item in resumen_dia.alimentos %}
+                                    <li class="list-group-item px-0 border-bottom-0 pb-3 mb-2" style="border-radius: 0.5rem; background-color: var(--color-bg-light);">
+                                        <div class="d-flex justify-content-between align-items-center mb-1 px-3 pt-2">
+                                            <strong class="text-custom-primary">{{ item.name }}</strong>
+                                            <span class="text-custom-success fw-bold">{{ '%.0f'|format(item.calories) }} kcal</span>
+                                        </div>
+                                        <div class="text-muted small px-3 pb-2">
+                                            <span class="macro-badge bg-macro-prot me-2">{{ '%.1f'|format(item.proteins) }}g Proteína</span>
+                                            <span class="macro-badge bg-macro-fat me-2">{{ '%.1f'|format(item.fats) }}g Grasa</span>
+                                            <span class="macro-badge bg-macro-carb">{{ '%.1f'|format(item.carbs) }}g Carbo</span>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            {% else %}
+                                <div class="alert alert-info mb-0" role="alert">
+                                    <i class="fas fa-info-circle me-2"></i> Parece que no has registrado ningún alimento hoy.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actividades -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-2">
+                            <h5 class="mb-0 text-custom-danger fw-bold"><i class="fas fa-running me-2"></i>Actividades Registradas</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if resumen_dia.actividades %}
+                                <ul class="list-group list-group-flush">
+                                {% for act in resumen_dia.actividades %}
+                                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center border-bottom-0 pb-3 mb-2" style="border-radius: 0.5rem; background-color: var(--color-bg-light);">
+                                        <div class="px-3">
+                                            <strong class="text-custom-primary">{{ act.activity_name }}</strong> 
+                                            <span class="text-muted small">({{ act.duration_minutes }} min)</span>
+                                        </div>
+                                        <span class="text-custom-danger fw-bold px-3">-{{ act.calories_burned }} kcal</span>
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            {% else %}
+                                <div class="alert alert-secondary mb-0" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i> ¡Hora de moverte! No hay actividades registradas.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-          {% if resumen_dia.actividades %}
-            <ul class="list-group list-group-flush">
-              {% for act in resumen_dia.actividades %}
-              <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-                {{ act.activity_name }} ({{ act.duration_minutes }} min)
-                <span class="text-muted">-{{ act.calories_burned }} kcal</span>
-              </li>
-              {% endfor %}
-            </ul>
-          {% else %}
-            <p class="text-muted mb-0">No hay actividades registradas para este día.</p>
-          {% endif %}
-        </div>
-      </div>
     </div>
-  </div>
 </div>
 
-<!-- Librerías externas para gráficos -->
+<!-- Librerías JS: Font Awesome y Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js" crossorigin="anonymous"></script> 
 
 <script>
-  let caloriasChart, macrosChart;
+    // Datos del backend (usamos variables JS de Jinja)
+    const datosCalorias = JSON.parse('{{ datos_calorias|map(attribute="total_calorias")|list|tojson|safe }}');
+    const etiquetasCalorias = JSON.parse('{{ datos_calorias|map(attribute="dia")|list|tojson|safe }}');
+    
+    // Datos de macros del día seleccionado
+    const macrosDia = {{ resumen_dia.totales|tojson|safe }}; 
+    const metas = {{ metas|tojson|safe }};
 
-  $(function () {
-    const $datepicker = $('#datepicker');
+    function renderCharts() {
+        // Obtener colores del CSS para mantener la coherencia
+        const colorAccent = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim();
+        const colorSuccess = getComputedStyle(document.documentElement).getPropertyValue('--color-success').trim();
+        const colorDanger = getComputedStyle(document.documentElement).getPropertyValue('--color-danger').trim();
+        const colorPrimary = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-dark').trim();
+        const colorGrayLight = getComputedStyle(document.documentElement).getPropertyValue('--color-gray-light').trim();
 
-    $datepicker.datepicker({
-      format: 'yyyy-mm-dd',
-      autoclose: true,
-      todayHighlight: true,
-      language: 'es',
-      endDate: new Date(),
-      clearBtn: true
-    }).on('changeDate', function (e) {
-      window.location.href = `/progreso/${e.format('yyyy-mm-dd')}`;
-    });
 
-    $datepicker.datepicker('update', '{{ fecha_seleccionada }}');
+        // --- 1. Gráfico de Calorías (7 Días) ---
+        const ctxCalorias = document.getElementById('caloriasChart');
+        new Chart(ctxCalorias, {
+            type: 'bar',
+            data: {
+                labels: etiquetasCalorias,
+                datasets: [{
+                    label: 'Calorías Consumidas (kcal)',
+                    data: datosCalorias,
+                    backgroundColor: colorAccent, 
+                    borderColor: colorAccent,
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    hoverBackgroundColor: colorPrimary,
+                    hoverBorderColor: colorPrimary,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 800, // Animación más suave
+                    easing: 'easeOutQuart'
+                },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        titleFont: { weight: 'bold' },
+                    }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        grid: { color: colorGrayLight },
+                        ticks: { color: 'rgba(0, 0, 0, 0.6)' }
+                    },
+                    x: { 
+                        ticks: { maxRotation: 0, minRotation: 0, color: 'rgba(0, 0, 0, 0.6)' },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
 
-    $('#btnVerFecha').on('click', () => {
-      const fecha = $datepicker.val();
-      if (fecha) window.location.href = `/progreso/${fecha}`;
-    });
+        // --- 2. Gráfico de Macros Diarios (Intake vs. Goal) ---
+        
+        const totalProteinas = macrosDia.total_proteinas || 0;
+        const totalGrasas = macrosDia.total_grasas || 0;
+        const totalCarbohidratos = macrosDia.total_carbohidratos || 0;
 
-    $datepicker.on('keypress', function (e) {
-      if (e.which === 13) {
-        const fecha = $(this).val();
-        if (fecha) window.location.href = `/progreso/${fecha}`;
-        return false;
-      }
-    });
+        // Calculamos el porcentaje de la meta alcanzada
+        const proteinasPct = Math.min(100, (totalProteinas / metas.proteinas) * 100);
+        const grasasPct = Math.min(100, (totalGrasas / metas.grasas) * 100);
+        const carbohidratosPct = Math.min(100, (totalCarbohidratos / metas.carbohidratos) * 100);
 
-    renderCharts();
-  });
+        const ctxMacros = document.getElementById('macrosChart');
+        new Chart(ctxMacros.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    `Proteínas: ${totalProteinas.toFixed(0)}g / ${metas.proteinas}g`,
+                    `Grasas: ${totalGrasas.toFixed(0)}g / ${metas.grasas}g`,
+                    `Carbohidratos: ${totalCarbohidratos.toFixed(0)}g / ${metas.carbohidratos}g`
+                ],
+                datasets: [
+                    // Proteínas (Verde)
+                    {
+                        data: [proteinasPct, 100 - proteinasPct],
+                        backgroundColor: [colorSuccess, colorGrayLight],
+                        cutout: '80%', // Borde exterior
+                        rotation: -90,
+                        circumference: 360,
+                        hoverOffset: 4,
+                    },
+                    // Grasas (Naranja/Coral)
+                    {
+                        data: [grasasPct, 100 - grasasPct],
+                        backgroundColor: [colorDanger, colorGrayLight],
+                        cutout: '70%', // Borde medio
+                        rotation: -90,
+                        circumference: 360,
+                        hoverOffset: 4,
+                    },
+                    // Carbohidratos (Azul)
+                    {
+                        data: [carbohidratosPct, 100 - carbohidratosPct],
+                        backgroundColor: [colorPrimary, colorGrayLight],
+                        cutout: '60%', // Borde interior
+                        rotation: -90,
+                        circumference: 360,
+                        hoverOffset: 4,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: 10
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                // Solo mostramos el valor de intake (el primero del par)
+                                if (context.dataIndex === 0) {
+                                    return context.label;
+                                }
+                                return null;
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            // Filtramos solo las etiquetas que representan el valor de intake (el primer valor de cada par de datos)
+                            filter: (legendItem, chartData) => {
+                                // Asignamos la etiqueta solo al primer dataset (proteínas) y el primer slice
+                                if (legendItem.datasetIndex === 0 && legendItem.index === 0) return true;
+                                // Para el resto de datasets (grasas, carbs), solo mostramos el primer slice
+                                if (legendItem.datasetIndex > 0 && legendItem.index === 0) return true;
+                                return false;
+                            },
+                            padding: 15,
+                            font: {
+                                size: 13,
+                                weight: '500'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 
-  function renderCharts() {
-    if (caloriasChart) caloriasChart.destroy();
-    if (macrosChart) macrosChart.destroy();
+    document.addEventListener('DOMContentLoaded', renderCharts);
 
-    // Calorías - gráfico de barras
-    const ctxCalorias = document.getElementById('caloriasChart').getContext('2d');
-    caloriasChart = new Chart(ctxCalorias, {
-      type: 'bar',
-      data: {
-        labels: {{ datos_calorias|map(attribute='dia')|list|tojson }},
-        datasets: [{
-          label: 'Calorías',
-          data: {{ datos_calorias|map(attribute='total_calorias')|list|tojson }},
-          backgroundColor: '#4361ee'
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-
-    // Macronutrientes - gráfico de dona
-    const ctxMacros = document.getElementById('macrosChart').getContext('2d');
-    macrosChart = new Chart(ctxMacros, {
-      type: 'doughnut',
-      data: {
-        labels: ['Proteínas', 'Grasas', 'Carbohidratos'],
-        datasets: [{
-          data: [
-            {{ macros.proteinas|default(0) }},
-            {{ macros.grasas|default(0) }},
-            {{ macros.carbohidratos|default(0) }}
-          ],
-          backgroundColor: ['#4bb543', '#f72585', '#4895ef']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'bottom'
-          }
-        }
-      }
-    });
-  }
 </script>
 {% endblock %}

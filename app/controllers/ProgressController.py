@@ -1,8 +1,13 @@
 from flask import render_template
 from flask_login import login_required, current_user
 from app import app
-from app.conexion import get_db_cursor
-from app.models.ProgressModel import obtener_dias_registrados, obtener_resumen_dia
+from app.models.ProgressModel import (
+    obtener_dias_registrados, 
+    obtener_resumen_dia, 
+    obtener_datos_calorias_7dias, 
+    obtener_macros_totales_7dias,
+    obtener_metas_nutricionales # Nueva función
+)
 import datetime
 
 
@@ -10,11 +15,10 @@ import datetime
 @app.route('/progreso/<fecha>')
 @login_required
 def progreso(fecha=None):
-    # Usar día actual si no se especifica fecha
+    # --- 1. Gestión de Fecha ---
     if not fecha:
         fecha = datetime.date.today().isoformat()
     
-    # Convertir fecha string a objeto datetime.date
     try:
         fecha_obj = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
     except ValueError:
@@ -22,36 +26,31 @@ def progreso(fecha=None):
         fecha_obj = datetime.date.today()
         fecha = fecha_obj.isoformat()
 
-    with get_db_cursor() as cur:
-        # Calorías consumidos 7 días relativos a la fecha seleccionada
-        cur.execute("""
-            SELECT date(date) AS dia, SUM(calories) AS total_calorias
-            FROM food_entries
-            WHERE user_id = ? AND date BETWEEN date(?, '-6 days') AND ?
-            GROUP BY dia
-            ORDER BY dia
-        """, (current_user.id, fecha, fecha))
-        datos_calorias = [dict(row) for row in (cur.fetchall() or [])]
+    user_id = current_user.id
+    
+    # --- 2. Llamadas al Modelo (Acceso a Datos Centralizado) ---
+    
+    # Datos para el gráfico de 7 días
+    datos_calorias_7dias = obtener_datos_calorias_7dias(user_id, fecha)
+    
+    # Datos generales (macros totales de 7 días - menos útil, pero se mantiene si es necesario)
+    macros_totales_7dias = obtener_macros_totales_7dias(user_id, fecha)
+    
+    # Resumen detallado del día seleccionado
+    resumen_dia = obtener_resumen_dia(user_id, fecha)
+    
+    # Días disponibles para la navegación lateral (más intuitivo)
+    dias_disponibles = obtener_dias_registrados(user_id)
 
-        # Macronutrientes sumados para los 7 días relativos a la fecha seleccionada
-        cur.execute("""
-            SELECT 
-                COALESCE(SUM(proteins), 0) AS proteinas, 
-                COALESCE(SUM(fats), 0) AS grasas, 
-                COALESCE(SUM(carbs), 0) AS carbohidratos
-            FROM food_entries
-            WHERE user_id = ? AND date BETWEEN date(?, '-6 days') AND ?
-        """, (current_user.id, fecha, fecha))
-        row = cur.fetchone()
-        macros = dict(row) if row else {'proteinas': 0, 'grasas': 0, 'carbohidratos': 0}
+    # Metas (Necesario para el nuevo gráfico de donut Intake vs Goal)
+    metas = obtener_metas_nutricionales(user_id) # Usamos una función simulada en el modelo
 
-    dias_disponibles = obtener_dias_registrados(current_user.id)
-    resumen_dia = obtener_resumen_dia(current_user.id, fecha)
-
+    # --- 3. Renderización de la Vista ---
     return render_template('Progress/progreso.html',
-                           datos_calorias=datos_calorias,
-                           macros=macros,
-                           dias_disponibles=dias_disponibles,
-                           resumen_dia=resumen_dia,
-                           fecha_seleccionada=fecha,
-                           fecha_obj=fecha_obj)
+                            datos_calorias=datos_calorias_7dias,
+                            macros_totales=macros_totales_7dias,
+                            dias_disponibles=dias_disponibles,
+                            resumen_dia=resumen_dia,
+                            metas=metas,
+                            fecha_seleccionada=fecha,
+                            fecha_obj=fecha_obj)
