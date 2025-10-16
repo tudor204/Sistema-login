@@ -1,0 +1,89 @@
+/*
+======================================================
+ESTILOS PERSONALIZADOS: PALETA Y DISEÑO PROFESIONAL
+======================================================
+*/
+
+/* 1. Definición de Variables de Color (Paleta "Aura Health") */
+:root {
+    --color-primary-dark: #1e88e5; /* Azul Fuerte (para texto principal) */
+    --color-accent: #00bcd4;     /* Cyan Vibrante (para acciones y progreso) */
+    --color-success: #43a047;    /* Verde Saludable (para consumo) */
+    --color-danger: #f4511e;     /* Naranja Coral (para calorías quemadas) */
+    --color-secondary: #7e57c2;  /* Violeta Suave (para balance/meta) */
+    --color-bg-light: #fdfdfd;   /* Fondo muy claro */
+    --color-gray-light: #eceff1; /* Gris claro para fondos de tarjetas */
+    --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* 2. Estilos Globales y de Tarjeta (Cards) */
+.card {
+    border: none !important;
+    border-radius: 1rem !important;
+    box-shadow: var(--shadow-soft) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: white; /* Limpieza */
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover) !important;
+}
+
+/* 3. Estilo para la Navegación Lateral (Días) */
+.day-nav-link {
+    border-radius: 0.75rem; /* Más redondeado */
+    transition: background-color 0.2s, color 0.2s, transform 0.1s;
+    padding: 0.75rem 1rem;
+    display: block;
+    color: var(--color-primary-dark);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+.day-nav-link:hover {
+    background-color: var(--color-gray-light);
+    transform: translateX(3px); /* Pequeño desplazamiento en hover */
+}
+.day-nav-link.active {
+    background-color: var(--color-accent) !important; 
+    color: white !important;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0, 188, 212, 0.4); /* Sombra acentuada */
+}
+
+/* 4. Estilos de las Métricas (Tarjetas de Resumen Diario) */
+.metric-box {
+    background-color: var(--color-bg-light); 
+    border: 1px solid var(--color-gray-light);
+    border-radius: 0.75rem;
+    padding: 1.5rem !important; /* Más espacio */
+    transition: all 0.3s ease;
+    cursor: default;
+}
+.metric-box:hover {
+    transform: scale(1.02);
+    background-color: white;
+}
+.summary-card-metric {
+    font-size: 2rem; /* Más grande y legible */
+    font-weight: 800;
+    line-height: 1.1;
+}
+.text-custom-primary { color: var(--color-primary-dark) !important; }
+.text-custom-accent { color: var(--color-accent) !important; }
+.text-custom-success { color: var(--color-success) !important; }
+.text-custom-danger { color: var(--color-danger) !important; }
+.text-custom-secondary { color: var(--color-secondary) !important; }
+
+/* 5. Barras de Progreso Personalizadas (para el detalle de alimentos/actividades) */
+.macro-badge {
+    font-size: 0.75rem;
+    padding: 0.3em 0.7em;
+    border-radius: 1rem;
+    font-weight: 600;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.bg-macro-prot { background-color: #bbdefb; color: var(--color-primary-dark); }
+.bg-macro-fat { background-color: #ffccbc; color: var(--color-danger); }
+.bg-macro-carb { background-color: #fff9c4; color: #ffab00; }

@@ -1,4 +1,3 @@
-# models/settings_model.py
 from app.conexion import get_db_cursor
 import datetime
 

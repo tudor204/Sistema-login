@@ -70,4 +70,4 @@ def settings():
             return redirect(url_for('settings'))
 
     # Si la petición es GET, simplemente mostramos el formulario
-    return render_template('Dashboard/settings_first_time.html', goals=goals)
+    return render_template('Settings/settings_first_time.html', goals=goals)
